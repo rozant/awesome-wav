@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "riff.hpp"
 #include "wav.hpp"
 using namespace std;
