@@ -1,9 +1,9 @@
 /****************************************************************/
 /* function: setBit												*/
 /* purpose: sets the bit at a specific position					*/
-/* args: BYTE&, const int&, const bool&							*/
+/* args: BYTE&, const char, const bool&							*/
 /****************************************************************/
-void setBit(BYTE &b, const int &index, const bool &torf) {
+void setBit(BYTE &b, const char index, const bool &torf) {
 	BYTE bitMask = 1;
 	if (torf) { // Set bit to 1
 		bitMask <<= index;
@@ -17,12 +17,12 @@ void setBit(BYTE &b, const int &index, const bool &torf) {
 /****************************************************************/
 /* function: getBit												*/
 /* purpose: gets the bit at a specific position					*/
-/* args: const BYTE&, const int&								*/
+/* args: const BYTE&, const char								*/
 /* returns: bool												*/
 /*		1 = bit is a 1											*/
 /*		0 = bit is a 0											*/
 /****************************************************************/
-bool getBit(const BYTE &b, const int &index) {
+bool getBit(const BYTE &b, const char index) {
 	BYTE bitMask = 1;
 	bitMask <<= index;
 	if (bitMask & b)

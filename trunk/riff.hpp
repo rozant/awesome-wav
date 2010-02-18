@@ -8,11 +8,6 @@
 #ifndef __riff_h__
 #define __riff_h__
 #include <stdlib.h>
-/* tempory define for NULL so I don't have to include stdlib */
-#ifndef NULL
-#define NULL 0
-#define DefedNULL
-#endif
 /* defines useful for RIFF formatting */
 #define FORMAT_PCM 1
 
@@ -74,11 +69,6 @@ struct _DATA {
 	}
 };
 
-/* undefine my NULL definition to prevent conflicts */
-#ifdef DefedNULL
-#undef NULL
-#undef DefedNULL
-#endif
 #endif
 
 /****************************************************************/
