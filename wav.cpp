@@ -130,12 +130,12 @@ bool wav::loadRIFF(FILE* inFile) {
 	{
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Loaded RIFF header" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to load RIFF header: Could not get bytes" << endl;
-	#endif _DEBUGOUTPUT
+	#endif
 	return false;
 }
 
@@ -164,7 +164,7 @@ bool wav::loadFMT(FILE* inFile) {
 				if ((fmt.ExtraFormat = (BYTE*)malloc(fmt.ExtraFormatBytes)) == NULL) {
 					#ifdef _DEBUGOUTPUT
 					cout << "E: Failed to load FMT header: Could not get memory for extra bytes" << endl;
-					#endif _DEBUGOUTPUT
+					#endif
 					return false;
 				}
 				fread(fmt.ExtraFormat, (fmt.ExtraFormatBytes), 1, inFile);
@@ -173,12 +173,12 @@ bool wav::loadFMT(FILE* inFile) {
 
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Loaded FMT header" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to load FMT header: Could not get bytes" << endl;
-	#endif _DEBUGOUTPUT
+	#endif
 	return false;
 }
 
@@ -205,21 +205,21 @@ bool wav::loadDATA(FILE* inFile) {
 			if ((data.Data = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
 				#ifdef _DEBUGOUTPUT
 				cout << "E: Failed to load DATA header: Could not get memory for data" << endl;
-				#endif _DEBUGOUTPUT
+				#endif
 				return false;
 			}
 			data.SubchunkSize = size;
 
 			#ifdef _DEBUGOUTPUT
 			cout << "S: Loaded DATA header" << endl;
-			#endif _DEBUGOUTPUT
+			#endif
 			return true;
 		}
 		/* SHOULD JUST SKIP JUNK */
 		if ((junkData = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
 			#ifdef _DEBUGOUTPUT
 			cout << "E: Failed to load DATA header: Could not get memory for unneeded data" << endl;
-			#endif _DEBUGOUTPUT
+			#endif
 			return false;
 		}
 		fread(junkData, sizeof(BYTE), size, inFile);
@@ -229,7 +229,7 @@ bool wav::loadDATA(FILE* inFile) {
 
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to load DATA header: Could not locate" << endl;
-	#endif _DEBUGOUTPUT
+	#endif
 	return false;
 }
 
@@ -258,7 +258,7 @@ bool wav::saveRIFF(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Failed to save RIFF header: FILE not open" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return false;
 	}
 
@@ -268,12 +268,12 @@ bool wav::saveRIFF(FILE* outFile) const {
 	{
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Saved RIFF header" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to save RIFF header: Could not save bytes" << endl;
-	#endif _DEBUGOUTPUT
+	#endif
 	return false;
 }
 
@@ -289,7 +289,7 @@ bool wav::saveFMT(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Failed to save FMT header: FILE not open" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return false;
 	}
 
@@ -311,12 +311,12 @@ bool wav::saveFMT(FILE* outFile) const {
 		}
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Saved FMT header" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to save FMT header: Could not save bytes" << endl;
-	#endif _DEBUGOUTPUT
+	#endif
 	return false;
 }
 
@@ -332,7 +332,7 @@ bool wav::saveDATA(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Failed to save DATA header: FILE not open" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return false;
 	}
 
@@ -342,12 +342,12 @@ bool wav::saveDATA(FILE* outFile) const {
 	{
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Saved DATA header" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to save DATA header: Could not save bytes" << endl;
-	#endif _DEBUGOUTPUT
+	#endif
 	return false;
 }
 
@@ -363,7 +363,7 @@ bool wav::save(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Failed to save WAV file: FILE not open" << endl;
-		#endif _DEBUGOUTPUT
+		#endif
 		return false;
 	}
 
