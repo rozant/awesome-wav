@@ -46,7 +46,7 @@ class wav {
 		bool validFMT(void) const;
 		bool validDATA(void) const;
 		/* data operations */
-		bool encode(/*BYTE *, BYTE **/ FILE*, BYTE, DWORD);
+		bool encode(/*BYTE *, BYTE **/ FILE*, BYTE, DWORD, BYTE *, DWORD);
 	public:
 		/* constructors */
 		wav(void);
