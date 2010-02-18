@@ -9,39 +9,10 @@
 #include <string.h>
 #include "riff.hpp"
 #include "wav.hpp"
+#include "byteOperations.hpp"
+#include "fileOperations.hpp"
+
 using namespace std;
-
-/****************************************************************/
-/* function: setBit												*/
-/* purpose: sets the bit at a specific position					*/
-/* args: BYTE&, const int&, const bool&							*/
-/****************************************************************/
-void setBit(BYTE &b, const int &index, const bool &torf) {
-	BYTE bitMask = 1;
-	if (torf) { // Set bit to 1
-		bitMask <<= index;
-		b |= bitMask; 
-	} else { // Set bit to 0
-		bitMask <<= index;
-		b &= ~bitMask;
-	}
-}
-
-/****************************************************************/
-/* function: getBit												*/
-/* purpose: gets the bit at a specific position					*/
-/* args: const BYTE&, const int&								*/
-/* returns: bool												*/
-/*		1 = bit is a 1											*/
-/*		0 = bit is a 0											*/
-/****************************************************************/
-bool getBit(const BYTE &b, const int &index) {
-	BYTE bitMask = 1;
-	bitMask <<= index;
-	if (bitMask & b)
-		return true;
-	return false;
-}
 
 /****************************************************************/
 /* function: wav::wav											*/
@@ -55,56 +26,93 @@ wav::wav(void) {
 }
 
 /****************************************************************/
-/* function: wav::wav											*/
-/* purpose: constructor for the wav class						*/
-/* args: const char[]											*/
-/****************************************************************/
-wav::wav(const char filename[]) { 
-	memset(&riff, 0, sizeof(_RIFF));
-	memset(&fmt, 0, sizeof(_FMT));
-	memset(&data, 0, sizeof(_DATA));
-	load(filename);
-}
-
-/****************************************************************/
-/* function: wav::close											*/
-/* purpose: close an open wav file.								*/
-/* args: FILE *													*/
+/* function: wav::validRIFF										*/
+/* purpose: checks if the RIFF header is valid					*/
+/* args: void													*/
 /* returns: bool												*/
-/*		1 = closed correctly									*/
-/*		0 = closed incorrectly, or already closed				*/
+/*		1 = valid header										*/
+/*		0 = invalid header										*/
 /****************************************************************/
-bool wav::close(FILE* aFile) const {
-	if( aFile) {
-		if ( fclose( aFile ) ) {
-			#ifdef _DEBUGOUTPUT
-			cout << "E: Failed to close file" << endl;
-			#endif
-			return false;
-		} else {
-			#ifdef _DEBUGOUTPUT
-			cout << "S: Closed file" << endl;
-			#endif
-			return true;
-		}
+bool wav::validRIFF(void) const {
+	if (bytencmp(riff.Format, (BYTE*)"WAVE", 4) != 0) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid RIFF header: Format != 'WAVE'" << endl;
+		#endif
+		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: File already closed" << endl;
+	cout << "S: Valid RIFF header" << endl;
 	#endif
-	return false;
+	return true;
 }
 
 /****************************************************************/
-/* function: bytencmp											*/
-/* purpose: compares two bytes									*/
-/* args: const BYTE *, const BYTE *, size_t						*/
-/* returns: int													*/
+/* function: wav::validFMT										*/
+/* purpose: checks if the FMT header is valid					*/
+/* args: void													*/
+/* returns: bool												*/
+/*		1 = valid header										*/
+/*		0 = invalid header										*/
 /****************************************************************/
-int bytencmp(const BYTE* b1, const BYTE* b2, size_t n) {
-	while(n--)
-		if(*b1++!=*b2++)
-			return *(BYTE*)(b1 - 1) - *(BYTE*)(b2 - 1);
-	return 0;
+bool wav::validFMT(void) const {
+	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid FMT header: SubchunkID != 'fmt '" << endl;
+		#endif
+		return false;
+	} else if (fmt.AudioFormat != 1) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid FMT header: AudioFormat != '1' (PCM)" << endl;
+		#endif
+		return false;
+	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid FMT header: Bits per sample = " << fmt.BitsPerSample << endl;
+		cout << "\tExpected Bits per sample to be '8', '16', or '24'" << endl;
+		#endif
+		return false;
+	} else if (fmt.NumChannels != 2) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid FMT header: Num channels != '2'" << endl;
+		#endif
+		return false;
+	}
+
+	#ifdef _DEBUGOUTPUT
+	cout << "S: Valid FMT header" << endl;
+	cout << "\t S: Bits per sample: " << fmt.BitsPerSample << endl;
+	cout << "\t S: Block align: " << fmt.BlockAlign << endl;
+	cout << "\t S: Byte rate: " << fmt.ByteRate << endl;
+	cout << "\t S: Num channels: " << fmt.NumChannels << endl;
+	cout << "\t S: Sample rate: " << fmt.SampleRate << endl;
+	#endif
+	return true;
+}
+
+/****************************************************************/
+/* function: wav::validDATA										*/
+/* purpose: checks if the DATA header is valid					*/
+/* args: void													*/
+/* returns: bool												*/
+/*		1 = valid header										*/
+/*		0 = invalid header										*/
+/****************************************************************/
+bool wav::validDATA(void) const {
+	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid DATA header: SubchunkID != 'data'" << endl;
+		#endif
+		return false;
+	} else if (data.SubchunkSize == 0) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid DATA header: No DATA" << endl;
+		#endif
+		return false;
+	}
+	#ifdef _DEBUGOUTPUT
+	cout << "S: Valid DATA header" << endl;
+	#endif
+	return true;
 }
 
 /****************************************************************/
@@ -185,7 +193,7 @@ bool wav::loadFMT(FILE* inFile) {
 bool wav::loadDATA(FILE* inFile) {
 	DWORD size, offset;
 	BYTE id[4];
-	BYTE *lpTemp;
+	BYTE *junkData;
 
 	do {
 		fread(id, sizeof(BYTE), 4, inFile);
@@ -200,7 +208,6 @@ bool wav::loadDATA(FILE* inFile) {
 				#endif _DEBUGOUTPUT
 				return false;
 			}
-			fread(data.Data, sizeof(BYTE), size, inFile);
 			data.SubchunkSize = size;
 
 			#ifdef _DEBUGOUTPUT
@@ -208,14 +215,15 @@ bool wav::loadDATA(FILE* inFile) {
 			#endif _DEBUGOUTPUT
 			return true;
 		}
-		if ((lpTemp = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
+		/* SHOULD JUST SKIP JUNK */
+		if ((junkData = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
 			#ifdef _DEBUGOUTPUT
 			cout << "E: Failed to load DATA header: Could not get memory for unneeded data" << endl;
 			#endif _DEBUGOUTPUT
 			return false;
 		}
-		fread(lpTemp, sizeof(BYTE), size, inFile);
-		free(lpTemp);
+		fread(junkData, sizeof(BYTE), size, inFile);
+		free(junkData);
 		offset = ftell(inFile);
 	} while (offset < riff.ChunkSize);
 
@@ -228,19 +236,14 @@ bool wav::loadDATA(FILE* inFile) {
 /****************************************************************/
 /* function: wav::load											*/
 /* purpose: loads a wav file into memory						*/
-/* args: FILE *													*/
+/* args: const char[]											*/
 /* returns: bool												*/
 /*		1 = loaded correctly									*/
 /*		0 = loaded incorrectly or did not load					*/
 /****************************************************************/
-bool wav::load(FILE* inFile) {
-	if (inFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to load WAV file: FILE not open" << endl;
-		#endif _DEBUGOUTPUT
-		return false;
-	}
-	return (loadRIFF(inFile) && loadFMT(inFile) && loadDATA(inFile));
+bool wav::load(FILE *inFile) {
+	/* Load and validate wave header (RIFF Chunk), format chunk, and DATA */
+	return (loadRIFF(inFile) && validRIFF() && loadFMT(inFile) && validFMT() && loadDATA(inFile) && validDATA());
 }
 
 /****************************************************************/
@@ -368,271 +371,70 @@ bool wav::save(FILE* outFile) const {
 }
 
 /****************************************************************/
-/* function: wav::validRIFF										*/
-/* purpose: checks if the RIFF header is valid					*/
-/* args: void													*/
-/* returns: bool												*/
-/*		1 = valid header										*/
-/*		0 = invalid header										*/
-/****************************************************************/
-bool wav::validRIFF(void) const {
-	if (bytencmp(riff.Format, (BYTE*)"WAVE", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid RIFF header: Format != 'WAVE'" << endl;
-		#endif
-		return false;
-	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Valid RIFF header" << endl;
-	#endif
-	return true;
-}
-
-/****************************************************************/
-/* function: wav::validFMT										*/
-/* purpose: checks if the FMT header is valid					*/
-/* args: void													*/
-/* returns: bool												*/
-/*		1 = valid header										*/
-/*		0 = invalid header										*/
-/****************************************************************/
-bool wav::validFMT(void) const {
-	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: SubchunkID != 'fmt '" << endl;
-		#endif
-		return false;
-	} else if (fmt.AudioFormat != 1) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: AudioFormat != '1' (PCM)" << endl;
-		#endif
-		return false;
-	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: Bits per sample = " << fmt.BitsPerSample << endl;
-		cout << "\tExpected Bits per sample to be '8', '16', or '24'" << endl;
-		#endif
-		return false;
-	} else if (fmt.NumChannels != 2) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: Num channels != '2'" << endl;
-		#endif
-		return false;
-	}
-
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Valid FMT header" << endl;
-	cout << "\t S: Bits per sample: " << fmt.BitsPerSample << endl;
-	cout << "\t S: Block align: " << fmt.BlockAlign << endl;
-	cout << "\t S: Byte rate: " << fmt.ByteRate << endl;
-	cout << "\t S: Num channels: " << fmt.NumChannels << endl;
-	cout << "\t S: Sample rate: " << fmt.SampleRate << endl;
-	#endif
-	return true;
-}
-
-/****************************************************************/
-/* function: wav::validDATA										*/
-/* purpose: checks if the DATA header is valid					*/
-/* args: void													*/
-/* returns: bool												*/
-/*		1 = valid header										*/
-/*		0 = invalid header										*/
-/****************************************************************/
-bool wav::validDATA(void) const {
-	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid DATA header: SubchunkID != 'data'" << endl;
-		#endif
-		return false;
-	} else if (data.Data == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid DATA header: No DATA" << endl;
-		#endif
-		return false;
-	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Valid DATA header" << endl;
-	#endif
-	return true;
-}
-
-/****************************************************************/
-/* function: wav::valid											*/
-/* purpose: checks if the WAV file is valid						*/
-/* args: void													*/
-/* returns: bool												*/
-/*		1 = valid file											*/
-/*		0 = invalid file										*/
-/****************************************************************/
-bool wav::valid(void) const {
-	return (validRIFF() && validFMT() && validDATA());
-}
-
-/****************************************************************/
-/* function: wav::load											*/
-/* purpose: loads a wav file into memory						*/
-/* args: const char[]											*/
-/* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not load					*/
-/****************************************************************/
-bool wav::load(const char filename[]) {
-	FILE* inFile = NULL;
-
-	/* Open file */
-	inFile = fopen(filename, "rb");
-	if (inFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to open WAV input file (" << filename << ")" << endl;
-		#endif _DEBUGOUTPUT
-		return false;
-	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Opened WAV input file (" << filename << ")" << endl;
-	#endif
-
-	/* Load and validate wave header (RIFF Chunk), format chunk, and DATA */
-	if (!loadRIFF(inFile) || !validRIFF() || !loadFMT(inFile) || !validFMT() || !loadDATA(inFile) || !validDATA()) {
-		close(inFile);
-		return false;
-	}
-
-	close(inFile);
-	return true;
-}
-
-/****************************************************************/
-/* function: wav::save											*/
-/* purpose: save the current wav file in ram to a file on disk 	*/
-/* args: const char[]											*/
-/* returns: bool												*/
-/*		1 = file saved correctly								*/
-/*		0 = file not saved, or saved incorrectly				*/
-/****************************************************************/
-bool wav::save(const char filename[]) const {
-	FILE* outFile = NULL;
-
-	outFile = fopen(filename, "wb");
-	if (outFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to open WAV output file (" << filename << ")" << endl;
-		#endif
-		return false;
-	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Opened WAV output file (" << filename << ")" << endl;
-	#endif
-
-	/* Validate and save wave header (RIFF Chunk), format chunk, and DATA */
-	if (!valid() || !saveRIFF(outFile) || !saveFMT(outFile) || !saveDATA(outFile)) {
-		close(outFile);
-		return false;
-	}
-
-	close(outFile);
-	return true;
-}
-
-/****************************************************************/
-/* function: wav::doStuff										*/
-/* purpose: mess around with the wav file					 	*/
-/* args: void													*/
-/* returns: bool												*/
-/* notes: DEBUG ONLY											*/
-/****************************************************************/
-#ifdef _DEBUG
-bool wav::doStuff(void) {
-	DWORD i = 0;
-	BYTE* stuff = data.Data;
-
-	// Is there data?
-	if (data.Data == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: No data" << endl;
-		#endif
-		return false;
-	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Has data" << endl;
-	#endif
-
-	BYTE nBuffer = 0x00;
-	nBuffer = 0x01;
-	nBuffer <<= 7;
-
-	//Lose left channel
-	while (i < data.SubchunkSize) {
-		*stuff = (((*stuff) >> 8) << 8);
-		stuff++;
-		*stuff = (((*stuff) >> 8) << 8);
-		stuff += 3; i+=4;
-	}
-
-	while (i < data.SubchunkSize) {
-		*stuff = (((*stuff) >> 8) << 8);
-		stuff++; i++;
-		*stuff = (((*stuff) >> 3) << 3);
-		stuff += 1; i+=1;
-	}
-
-	return true;
-}
-#endif
-
-/****************************************************************/
 /* function: encode												*/
 /* purpose: encode data into the audio file that is in ram	 	*/
-/* args: const char[]											*/
+/* args: const char[], const char[], const char[]				*/
 /* returns: DWORD												*/
 /****************************************************************/
-DWORD wav::encode(const char filename[]) {
-	DWORD maxSize = 0, bitsInFile = 0, bytesPerSample = (fmt.BitsPerSample/8);
-	BYTE bitsUsed = 0, tempByte = 0;
-	struct stat dataStat;
-	FILE* dataFile;
+DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
+	struct stat inputDATAStat;
+	DWORD maxSize = 0,  bitsInFile = 0, bytesPerSample = 0;
+	BYTE bitsUsed = 0;
 
-	dataFile = fopen(filename, "rb");
-	if (dataFile == NULL) {
+	FILE* fInputWAV = open(inputWAV, "rb");
+	if (fInputWAV == NULL) {
+		return false;
+	}
+
+	FILE* fInputDATA = open(inputDATA, "rb");
+	if (fInputDATA == NULL) {
+		close(fInputWAV);
+		return false;
+	}
+
+	FILE* fOutputDATA = open(outputWAV, "wb");
+	if (fOutputDATA == NULL) {
+		close(fInputWAV); close(fInputDATA);
+		return false;
+	}
+
+	/* Load and validate wave header (RIFF Chunk), and format chunk */
+	if (!load(fInputWAV)) {
+		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
+		return false;
+	}
+
+	/* Get size of inputDATA */
+	if (stat(inputDATA, &inputDATAStat) != 0) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to open data file for encoding (" << filename << ")" << endl;
+		cout << "E: Failed to determine input data file size" << endl;
 		#endif
+		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Opened data file for encoding (" << filename << ")" << endl;
-	#endif
-
-	/* Get size of file being encoded */
-	if (stat(filename, &dataStat) != 0) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to determine data file size" << endl;
-		#endif
-		close(dataFile);
-		return false;
-	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Determined data file size (" << setprecision(3) << (((double)dataStat.st_size) / 1048576.0) << " MB)" << endl;
+	cout << "S: Determined input data file size (" << setprecision(3) << (((double)inputDATAStat.st_size) / 1048576.0) << " MB)" << endl;
 	#endif
 
 	/* Can the file fit? */
+	bytesPerSample = (fmt.BitsPerSample/8);
 	maxSize = (data.SubchunkSize / bytesPerSample) - 1; // Only doing the lower part of the sample
 	if(fmt.BitsPerSample == 8) { maxSize >>= 2; } /* stupid for the 8-bit files */
 
-	if ((DWORD)dataStat.st_size > maxSize) {
+	if ((DWORD)inputDATAStat.st_size > maxSize) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Data file is too large (Want to store " << (((double)dataStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
+		cout << "E: Data file is too large (Want to store " << (((double)inputDATAStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
 		#endif
-		close(dataFile);
+		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data fits (Storing " << (((double)dataStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
+	cout << "S: Data fits (Storing " << (((double)inputDATAStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
 	#endif
 
 	/* determine how many bits are to be eaten per sample */
-	bitsInFile = dataStat.st_size * 8;
-	if(fmt.BitsPerSample == 8) { maxSize <<= 1; } /* stupid for the 8-bit files */
+	bitsInFile = inputDATAStat.st_size * 8;
+	if (fmt.BitsPerSample == 8) { maxSize <<= 1; } /* stupid for the 8-bit files */
 
 	if(maxSize >= bitsInFile) {
 		bitsUsed = 0; // 1 bits
@@ -642,13 +444,38 @@ DWORD wav::encode(const char filename[]) {
 		bitsUsed = 2; // 4 bits
 	} else if ((maxSize * 8) >= bitsInFile && fmt.BitsPerSample != 8) {
 		bitsUsed = 3; // 8 bits
-	}else {
-		close(dataFile);
+	} else {
+		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		#ifdef _DEBUGOUTPUT
 		cout << "E: The world is in trouble... this should never happen." << endl;
 		#endif
 		return false;
 	}
+
+	/* BUFFING STUFF HERE */
+	fread(data.Data, sizeof(BYTE), data.SubchunkSize, fInputWAV);
+
+	if (!encode(fInputDATA, bitsUsed, bytesPerSample)) {	
+		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
+		return false;
+	}
+
+	#ifdef _DEBUGOUTPUT
+	cout << "S: Number of bytes stored: " << inputDATAStat.st_size << endl;
+	#endif
+
+	if (!save(fOutputDATA)) {	
+		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
+		return false;
+	}
+	/* BUFFING STUFF HERE */
+
+	close(fInputWAV); close(fInputDATA); close(fOutputDATA);
+	return inputDATAStat.st_size;
+}
+
+bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample/*BYTE *inputWavBuffer, BYTE *inputDataBuffer*/) {
+	BYTE tempByte = 0;
 
 	/* eat 2 bits initially to store how many bits are eaten */ 
 	BYTE* datum = data.Data;
@@ -661,14 +488,14 @@ DWORD wav::encode(const char filename[]) {
 
 	/* overwrite the bits in the samples */
 	if (bitsUsed == 0) { // 1 bit
-		while (fread(&tempByte, sizeof(BYTE), 1, dataFile)) {			
+		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {			
 			for (int i = 7; i >= 0; i--) {
 				setBit(*datum, 0, getBit(tempByte,i));
 				datum += bytesPerSample;
 			}		
 		}
 	} else if (bitsUsed == 1) { // 4 bits
-		while (fread(&tempByte, sizeof(BYTE), 1, dataFile)) {			
+		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {			
 			for (int i = 3; i >= 0; i--) {
 				setBit(*datum, 1, getBit(tempByte, i*2 + 1));
 				setBit(*datum, 0, getBit(tempByte, i*2));
@@ -676,7 +503,7 @@ DWORD wav::encode(const char filename[]) {
 			}		
 		}
 	}  else if (bitsUsed == 2) { // 4 bits
-		while (fread(&tempByte, sizeof(BYTE), 1, dataFile)) {			
+		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {			
 			for (int i = 1; i >= 0; i--) {
 				setBit(*datum, 3, getBit(tempByte, i*4 + 3));
 				setBit(*datum, 2, getBit(tempByte, i*4 + 2));
@@ -686,21 +513,37 @@ DWORD wav::encode(const char filename[]) {
 			}		
 		}
 	} else if (bitsUsed == 3) { // 8 bits
-		while (fread(&tempByte, sizeof(BYTE), 1, dataFile)) {
+		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {
 			*datum = tempByte;
 			datum += bytesPerSample;
 		}
 	} else {
-		close(dataFile);
 		return false;
 	}
 
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Number of bytes stored: " << dataStat.st_size << endl;
-	#endif
+	return true;
+}
 
-	close(dataFile);
-	return dataStat.st_size;
+
+/****************************************************************/
+/* function: decode												*/
+/* purpose: decode data from the audio file that is in ram	 	*/
+/* args: const char[], const char[], const string&				*/
+/* returns: bool												*/
+/****************************************************************/
+bool wav::decode(const char encodedWAV[], const char outputDATA[], const DWORD& fileSize) {
+	FILE* fEncodedWAV = open(encodedWAV, "rb");
+	if (fEncodedWAV == NULL) {
+		return false;
+	}
+
+	/* Load and validate wave header (RIFF Chunk), and format chunk */
+	if (!load(fEncodedWAV)) {
+		close(fEncodedWAV);
+		return false;
+	}
+
+	return decode(outputDATA, fileSize);
 }
 
 /****************************************************************/

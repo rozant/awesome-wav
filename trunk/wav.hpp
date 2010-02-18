@@ -26,28 +26,21 @@ class wav {
 		bool saveFMT(FILE*) const;
 		bool saveDATA(FILE*) const;
 		bool save(FILE*) const;
-		bool close(FILE*) const;
 		/* data integrity checks */
 		bool validRIFF(void) const;
 		bool validFMT(void) const;
 		bool validDATA(void) const;
+		/* data operations */
+		bool encode(/*BYTE *, BYTE **/ FILE*, BYTE, DWORD);
 	public:
 		/* constructors */
 		wav(void);
-		wav(const char[]);
 		/* destructor */
 		~wav(void) { return; }
-		/* file operations */
-		bool load(const char[]);
-		bool save(const char[]) const;
 		/* manipulation */
-		#ifdef _DEBUG
-		bool doStuff(void);
-		#endif
-		DWORD encode(const char[]);
+		DWORD encode(const char[], const char[], const char[]);
 		bool decode(const char[], const DWORD&) const;
-		/* data integrity checks */
-		bool valid(void) const;
+		bool decode(const char[], const char[], const DWORD&);
 };
 
 #endif
