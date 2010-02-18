@@ -17,26 +17,18 @@ int main(int argc, char* argv[]) {
 	/* wav file definitaion */
 	wav in_wav;
 	DWORD size = 0x00;
+
 	/* decide what to do */
 	switch(argc) {
 		/* no arguments, use something default like. FOR DEBUG PURPOSES ONLY*/
 		#ifdef _DEBUG
 		case 1:
-			if (!in_wav.load(DEBUG_INPUT_WAV)) {
-				exit(EXIT_FAILURE);
-			}
-			size = in_wav.encode(DEBUG_INPUT_DATA);
-			if (!size) {
-				exit(EXIT_FAILURE);
-			}
-			if (!in_wav.save(DEBUG_OUTPUT_ENCODED)) {
-				exit(EXIT_FAILURE);
-			}
 
-
-			if (!in_wav.load(DEBUG_OUTPUT_ENCODED) {
+			size = in_wav.encode(DEBUG_INPUT_WAV,DEBUG_INPUT_DATA,DEBUG_OUTPUT_ENCODED);
+			if (size == 0x00) {
 				exit(EXIT_FAILURE);
 			}
+			
 			if (!in_wav.decode(DEBUG_OUTPUT_DECODED, size)) {
 				exit(EXIT_FAILURE);
 			}
@@ -46,24 +38,15 @@ int main(int argc, char* argv[]) {
 		/* 4 ARGUMENTS */
 		case 5:
 			if((strcmp(argv[1],"-e") == 0) || (strcmp(argv[1],"--encode") == 0)) {	/* ENCODE: Input Wav, Output Wav, Input Data */
-				if(!in_wav.load(argv[2])) {
-					exit(EXIT_FAILURE);
-				}
-				size = in_wav.encode(argv[4]);
-				if (!size) {
-					exit(EXIT_FAILURE);
-				}
-				if(!in_wav.save(argv[3])) {
+				size = in_wav.encode(argv[2],argv[4],argv[3]);
+				if (size == 0x00) {
 					exit(EXIT_FAILURE);
 				}
 				//cout << "Data was sucessfully encoded into the specified file." << endl;
 				//	<< "Enter this when trying to decode file: " << size << endl;
 				cout << size << endl;
 			} else if ((strcmp(argv[1],"-d") == 0) || (strcmp(argv[1],"--decode") == 0)) {	/* DECODE: Input Wav, Ouptut Data, Data Size */
-				if (!in_wav.load(argv[2])) {
-					exit(EXIT_FAILURE);
-				}
-				if (!in_wav.decode(argv[3], (DWORD)atol(argv[4]))) {
+				if (!in_wav.decode(argv[2], argv[3], (DWORD)atol(argv[4]))) {
 					exit(EXIT_FAILURE);
 				}
 				//cout << "Data was sucessfully decoded from the specified file." << endl;
@@ -73,20 +56,12 @@ int main(int argc, char* argv[]) {
 		case 6:
 			if((strcmp(argv[1],"-c") == 0) || (strcmp(argv[1],"--class") == 0)) {
 				/* encode */
-				if (!in_wav.load(argv[2])) {
+				size = in_wav.encode(argv[2],argv[4],argv[3]);
+				if (size == 0x00) {
 					exit(EXIT_FAILURE);
 				}
-				size = in_wav.encode(argv[4]);
-				if (!size) {
-					exit(EXIT_FAILURE);
-				}
-				if (!in_wav.save(argv[3])) {
-					exit(EXIT_FAILURE);
-				}
+				
 				/* decode */
-				if (!in_wav.load(argv[3])) {
-					exit(EXIT_FAILURE);
-				}
 				if (!in_wav.decode(argv[5], size)) {
 					exit(EXIT_FAILURE);
 				}
