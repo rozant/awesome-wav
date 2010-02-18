@@ -207,41 +207,28 @@ bool wav::loadFMT(FILE* inFile) {
 /*		0 = loaded incorrectly or did not load					*/
 /****************************************************************/
 bool wav::loadDATA(FILE* inFile) {
-	DWORD size, offset;
+	DWORD size;
 	BYTE id[4];
-	BYTE *junkData;
 
-	do {
-		fread(id, sizeof(BYTE), 4, inFile);
-		fread(&size, sizeof(DWORD), 1, inFile);
+	fread(id, sizeof(BYTE), 4, inFile);
+	fread(&size, sizeof(DWORD), 1, inFile);
 
-		if (bytencmp(id, (BYTE*)"data", 4) == 0) {
-			data.SubchunkID[0] = 'd'; data.SubchunkID[1] = 'a'; data.SubchunkID[2] = 't'; data.SubchunkID[3] = 'a';
-			
-			if ((data.Data = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
-				#ifdef _DEBUGOUTPUT
-				cout << "E: Failed to load DATA header: Could not get memory for data" << endl;
-				#endif
-				return false;
-			}
-			data.SubchunkSize = size;
+	if (bytencmp(id, (BYTE*)"data", 4) == 0) {
+		data.SubchunkID[0] = 'd'; data.SubchunkID[1] = 'a'; data.SubchunkID[2] = 't'; data.SubchunkID[3] = 'a';
 
+		if ((data.Data = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
 			#ifdef _DEBUGOUTPUT
-			cout << "S: Loaded DATA header" << endl;
-			#endif
-			return true;
-		}
-		/* SHOULD JUST SKIP JUNK */
-		if ((junkData = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
-			#ifdef _DEBUGOUTPUT
-			cout << "E: Failed to load DATA header: Could not get memory for unneeded data" << endl;
+			cout << "E: Failed to load DATA header: Could not get memory for data" << endl;
 			#endif
 			return false;
 		}
-		fread(junkData, sizeof(BYTE), size, inFile);
-		free(junkData);
-		offset = ftell(inFile);
-	} while (offset < riff.ChunkSize);
+		data.SubchunkSize = size;
+
+		#ifdef _DEBUGOUTPUT
+		cout << "S: Loaded DATA header" << endl;
+		#endif
+		return true;
+	}
 
 	#ifdef _DEBUGOUTPUT
 	cout << "E: Failed to load DATA header: Could not locate" << endl;
@@ -473,7 +460,16 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	//	inputWavBuffer = (BYTE*)calloc(BUFFER_SIZE(fmt.BlockAlign / fmt.NumChannels),sizeof(BYTE));
 	fread(data.Data, sizeof(BYTE), data.SubchunkSize, fInputWAV);
 
-	if (!encode(fInputDATA, bitsUsed, bytesPerSample)) {	
+	/* eat 2 bits initially to store how many bits are eaten */ 
+	BYTE* datum = data.Data;
+	*datum = (((*datum) >> 2) << 2);
+	*datum += bitsUsed;
+	datum += bytesPerSample;
+	#ifdef _DEBUGOUTPUT
+	cout << "S: Bits stored per sample: " << pow(2.0, bitsUsed) << endl;
+	#endif
+
+	if (!encode(fInputDATA, bitsUsed, bytesPerSample, datum, 64)) {
 		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		return false;
 	}
@@ -493,51 +489,54 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	return inputDATAStat.st_size;
 }
 
-bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample/*BYTE *inputWavBuffer, BYTE *inputDataBuffer*/) {
-	BYTE tempByte = 0;
+bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, DWORD wavBufferSize) {
+	BYTE tempByte = 0x00;
+	DWORD count = 0x00;
 
-	/* eat 2 bits initially to store how many bits are eaten */ 
-	BYTE* datum = data.Data;
-	*datum = (((*datum) >> 2) << 2);
-	*datum += bitsUsed;
-	datum += bytesPerSample;
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Bits stored per sample: " << pow(2.0, bitsUsed) << endl;
-	#endif
-
-	/* overwrite the bits in the samples */
-	if (bitsUsed == 0) { // 1 bit
-		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {			
-			for (int i = 7; i >= 0; i--) {
-				setBit(*datum, 0, getBit(tempByte,i));
-				datum += bytesPerSample;
-			}		
-		}
-	} else if (bitsUsed == 1) { // 4 bits
-		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {			
-			for (int i = 3; i >= 0; i--) {
-				setBit(*datum, 1, getBit(tempByte, i*2 + 1));
-				setBit(*datum, 0, getBit(tempByte, i*2));
-				datum += bytesPerSample;
-			}		
-		}
-	}  else if (bitsUsed == 2) { // 4 bits
-		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {			
-			for (int i = 1; i >= 0; i--) {
-				setBit(*datum, 3, getBit(tempByte, i*4 + 3));
-				setBit(*datum, 2, getBit(tempByte, i*4 + 2));
-				setBit(*datum, 1, getBit(tempByte, i*4 + 1));
-				setBit(*datum, 0, getBit(tempByte, i*4));
-				datum += bytesPerSample;
-			}		
-		}
-	} else if (bitsUsed == 3) { // 8 bits
-		while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA)) {
-			*datum = tempByte;
-			datum += bytesPerSample;
-		}
-	} else {
-		return false;
+	switch (bitsUsed) {
+		case 0: // 1 bit
+			while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA) /*&& count < wavBufferSize*/) {			
+				for (char i = 7; i >= 0; i--) {
+					setBit(*wavBuffer, 0, getBit(tempByte,i));
+					wavBuffer += bytesPerSample;
+					count += bytesPerSample;
+				}								
+			}
+			break;
+		case 1: // 2 bits
+			while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA) /*&& count < wavBufferSize*/) {			
+				for (char i = 3; i >= 0; i--) {
+					setBit(*wavBuffer, 1, getBit(tempByte, i*2 + 1));
+					setBit(*wavBuffer, 0, getBit(tempByte, i*2));
+					wavBuffer += bytesPerSample;
+					count += bytesPerSample;
+				}			
+			}
+			break;
+		case 2: // 4 bits
+			while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA) /*&& count < wavBufferSize*/) {			
+				for (char i = 1; i >= 0; i--) {
+					setBit(*wavBuffer, 3, getBit(tempByte, i*4 + 3));
+					setBit(*wavBuffer, 2, getBit(tempByte, i*4 + 2));
+					setBit(*wavBuffer, 1, getBit(tempByte, i*4 + 1));
+					setBit(*wavBuffer, 0, getBit(tempByte, i*4));
+					wavBuffer += bytesPerSample;
+					count += bytesPerSample;
+				}	
+			}
+			break;
+		case 3: // 8 bits
+			while (fread(&tempByte, sizeof(BYTE), 1, fInputDATA) /*&& count < wavBufferSize*/) {			
+				*wavBuffer = tempByte;
+				wavBuffer += bytesPerSample;	
+				count += bytesPerSample;
+			}
+			break;
+		default:
+			#ifdef _DEBUGOUTPUT
+			cout << "E: Invalid number of bits used." << endl;
+			#endif
+			return false;
 	}
 
 	return true;
@@ -564,8 +563,11 @@ bool wav::decode(const char encodedWAV[], const char outputDATA[], const DWORD& 
 		return false;
 	}
 
-//	inputWavBuffer = (BYTE*)calloc(BUFFER_SIZE(fmt.BlockAlign / fmt.NumChannels),sizeof(BYTE));
-	
+	//	inputWavBuffer = (BYTE*)calloc(BUFFER_SIZE(fmt.BlockAlign / fmt.NumChannels),sizeof(BYTE));
+
+	fread(data.Data, sizeof(BYTE), data.SubchunkSize, fEncodedWAV);
+	close(fEncodedWAV);
+
 	ret_val = decode(outputDATA, fileSize);
 
 //	free(inputWavBuffer);
@@ -608,21 +610,15 @@ bool wav::decode(const char filename[], const DWORD& fileSize) const {
 	cout << "\t (Retrieving " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
 	#endif
 
-	dataFile = fopen(filename, "wb");
+	dataFile = open(filename, "wb");
 	if (dataFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to open output file for decoding (" << filename << ")" << endl;
-		#endif
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	cout << "S: Opened output file for decoding (" << filename << ")" << endl;
-	#endif
 
 	// Grab the bits from each sample, build a byte, and output the bytes to a file
 	if (bitsUsed == 0) { // 1 bit
 		while (i < fileSize) {
-			for (int j = 7; j >= 0; j--) {
+			for (char j = 7; j >= 0; j--) {
 				setBit(tempByte, j, getBit(*datum, 0));
 				datum += bytesPerSample;
 			}
@@ -631,7 +627,7 @@ bool wav::decode(const char filename[], const DWORD& fileSize) const {
 		}
 	} else if (bitsUsed == 1) { // 2 bits
 		while (i < fileSize) {			
-			for (int j = 3; j >= 0; j--) {
+			for (char j = 3; j >= 0; j--) {
 				setBit(tempByte, j*2 + 1, getBit(*datum, 1));
 				setBit(tempByte, j*2, getBit(*datum, 0));
 				datum += bytesPerSample;
@@ -641,7 +637,7 @@ bool wav::decode(const char filename[], const DWORD& fileSize) const {
 		}
 	}  else if (bitsUsed == 2) { // 4 bits
 		while (i < fileSize) {			
-			for (int j = 1; j >= 0; j--) {
+			for (char j = 1; j >= 0; j--) {
 				setBit(tempByte, j*4 + 3, getBit(*datum, 3));
 				setBit(tempByte, j*4 + 2, getBit(*datum, 2));
 				setBit(tempByte, j*4 + 1, getBit(*datum, 1));
@@ -668,7 +664,7 @@ bool wav::decode(const char filename[], const DWORD& fileSize) const {
 	#ifdef _DEBUGOUTPUT
 	cout << "S: Number of bytes retrieved: " << fileSize << endl;
 	#endif
-
+	close(dataFile);
 	return true;
 }
 
