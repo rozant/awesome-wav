@@ -24,6 +24,7 @@
 #include <string.h>
 #include "riff.hpp"
 #include "wav.hpp"
+#include "buffer.hpp"
 #include "byteOperations.hpp"
 #include "fileOperations.hpp"
 
@@ -393,6 +394,7 @@ bool wav::save(FILE* outFile) const {
 /****************************************************************/
 DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
 	struct stat inputDATAStat;
+	//	BYTE* inputWavBuffer = NULL;
 	DWORD maxSize = 0,  bitsInFile = 0, bytesPerSample = 0;
 	BYTE bitsUsed = 0;
 
@@ -468,6 +470,7 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	}
 
 	/* BUFFING STUFF HERE */
+	//	inputWavBuffer = (BYTE*)calloc(BUFFER_SIZE(fmt.BlockAlign / fmt.NumChannels),sizeof(BYTE));
 	fread(data.Data, sizeof(BYTE), data.SubchunkSize, fInputWAV);
 
 	if (!encode(fInputDATA, bitsUsed, bytesPerSample)) {	
@@ -486,6 +489,7 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	/* BUFFING STUFF HERE */
 
 	close(fInputWAV); close(fInputDATA); close(fOutputDATA);
+	//	free(inputWavBuffer);		BUFFER
 	return inputDATAStat.st_size;
 }
 
@@ -548,6 +552,8 @@ bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample/*BYTE *in
 /****************************************************************/
 bool wav::decode(const char encodedWAV[], const char outputDATA[], const DWORD& fileSize) {
 	FILE* fEncodedWAV = open(encodedWAV, "rb");
+//	BYTE* inputWavBuffer = NULL;
+	bool ret_val = false;
 	if (fEncodedWAV == NULL) {
 		return false;
 	}
@@ -558,7 +564,12 @@ bool wav::decode(const char encodedWAV[], const char outputDATA[], const DWORD& 
 		return false;
 	}
 
-	return decode(outputDATA, fileSize);
+//	inputWavBuffer = (BYTE*)calloc(BUFFER_SIZE(fmt.BlockAlign / fmt.NumChannels),sizeof(BYTE));
+	
+	ret_val = decode(outputDATA, fileSize);
+
+//	free(inputWavBuffer);
+	return ret_val;
 }
 
 /****************************************************************/
