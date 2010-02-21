@@ -32,6 +32,9 @@ class wav {
 		_RIFF riff;
 		_FMT fmt;
 		_DATA data;
+		DWORD buff_loc;
+		DWORD max_buff_loc;
+		SHORT* bps;
 		/* file operations */
 		bool loadRIFF(FILE*);
 		bool loadFMT(FILE*);
@@ -47,6 +50,9 @@ class wav {
 		bool validDATA(void) const;
 		/* data operations */
 		bool encode(/*BYTE *, BYTE **/ FILE*, BYTE, DWORD, BYTE *, DWORD);
+		/* buffer operations */
+		template <class T>
+		friend void next_chunk(T input, BYTE * buffer, DWORD * buff_len);
 	public:
 		/* constructors */
 		wav(void);

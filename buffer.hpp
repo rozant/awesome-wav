@@ -16,7 +16,17 @@
 #ifndef __buffer_hpp__
 #define __buffer_hpp__
 
+#include "riff.hpp"
 /* macro for defining the size of the buffer */
 #define BUFFER_SIZE(x) 1024*x
+
+template <class T>
+void next_chunk(T *input, BYTE * buffer, DWORD * buff_len) {
+	SHORT *bps = input->bps;
+	if(buffer == NULL) {
+		buffer = (BYTE*)calloc(BUFFER_SIZE((*bps/8)),sizeof(BYTE));
+	}
+	return;
+}
 
 #endif

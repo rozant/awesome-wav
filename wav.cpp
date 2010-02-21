@@ -39,6 +39,9 @@ wav::wav(void) {
 	memset(&riff, 0, sizeof(_RIFF));
 	memset(&fmt, 0, sizeof(_FMT));
 	memset(&data, 0, sizeof(_DATA));
+	buff_loc = 0;
+	max_buff_loc = 0;
+	bps = NULL;
 }
 
 /****************************************************************/
@@ -246,7 +249,12 @@ bool wav::loadDATA(FILE* inFile) {
 /****************************************************************/
 bool wav::load(FILE *inFile) {
 	/* Load and validate wave header (RIFF Chunk), format chunk, and DATA */
-	return (loadRIFF(inFile) && validRIFF() && loadFMT(inFile) && validFMT() && loadDATA(inFile) && validDATA());
+	if ( (loadRIFF(inFile) && validRIFF() && loadFMT(inFile) && validFMT() && loadDATA(inFile) && validDATA())) {
+		max_buff_loc = (data.SubchunkSize / (fmt.BitsPerSample/8));
+		bps = &fmt.BitsPerSample;
+		return true;
+	}
+	return false;
 }
 
 /****************************************************************/
@@ -457,7 +465,6 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	}
 
 	/* BUFFING STUFF HERE */
-	//	inputWavBuffer = (BYTE*)calloc(BUFFER_SIZE(fmt.BlockAlign / fmt.NumChannels),sizeof(BYTE));
 	fread(data.Data, sizeof(BYTE), data.SubchunkSize, fInputWAV);
 
 	/* eat 2 bits initially to store how many bits are eaten */ 
