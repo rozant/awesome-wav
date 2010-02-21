@@ -13,10 +13,10 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-
 #ifndef __buffer_hpp__
 #define __buffer_hpp__
 
+/* macro for defining the size of the buffer */
 #define BUFFER_SIZE(x) 1024*x
 
 #endif
