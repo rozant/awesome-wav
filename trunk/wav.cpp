@@ -382,7 +382,7 @@ bool wav::save(FILE* outFile) const {
 DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
 	struct stat inputDATAStat;
 	//	BYTE* inputWavBuffer = NULL;
-	DWORD maxSize = 0,  bitsInFile = 0, bytesPerSample = 0;
+	DWORD maxSize = 0,  bitsInFile = 0, bytesPerSample = 0, buff_length = 0;
 	BYTE bitsUsed = 0;
 
 	FILE* fInputWAV = open(inputWAV, "rb");
@@ -469,7 +469,7 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	cout << "S: Bits stored per sample: " << pow(2.0, bitsUsed) << endl;
 	#endif
 
-	if (!encode(fInputDATA, bitsUsed, bytesPerSample, datum, 64)) {
+	if (!encode(fInputDATA, bitsUsed, bytesPerSample, datum, buff_length)) {
 		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		return false;
 	}
@@ -489,7 +489,15 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	return inputDATAStat.st_size;
 }
 
-bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, DWORD wavBufferSize) {
+
+/****************************************************************/
+/* function: encode												*/
+/* purpose: encode data into the audio file using a buffer	 	*/
+/* args: FILE* , BYTE, DWORD, BYTE*, DWORD						*/
+/* returns: bool												*/
+/* notes: the last BYTE* and DWORD are for the buffered wav		*/
+/****************************************************************/
+bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, unsigned long int wavBufferSize) {
 	BYTE tempByte = 0x00;
 	DWORD count = 0x00;
 

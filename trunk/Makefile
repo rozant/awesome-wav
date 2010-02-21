@@ -14,11 +14,17 @@
 CFLAGS= -Wall
 LDFLAGS = -lm
 
-all: main.cpp wav.cpp
+all:
 	g++ $(CFLAGS) main.cpp wav.cpp -o ./bin/awesome-wav $(LDFLAGS)
 
+install: all
+	cp ./bin/awesome-wav /usr/bin
+
+uninstall:
+	rm -f /usr/bin/awesome-wav
+
 clean:
-	rm *.o *~
+	rm -f *.o *~
 
 clean-all:
-	rm *.o *~ ./bin/awesome-wav
+	rm -f *.o *~ ./bin/awesome-wav
