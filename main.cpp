@@ -22,6 +22,13 @@
 #include "wav.hpp"
 using namespace std;
 
+#ifdef _DEBUG
+char DEBUG_INPUT_WAV[] = "song.wav";
+char DEBUG_INPUT_DATA[] = "data.txt";
+char DEBUG_OUTPUT_ENCODED[] = "E_song.wav";
+char DEBUG_OUTPUT_DECODED[] = "D_data.txt";
+#endif
+
 /****************************************************************/
 /* function: main												*/
 /* purpose: initial function for program.					 	*/

@@ -258,17 +258,17 @@ bool wav::load(FILE *inFile) {
 }
 
 /****************************************************************/
-/* function: wav::saveRIFF										*/
-/* purpose: saves the riff header to a file						*/
+/* function: wav::writeRIFF										*/
+/* purpose: writes the riff header to a file					*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = saved correctly										*/
-/*		0 = saved incorrectly or did not open					*/
+/*		1 = wrote correctly										*/
+/*		0 = wrote incorrectly or did not open					*/
 /****************************************************************/
-bool wav::saveRIFF(FILE* outFile) const {
+bool wav::writeRIFF(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to save RIFF header: FILE not open" << endl;
+		cout << "E: Failed to write RIFF header: FILE not open" << endl;
 		#endif
 		return false;
 	}
@@ -278,28 +278,28 @@ bool wav::saveRIFF(FILE* outFile) const {
 		fwrite(riff.Format, sizeof(BYTE), 4, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Saved RIFF header" << endl;
+		cout << "S: Wrote RIFF header" << endl;
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to save RIFF header: Could not save bytes" << endl;
+	cout << "E: Failed to write RIFF header: Could not write bytes" << endl;
 	#endif
 	return false;
 }
 
 /****************************************************************/
-/* function: wav::saveFMT										*/
-/* purpose: saves the fmt header to a file						*/
+/* function: wav::writeFMT										*/
+/* purpose: writes the fmt header to a file						*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not open					*/
+/*		1 = wrote correctly										*/
+/*		0 = wrote incorrectly or did not open					*/
 /****************************************************************/
-bool wav::saveFMT(FILE* outFile) const {
+bool wav::writeFMT(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to save FMT header: FILE not open" << endl;
+		cout << "E: Failed to write FMT header: FILE not open" << endl;
 		#endif
 		return false;
 	}
@@ -313,7 +313,7 @@ bool wav::saveFMT(FILE* outFile) const {
 		fwrite(&fmt.BlockAlign, sizeof(SHORT), 1, outFile) &&
 		fwrite(&fmt.BitsPerSample, sizeof(SHORT), 1, outFile))
 	{
-		// Need to save extra stuff
+		// Need to write extra stuff
 		if (fmt.SubchunkSize-16 != 0) {
 			fwrite(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, outFile);
 			if (fmt.ExtraFormatBytes > 0) {
@@ -321,28 +321,28 @@ bool wav::saveFMT(FILE* outFile) const {
 			}
 		}
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Saved FMT header" << endl;
+		cout << "S: Wrote FMT header" << endl;
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to save FMT header: Could not save bytes" << endl;
+	cout << "E: Failed to write FMT header: Could not write bytes" << endl;
 	#endif
 	return false;
 }
 
 /****************************************************************/
-/* function: wav::saveDATA										*/
-/* purpose: saves the data header to a file						*/
+/* function: wav::writeDATA										*/
+/* purpose: writes the data header to a file					*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not open					*/
+/*		1 = wrote correctly										*/
+/*		0 = wrote incorrectly or did not open					*/
 /****************************************************************/
-bool wav::saveDATA(FILE* outFile) const {
+bool wav::writeDATA(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to save DATA header: FILE not open" << endl;
+		cout << "E: Failed to write DATA header: FILE not open" << endl;
 		#endif
 		return false;
 	}
@@ -352,33 +352,14 @@ bool wav::saveDATA(FILE* outFile) const {
 		fwrite(data.Data, sizeof(BYTE), data.SubchunkSize, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Saved DATA header" << endl;
+		cout << "S: Wrote DATA header" << endl;
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to save DATA header: Could not save bytes" << endl;
+	cout << "E: Failed to write DATA header: Could not write bytes" << endl;
 	#endif
 	return false;
-}
-
-/****************************************************************/
-/* function: wav::save											*/
-/* purpose: saves a wav file from memory						*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = saved correctly										*/
-/*		0 = saved incorrectly or did not open					*/
-/****************************************************************/
-bool wav::save(FILE* outFile) const {
-	if (outFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to save WAV file: FILE not open" << endl;
-		#endif
-		return false;
-	}
-
-	return (saveRIFF(outFile) && saveFMT(outFile) && saveDATA(outFile));
 }
 
 /****************************************************************/
@@ -485,7 +466,7 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	cout << "S: Number of bytes stored: " << inputDATAStat.st_size << endl;
 	#endif
 
-	if (!save(fOutputDATA)) {	
+	if (!writeRIFF(fOutputDATA) || !writeFMT(fOutputDATA) || !writeDATA(fOutputDATA)) {	
 		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		return false;
 	}
@@ -504,7 +485,7 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 /* returns: bool												*/
 /* notes: the last BYTE* and DWORD are for the buffered wav		*/
 /****************************************************************/
-bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, unsigned long int wavBufferSize) {
+bool wav::encode(FILE* fInputDATA, BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, DWORD wavBufferSize) {
 	BYTE tempByte = 0x00;
 	DWORD count = 0x00;
 
