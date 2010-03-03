@@ -40,10 +40,9 @@ class wav {
 		bool loadFMT(FILE*);
 		bool loadDATA(FILE*);
 		bool load(FILE*);
-		bool saveRIFF(FILE*) const;
-		bool saveFMT(FILE*) const;
-		bool saveDATA(FILE*) const;
-		bool save(FILE*) const;
+		bool writeRIFF(FILE*) const;
+		bool writeFMT(FILE*) const;
+		bool writeDATA(FILE*) const;
 		/* data integrity checks */
 		bool validRIFF(void) const;
 		bool validFMT(void) const;
