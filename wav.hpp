@@ -36,10 +36,10 @@ class wav {
 		DWORD max_buff_loc;
 		SHORT* bps;
 		/* file operations */
-		bool loadRIFF(FILE*);
-		bool loadFMT(FILE*);
-		bool loadDATA(FILE*);
-		bool load(FILE*);
+		bool readRIFF(FILE*);
+		bool readFMT(FILE*);
+		bool readDATA(FILE*);
+		bool read(FILE*);
 		bool writeRIFF(FILE*) const;
 		bool writeFMT(FILE*) const;
 		bool writeDATA(FILE*) const;

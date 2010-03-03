@@ -135,38 +135,38 @@ bool wav::validDATA(void) const {
 }
 
 /****************************************************************/
-/* function: wav::loadRIFF										*/
-/* purpose: loads the riff header from a wav file				*/
+/* function: wav::readRIFF										*/
+/* purpose: reads the riff header from a wav file				*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not load					*/
+/*		1 = read correctly									*/
+/*		0 = read incorrectly or did not read					*/
 /****************************************************************/
-bool wav::loadRIFF(FILE* inFile) {
+bool wav::readRIFF(FILE* inFile) {
 	if (fread(riff.ChunkID, sizeof(BYTE), 4, inFile) &&
 		fread(&riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
 		fread(riff.Format, sizeof(BYTE), 4, inFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Loaded RIFF header" << endl;
+		cout << "S: read RIFF header" << endl;
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to load RIFF header: Could not get bytes" << endl;
+	cout << "E: Failed to read RIFF header: Could not read bytes" << endl;
 	#endif
 	return false;
 }
 
 /****************************************************************/
-/* function: wav::loadFMT										*/
-/* purpose: loads the fmt header from a wav file				*/
+/* function: wav::readFMT										*/
+/* purpose: reads the fmt header from a wav file				*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not load					*/
+/*		1 = read correctly									*/
+/*		0 = read incorrectly or did not read					*/
 /****************************************************************/
-bool wav::loadFMT(FILE* inFile) {
+bool wav::readFMT(FILE* inFile) {
 	if (fread(fmt.SubchunkID, sizeof(BYTE), 4, inFile) &&
 		fread(&fmt.SubchunkSize, sizeof(DWORD), 1, inFile) &&
 		fread(&fmt.AudioFormat, sizeof(SHORT), 1, inFile) &&
@@ -176,13 +176,13 @@ bool wav::loadFMT(FILE* inFile) {
 		fread(&fmt.BlockAlign, sizeof(SHORT), 1, inFile) &&
 		fread(&fmt.BitsPerSample, sizeof(SHORT), 1, inFile))
 	{
-		// Need to get extra stuff
+		// Need to read extra stuff
 		if (fmt.SubchunkSize-16 != 0) {
 			fread(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, inFile);
 			if (fmt.ExtraFormatBytes > 0) {
 				if ((fmt.ExtraFormat = (BYTE*)malloc(fmt.ExtraFormatBytes)) == NULL) {
 					#ifdef _DEBUGOUTPUT
-					cout << "E: Failed to load FMT header: Could not get memory for extra bytes" << endl;
+					cout << "E: Failed to read FMT header: Could not get memory for extra bytes" << endl;
 					#endif
 					return false;
 				}
@@ -191,25 +191,25 @@ bool wav::loadFMT(FILE* inFile) {
 		}
 
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Loaded FMT header" << endl;
+		cout << "S: read FMT header" << endl;
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to load FMT header: Could not get bytes" << endl;
+	cout << "E: Failed to read FMT header: Could not read bytes" << endl;
 	#endif
 	return false;
 }
 
 /****************************************************************/
-/* function: wav::loadDATA										*/
-/* purpose: loads the data from a wav file						*/
+/* function: wav::readDATA										*/
+/* purpose: reads the data from a wav file						*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not load					*/
+/*		1 = read correctly									*/
+/*		0 = read incorrectly or did not read					*/
 /****************************************************************/
-bool wav::loadDATA(FILE* inFile) {
+bool wav::readDATA(FILE* inFile) {
 	DWORD size;
 	BYTE id[4];
 
@@ -221,35 +221,35 @@ bool wav::loadDATA(FILE* inFile) {
 
 		if ((data.Data = (BYTE*)malloc(size*sizeof(BYTE))) == NULL) {
 			#ifdef _DEBUGOUTPUT
-			cout << "E: Failed to load DATA header: Could not get memory for data" << endl;
+			cout << "E: Failed to read DATA header: Could not get memory for data" << endl;
 			#endif
 			return false;
 		}
 		data.SubchunkSize = size;
 
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Loaded DATA header" << endl;
+		cout << "S: read DATA header" << endl;
 		#endif
 		return true;
 	}
 
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to load DATA header: Could not locate" << endl;
+	cout << "E: Failed to read DATA header: Could not locate" << endl;
 	#endif
 	return false;
 }
 
 /****************************************************************/
-/* function: wav::load											*/
-/* purpose: loads a wav file into memory						*/
+/* function: wav::read											*/
+/* purpose: reads a wav file into memory						*/
 /* args: const char[]											*/
 /* returns: bool												*/
-/*		1 = loaded correctly									*/
-/*		0 = loaded incorrectly or did not load					*/
+/*		1 = read correctly									*/
+/*		0 = read incorrectly or did not read					*/
 /****************************************************************/
-bool wav::load(FILE *inFile) {
-	/* Load and validate wave header (RIFF Chunk), format chunk, and DATA */
-	if ( (loadRIFF(inFile) && validRIFF() && loadFMT(inFile) && validFMT() && loadDATA(inFile) && validDATA())) {
+bool wav::read(FILE *inFile) {
+	/* read and validate wave header (RIFF Chunk), format chunk, and DATA */
+	if ( (readRIFF(inFile) && validRIFF() && readFMT(inFile) && validFMT() && readDATA(inFile) && validDATA())) {
 		max_buff_loc = (data.SubchunkSize / (fmt.BitsPerSample/8));
 		bps = &fmt.BitsPerSample;
 		return true;
@@ -391,8 +391,8 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		return false;
 	}
 
-	/* Load and validate wave header (RIFF Chunk), and format chunk */
-	if (!load(fInputWAV)) {
+	/* read and validate wave header (RIFF Chunk), and format chunk */
+	if (!read(fInputWAV)) {
 		close(fInputWAV); close(fInputDATA); close(fOutputDATA);
 		return false;
 	}
@@ -553,8 +553,8 @@ bool wav::decode(const char encodedWAV[], const char outputDATA[], const DWORD& 
 		return false;
 	}
 
-	/* Load and validate wave header (RIFF Chunk), and format chunk */
-	if (!load(fEncodedWAV)) {
+	/* read and validate wave header (RIFF Chunk), and format chunk */
+	if (!read(fEncodedWAV)) {
 		close(fEncodedWAV);
 		return false;
 	}
