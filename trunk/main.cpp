@@ -23,10 +23,10 @@
 using namespace std;
 
 #ifdef _DEBUG
-char DEBUG_INPUT_WAV[] = "song.wav";
-char DEBUG_INPUT_DATA[] = "data.txt";
-char DEBUG_OUTPUT_ENCODED[] = "E_song.wav";
-char DEBUG_OUTPUT_DECODED[] = "D_data.txt";
+char DEBUG_WAV[] = "song.wav";
+char DEBUG_DATA[] = "data.txt";
+char DEBUG_ENCODED_WAV[] = "E_song.wav";
+char DEBUG_DECODED_DATA[] = "D_data.txt";
 #endif
 
 /****************************************************************/
@@ -46,12 +46,12 @@ int main(int argc, char* argv[]) {
 		#ifdef _DEBUG
 		case 1:
 
-			size = in_wav.encode(DEBUG_INPUT_WAV,DEBUG_INPUT_DATA,DEBUG_OUTPUT_ENCODED);
+			size = in_wav.encode(DEBUG_WAV, DEBUG_DATA, DEBUG_ENCODED_WAV);
 			if (size == 0x00) {
 				exit(EXIT_FAILURE);
 			}
 			
-			if (!in_wav.decode(DEBUG_OUTPUT_DECODED, size)) {
+			if (!in_wav.decode(DEBUG_ENCODED_WAV, DEBUG_DECODED_DATA, size)) {
 				exit(EXIT_FAILURE);
 			}
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 				}
 				
 				/* decode */
-				if (!in_wav.decode(argv[5], size)) {
+				if (!in_wav.decode(argv[3], argv[5], size)) {
 					exit(EXIT_FAILURE);
 				}
 			}
