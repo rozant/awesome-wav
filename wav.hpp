@@ -48,7 +48,7 @@ class wav {
 		bool validFMT(void) const;
 		bool validDATA(void) const;
 		/* data operations */
-		bool encode(/*BYTE *, BYTE **/ FILE*, BYTE, DWORD, BYTE *, DWORD);
+		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		/* buffer operations */
 		template <class T>
 		friend void next_chunk(T input, BYTE * buffer, DWORD * buff_len);
