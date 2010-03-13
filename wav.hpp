@@ -49,6 +49,7 @@ class wav {
 		bool validDATA(void) const;
 		/* data operations */
 		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
+		bool decode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		/* buffer operations */
 		template <class T>
 		friend void next_chunk(T input, BYTE * buffer, DWORD * buff_len);
@@ -59,7 +60,6 @@ class wav {
 		~wav(void) { return; }
 		/* manipulation */
 		DWORD encode(const char[], const char[], const char[]);
-		bool decode(const char[], const DWORD&) const;
 		bool decode(const char[], const char[], const DWORD&);
 };
 

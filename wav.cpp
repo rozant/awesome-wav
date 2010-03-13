@@ -41,7 +41,7 @@ wav::wav(void) {
 	memset(&data, 0, sizeof(_DATA));
 	buff_loc = 0;
 	max_buff_loc = 0;
-	bps = 0;
+	bps = NULL;
 }
 
 /****************************************************************/
@@ -511,15 +511,14 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 /****************************************************************/
 /* function: encode												*/
 /* purpose: encode data into the audio file using a buffer	 	*/
-/* args: FILE* , BYTE, DWORD, BYTE*, DWORD						*/
+/* args: BYTE, DWORD, BYTE*, size_t, BYTE*, size_t				*/
 /* returns: bool												*/
-/* notes: the last BYTE* and DWORD are for the buffered wav		*/
 /****************************************************************/
-bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffers, size_t wavBufferSize, BYTE *dataBuffers, size_t dataBufferSize) {
+bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wavBufferSize, BYTE *dataBuffer, size_t dataBufferSize) {
 	BYTE tempByte = 0x00;
 	size_t count = 0x00;
-	BYTE* currPos_WavBuffer = wavBuffers;
-	BYTE* currPos_DataBuffer = dataBuffers;
+	BYTE* currPos_WavBuffer = wavBuffer;
+	BYTE* currPos_DataBuffer = dataBuffer;
 
 	if ((wavBufferSize == 0)) {
 		#ifdef _DEBUGOUTPUT
@@ -576,8 +575,8 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffers, size_t w
 			while (count < wavBufferSize) {
 				*currPos_WavBuffer = *currPos_DataBuffer;
 				currPos_WavBuffer += bytesPerSample;
-				count += bytesPerSample;
 				currPos_DataBuffer++;
+				count += bytesPerSample;
 			}
 			break;
 		default:
@@ -593,61 +592,58 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffers, size_t w
 /****************************************************************/
 /* function: decode												*/
 /* purpose: decode data from the audio file that is in ram	 	*/
-/* args: const char[], const char[], const string&				*/
+/* args: const char[], const char[], const DWORD&				*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::decode(const char encodedWAV[], const char outputDATA[], const DWORD& fileSize) {
-	FILE* fEncodedWAV = open(encodedWAV, "rb");
-//	BYTE* wavBuffer = NULL;
-	bool ret_val = false;
-	if (fEncodedWAV == NULL) {
+bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize) {
+	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
+	DWORD maxSize = 0, bitsInFile = 0, bytesPerSample = 0, count = 0;
+	BYTE bitsUsed = 0x00;
+	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
+	
+	/* Open up all of our files */
+	FILE* fInputWAV = open(inputWAV, "rb");
+	if (fInputWAV == NULL) {
 		return false;
 	}
+	FILE* fOutputDATA = open(outputDATA, "wb");
+	if (fOutputDATA == NULL) {
+		close(fInputWAV);
+		return false;
+	}
+
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fEncodedWAV)) {
-		close(fEncodedWAV);
+	if (!read(fInputWAV)) {
+		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 
-	fread(data.Data, sizeof(BYTE), data.SubchunkSize, fEncodedWAV);
-	close(fEncodedWAV);
+	bytesPerSample = (fmt.BitsPerSample/8);
 
-	ret_val = decode(outputDATA, fileSize);
 
-//	free(wavBuffer);
-	return ret_val;
-}
-
-/****************************************************************/
-/* function: decode												*/
-/* purpose: decode data from the audio file that is in ram	 	*/
-/* args: const char[], const string&							*/
-/* returns: bool												*/
-/****************************************************************/
-bool wav::decode(const char filename[], const DWORD& fileSize) const {
-	DWORD maxSize = 0, bitsInFile = 0, i = 0, bytesPerSample = (fmt.BlockAlign / fmt.NumChannels);
-	BYTE bitsUsed = 0, tempByte = 0;
-	FILE* dataFile;
-
-	// Check first two bits to see how many are used per sample
-	BYTE* datum = data.Data;
-	setBit(tempByte, 0, getBit(*datum, 0));
-	setBit(tempByte, 1, getBit(*datum, 1));
-	bitsUsed = tempByte;
-	datum += bytesPerSample;
+	/* Check first two bits to see how many are used per sample */ 
+	BYTE* datum = (BYTE*)calloc(bytesPerSample, sizeof(BYTE));
+	fread(datum, sizeof(BYTE), bytesPerSample, fInputWAV);
+	setBit(bitsUsed, 0, getBit(*datum, 0));
+	setBit(bitsUsed, 1, getBit(*datum, 1));
+	free(datum);
+	#ifdef _DEBUGOUTPUT
+	cout << "S: Bits stored per sample: " << pow(2.0, bitsUsed) << endl;
+	#endif
+	
 
 	/* Could the file fit? */
-	maxSize = (data.SubchunkSize / bytesPerSample) - 1; // Only doing the lower part of the sample
-	if(fmt.BitsPerSample == 8) {
-		maxSize >>= 1;
-	}
+	maxSize = (data.SubchunkSize / bytesPerSample) - 1; /* Only doing the lower part of the sample */
+	if (fmt.BitsPerSample == 8) maxSize >>= 1;
+
 	bitsInFile = fileSize * 8;
 	if (maxSize * ((BYTE)pow(2.0, bitsUsed)) < bitsInFile) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Data file could not fit at " << pow(2.0, bitsUsed) << " bits per sample" << endl;
 		cout << "\t (Wanted to retrieve " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
 		#endif
+		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -655,63 +651,145 @@ bool wav::decode(const char filename[], const DWORD& fileSize) const {
 	cout << "\t (Retrieving " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
 	#endif
 
-	dataFile = open(filename, "wb");
-	if (dataFile == NULL) {
+
+	/* Calculate the size of our buffers */
+	maxWavBufferSize = 1024 * bytesPerSample;
+	maxDataBufferSize = 1024 / (8 / ((int)pow(2.0, bitsUsed)));
+
+
+	/* Get memory for our buffers */
+	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Failed to get memory for WAV buffer" << endl;
+		#endif
+		return false;
+	}
+	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize,sizeof(BYTE))) == NULL) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Failed to get memory for DATA buffer" << endl;
+		#endif
 		return false;
 	}
 
-	// Grab the bits from each sample, build a byte, and output the bytes to a file
-	if (bitsUsed == 0) { // 1 bit
-		while (i < fileSize) {
-			for (char j = 7; j >= 0; j--) {
-				setBit(tempByte, j, getBit(*datum, 0));
-				datum += bytesPerSample;
-			}
-			i++;
-			fwrite(&tempByte, sizeof(BYTE), 1, dataFile);			
+
+	/* read into the buffers, process, and write */
+	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
+	count = dataBufferSize = maxDataBufferSize;
+
+	while (count <= fileSize) {
+		if (!decode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
+			close(fInputWAV); close(fOutputDATA);
+			free(wavBuffer); free(dataBuffer);
+			return false;
 		}
-	} else if (bitsUsed == 1) { // 2 bits
-		while (i < fileSize) {			
-			for (char j = 3; j >= 0; j--) {
-				setBit(tempByte, j*2 + 1, getBit(*datum, 1));
-				setBit(tempByte, j*2, getBit(*datum, 0));
-				datum += bytesPerSample;
-			}
-			i++;
-			fwrite(&tempByte, sizeof(BYTE), 1, dataFile);
+
+		fwrite(dataBuffer, sizeof(BYTE), dataBufferSize, fOutputDATA);
+
+		if (count == fileSize)
+			break;
+
+ 		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
+		
+		if (count + maxDataBufferSize > fileSize) {
+			dataBufferSize = fileSize - count;
+			count = fileSize;
+		} else {
+			dataBufferSize = maxDataBufferSize;
+			count += maxDataBufferSize;
 		}
-	}  else if (bitsUsed == 2) { // 4 bits
-		while (i < fileSize) {			
-			for (char j = 1; j >= 0; j--) {
-				setBit(tempByte, j*4 + 3, getBit(*datum, 3));
-				setBit(tempByte, j*4 + 2, getBit(*datum, 2));
-				setBit(tempByte, j*4 + 1, getBit(*datum, 1));
-				setBit(tempByte, j*4, getBit(*datum, 0));
-				datum += bytesPerSample;
-			}
-			i++;
-			fwrite(&tempByte, sizeof(BYTE), 1, dataFile);
-		}
-	} else if (bitsUsed == 3 && fmt.BitsPerSample != 8) { // 8 bits
-		while (i < fileSize) {
-			tempByte = *datum;
-			fwrite(&tempByte, sizeof(BYTE), 1, dataFile);
-			datum += bytesPerSample;
-			i++;
-		}
-	} else {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid number of bits per sample" << endl;
-		#endif
-		close(dataFile);
-		return false;
 	}
+
 	#ifdef _DEBUGOUTPUT
 	cout << "S: Number of bytes retrieved: " << fileSize << endl;
 	#endif
-	close(dataFile);
+	close(fInputWAV); close(fOutputDATA);
+	free(wavBuffer); free(dataBuffer);
 	return true;
 }
+
+/****************************************************************/
+/* function: decode												*/
+/* purpose: decode data from the audio file that is in ram	 	*/
+/* args: BYTE, DWORD, BYTE*, size_t, BYTE*, size_t				*/
+/* returns: bool												*/
+/****************************************************************/
+bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wavBufferSize, BYTE *dataBuffer, size_t dataBufferSize) {
+	BYTE tempByte = 0x00;
+	size_t count = 0x00;
+	BYTE* currPos_WavBuffer = wavBuffer;
+	BYTE* currPos_DataBuffer = dataBuffer;
+
+	if ((wavBufferSize == 0)) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid WAV buffer size" << endl;
+		#endif
+		return false;
+	}
+	if ((dataBufferSize == 0)) {
+		#ifdef _DEBUGOUTPUT
+		cout << "E: Invalid DATA buffer size" << endl;
+		#endif
+		return false;
+	}
+
+
+	// Grab the bits from each sample, build a byte, and output the bytes to a file
+	switch (bitsUsed) {
+		case 0: // 1 bit
+			while (count < dataBufferSize) {
+				for (char j = 7; j >= 0; j--) {
+					setBit(tempByte, j, getBit(*currPos_WavBuffer, 0));
+					currPos_WavBuffer += bytesPerSample;
+					
+				}
+				*currPos_DataBuffer = tempByte;
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		case 1: // 2 bits
+			while (count < dataBufferSize) {			
+				for (char j = 3; j >= 0; j--) {
+					setBit(tempByte, j*2 + 1, getBit(*currPos_WavBuffer, 1));
+					setBit(tempByte, j*2, getBit(*currPos_WavBuffer, 0));
+					currPos_WavBuffer += bytesPerSample;
+				}
+				*currPos_DataBuffer = tempByte;
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		case 2: // 4 bits
+			while (count < dataBufferSize) {			
+				for (char j = 1; j >= 0; j--) {
+					setBit(tempByte, j*4 + 3, getBit(*currPos_WavBuffer, 3));
+					setBit(tempByte, j*4 + 2, getBit(*currPos_WavBuffer, 2));
+					setBit(tempByte, j*4 + 1, getBit(*currPos_WavBuffer, 1));
+					setBit(tempByte, j*4, getBit(*currPos_WavBuffer, 0));
+					currPos_WavBuffer += bytesPerSample;
+				}
+				*currPos_DataBuffer = tempByte;
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		case 3: // 8 bits
+			while (count < dataBufferSize) {
+				*currPos_DataBuffer = *currPos_WavBuffer;
+				currPos_WavBuffer += bytesPerSample;
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		default:
+			#ifdef _DEBUGOUTPUT
+			cout << "E: Invalid number of bits per sample" << endl;
+			#endif
+			return false;
+	}
+	return true;
+}
+
 
 /****************************************************************/
 /****************************************************************/
