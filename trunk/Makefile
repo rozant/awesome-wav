@@ -12,26 +12,27 @@
 #Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 PROGNAME=awesome-wav
+INSTLOC=/usr/bin
 CFLAGS= -Wall
 LDFLAGS = -lm
 
 all:
 	g++ $(CFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME) $(LDFLAGS)
 
-debug:
-	g++ $(CFLAGS) -g -D _DEBUG main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
-
 test:
-	g++ $(CFLAGS) -D _DEBUGOUTPUT -D _DEBUG main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	g++ $(CFLAGS) -D _DEBUG -D _DEBUGOUTPUT main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+
+debug:
+	g++ $(CFLAGS) -g -D _DEBUG -D _DEBUGOUTPUT main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 
 install: all
-	cp ./bin/$(PROGNAME) /usr/bin
+	cp ./bin/$(PROGNAME) $(INSTLOC)
 
 uninstall:
-	rm -f /usr/bin/$(PROGNAME)
+	rm -f $(INSTLOC)/$(PROGNAME)
 
 clean:
 	rm -f *.o
 
 clean-all: clean
-	rm -f *~ ./bin/$(PROGNAME) ./bin/$(PROGNAME)-debug ./bin/$(PROGNAME)-test
+	rm -f ./bin/$(PROGNAME) ./bin/$(PROGNAME)-debug ./bin/$(PROGNAME)-test
