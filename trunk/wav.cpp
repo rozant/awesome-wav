@@ -56,6 +56,10 @@ bool wav::validRIFF(void) const {
 	if (bytencmp(riff.Format, (BYTE*)"WAVE", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Invalid RIFF header: Format != 'WAVE'" << endl;
+		char temp[5];
+		memcpy(temp,riff.Format,4);
+		temp[5] = 0;
+		cout << "\tFORMAT == " << temp << endl;
 		#endif
 		return false;
 	}
