@@ -27,9 +27,9 @@
 #define FORMAT_PCM 1
 
 /* typedefs to make things look nice */
-typedef unsigned long int DWORD; 
-typedef unsigned char BYTE; 
-typedef unsigned short int SHORT;
+typedef uint32_t DWORD; 
+typedef uint16_t SHORT;
+typedef uint8_t BYTE; 
 
 /****************************************************************/
 /* struct: _RIFF												*/
