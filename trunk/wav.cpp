@@ -147,9 +147,9 @@ bool wav::validDATA(void) const {
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::readRIFF(FILE* inFile) {
-	if (fread(riff.ChunkID, 1, 4, inFile) &&
-		fread(&riff.ChunkSize, 4, 1, inFile) &&
-		fread(riff.Format, 1, 4, inFile))
+	if (fread(riff.ChunkID, sizeof(BYTE), 4, inFile) &&
+		fread(&riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
+		fread(riff.Format, sizeof(BYTE), 4, inFile))
 	{
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Read RIFF header" << endl;
@@ -171,18 +171,18 @@ bool wav::readRIFF(FILE* inFile) {
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::readFMT(FILE* inFile) {
-	if (fread(fmt.SubchunkID, 1, 4, inFile) &&
-		fread(&fmt.SubchunkSize, 4, 1, inFile) &&
-		fread(&fmt.AudioFormat, 2, 1, inFile) &&
-		fread(&fmt.NumChannels, 2, 1, inFile) &&
-		fread(&fmt.SampleRate, 4, 1, inFile) &&
-		fread(&fmt.ByteRate, 4, 1, inFile) &&
-		fread(&fmt.BlockAlign, 2, 1, inFile) &&
-		fread(&fmt.BitsPerSample, 2, 1, inFile))
+	if (fread(fmt.SubchunkID, sizeof(BYTE), 4, inFile) &&
+		fread(&fmt.SubchunkSize, sizeof(DWORD), 1, inFile) &&
+		fread(&fmt.AudioFormat, sizeof(SHORT), 1, inFile) &&
+		fread(&fmt.NumChannels, sizeof(SHORT), 1, inFile) &&
+		fread(&fmt.SampleRate, sizeof(DWORD), 1, inFile) &&
+		fread(&fmt.ByteRate, sizeof(DWORD), 1, inFile) &&
+		fread(&fmt.BlockAlign, sizeof(SHORT), 1, inFile) &&
+		fread(&fmt.BitsPerSample, sizeof(SHORT), 1, inFile))
 	{
 		// Need to read extra stuff
 		if (fmt.SubchunkSize-16 != 0) {
-			fread(&fmt.ExtraFormatBytes, 2, 1, inFile);
+			fread(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, inFile);
 			if (fmt.ExtraFormatBytes > 0) {
 				if ((fmt.ExtraFormat = (BYTE*)malloc(fmt.ExtraFormatBytes)) == NULL) {
 					#ifdef _DEBUGOUTPUT
@@ -217,8 +217,8 @@ bool wav::readDATA(FILE* inFile) {
 	DWORD size;
 	BYTE id[4];
 
-	fread(id, 1, 4, inFile);
-	fread(&size, 4, 1, inFile);
+	fread(id, sizeof(BYTE), 4, inFile);
+	fread(&size, sizeof(DWORD), 1, inFile);
 
 	if (bytencmp(id, (BYTE*)"data", 4) == 0) {
 		data.SubchunkID[0] = 'd'; data.SubchunkID[1] = 'a'; data.SubchunkID[2] = 't'; data.SubchunkID[3] = 'a';
@@ -270,9 +270,9 @@ bool wav::writeRIFF(FILE* outFile) const {
 		return false;
 	}
 
-	if (fwrite(riff.ChunkID, 1, 4, outFile) &&
-		fwrite(&riff.ChunkSize, 4, 1, outFile) &&
-		fwrite(riff.Format, 1, 4, outFile))
+	if (fwrite(riff.ChunkID, sizeof(BYTE), 4, outFile) &&
+		fwrite(&riff.ChunkSize, sizeof(DWORD), 1, outFile) &&
+		fwrite(riff.Format, sizeof(BYTE), 4, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Wrote RIFF header" << endl;
@@ -301,18 +301,18 @@ bool wav::writeFMT(FILE* outFile) const {
 		return false;
 	}
 
-	if (fwrite(fmt.SubchunkID, 1, 4, outFile) &&
-		fwrite(&fmt.SubchunkSize, 4, 1, outFile) &&
-		fwrite(&fmt.AudioFormat, 2, 1, outFile) &&
-		fwrite(&fmt.NumChannels, 2, 1, outFile) &&
-		fwrite(&fmt.SampleRate, 4, 1, outFile) &&
-		fwrite(&fmt.ByteRate, 4, 1, outFile) &&
-		fwrite(&fmt.BlockAlign, 2, 1, outFile) &&
-		fwrite(&fmt.BitsPerSample, 2, 1, outFile))
+	if (fwrite(fmt.SubchunkID, sizeof(BYTE), 4, outFile) &&
+		fwrite(&fmt.SubchunkSize, sizeof(DWORD), 1, outFile) &&
+		fwrite(&fmt.AudioFormat, sizeof(SHORT), 1, outFile) &&
+		fwrite(&fmt.NumChannels, sizeof(SHORT), 1, outFile) &&
+		fwrite(&fmt.SampleRate, sizeof(DWORD), 1, outFile) &&
+		fwrite(&fmt.ByteRate, sizeof(DWORD), 1, outFile) &&
+		fwrite(&fmt.BlockAlign, sizeof(SHORT), 1, outFile) &&
+		fwrite(&fmt.BitsPerSample, sizeof(SHORT), 1, outFile))
 	{
 		// Need to write extra stuff
 		if (fmt.SubchunkSize-16 != 0) {
-			fwrite(&fmt.ExtraFormatBytes, 2, 1, outFile);
+			fwrite(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, outFile);
 			if (fmt.ExtraFormatBytes > 0) {
 				fwrite(fmt.ExtraFormat, fmt.ExtraFormatBytes, 1, outFile);
 			}
@@ -344,8 +344,8 @@ bool wav::writeDATA(FILE* outFile) const {
 		return false;
 	}
 
-	if (fwrite(data.SubchunkID, 1, 4, outFile) &&
-		fwrite(&data.SubchunkSize, 4, 1, outFile))
+	if (fwrite(data.SubchunkID, sizeof(BYTE), 4, outFile) &&
+		fwrite(&data.SubchunkSize, sizeof(DWORD), 1, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
 		cout << "S: Wrote DATA header" << endl;
