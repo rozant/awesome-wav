@@ -139,7 +139,7 @@ bool wav::validDATA(void) const {
 /* purpose: reads the riff header from a wav file				*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = read correctly									*/
+/*		1 = read correctly										*/
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::readRIFF(FILE* inFile) {
@@ -163,7 +163,7 @@ bool wav::readRIFF(FILE* inFile) {
 /* purpose: reads the fmt header from a wav file				*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = read correctly									*/
+/*		1 = read correctly										*/
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::readFMT(FILE* inFile) {
@@ -206,7 +206,7 @@ bool wav::readFMT(FILE* inFile) {
 /* purpose: reads the data from a wav file						*/
 /* args: FILE *													*/
 /* returns: bool												*/
-/*		1 = read correctly									*/
+/*		1 = read correctly										*/
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::readDATA(FILE* inFile) {
@@ -237,7 +237,7 @@ bool wav::readDATA(FILE* inFile) {
 /* purpose: reads a wav file into memory						*/
 /* args: const char[]											*/
 /* returns: bool												*/
-/*		1 = read correctly									*/
+/*		1 = read correctly										*/
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::read(FILE *inFile) {
