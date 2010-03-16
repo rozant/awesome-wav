@@ -24,7 +24,7 @@ uninstall:
 	rm -f /usr/bin/awesome-wav
 
 clean:
-	rm -f *.o *~
+	rm -f *.o
 
 clean-all:
 	rm -f *.o *~ ./bin/awesome-wav
