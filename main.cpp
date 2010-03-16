@@ -23,8 +23,8 @@
 using namespace std;
 
 #ifdef _DEBUG
-char DEBUG_WAV[] = "song.wav";
-char DEBUG_DATA[] = "data.txt";
+char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-16_Bit_PCM.wav";
+char DEBUG_DATA[] = "./vlc.exe";
 char DEBUG_ENCODED_WAV[] = "E_song.wav";
 char DEBUG_DECODED_DATA[] = "D_data.txt";
 #endif

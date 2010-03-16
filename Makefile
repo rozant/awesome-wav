@@ -11,20 +11,27 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+PROGNAME=awesome-wav
 CFLAGS= -Wall
 LDFLAGS = -lm
 
 all:
-	g++ $(CFLAGS) main.cpp wav.cpp -o ./bin/awesome-wav $(LDFLAGS)
+	g++ $(CFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME) $(LDFLAGS)
+
+debug:
+	g++ $(CFLAGS) -g -D _DEBUG main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+
+test:
+	g++ $(CFLAGS) -D _DEBUGOUTPUT -D _DEBUG main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 
 install: all
-	cp ./bin/awesome-wav /usr/bin
+	cp ./bin/$(PROGNAME) /usr/bin
 
 uninstall:
-	rm -f /usr/bin/awesome-wav
+	rm -f /usr/bin/$(PROGNAME)
 
 clean:
 	rm -f *.o
 
-clean-all:
-	rm -f *.o *~ ./bin/awesome-wav
+clean-all: clean
+	rm -f *~ ./bin/$(PROGNAME) ./bin/$(PROGNAME)-debug ./bin/$(PROGNAME)-test
