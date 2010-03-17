@@ -30,6 +30,21 @@ char DEBUG_DECODED_DATA[] = "D_data.txt";
 #endif
 
 /****************************************************************/
+/* function: usage												*/
+/* purpose: display the usage of the this program			 	*/
+/* args: char*													*/
+/* returns: void												*/
+/****************************************************************/
+void usage(char prog_name[]) {
+	cerr << "Useage: " << prog_name << " [-edc] [ARGUMETS]..." << endl
+				<< "Encode data into a wav file, or decode data from a wav file." << endl << endl
+				<< "  -e, --encode\tencode arg3 into arg1 and store in arg2" << endl
+				<< "  -d, --decode\tdecode arg2 from arg1 using key arg3" << endl
+				<< "  -c, --class\tencode arg3 into arg1 and store in arg2,\n\t\tthen decode arg2 and store in arg4" << endl << endl;
+	return;
+}
+
+/****************************************************************/
 /* function: main												*/
 /* purpose: initial function for program.					 	*/
 /* args: int, char**											*/
@@ -91,11 +106,7 @@ int main(int argc, char* argv[]) {
 			break;
 		/* invalid use */
 		default:
-			cerr << "Useage: ls [-edc] [ARGUMETS]..." << endl
-				<< "Encode data into a wav file, or decode data from a wav file." << endl << endl
-				<< " -e, --encode\tencode arg3 into arg1 and store in arg2" << endl
-				<< " -d, --decode\tdecode arg2 from arg1 using key arg3" << endl
-				<< " -c, --class\tencode arg3 into arg1 and store in arg2,\n\t\tthen decode arg2 and store in arg4" << endl << endl;
+			usage(argv[0]);
 			exit(EXIT_FAILURE);
 			break;
 	}

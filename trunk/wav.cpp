@@ -59,7 +59,7 @@ bool wav::validRIFF(void) const {
 		char temp[5];
 		memcpy(temp,riff.Format,4);
 		temp[5] = 0;
-		cout << "\tFORMAT == " << temp << endl;
+		cout << "\tFormat == " << temp << endl;
 		#endif
 		return false;
 	}
@@ -81,22 +81,29 @@ bool wav::validFMT(void) const {
 	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Invalid FMT header: SubchunkID != 'fmt '" << endl;
+		char temp[5];
+		memcpy(temp,fmt.SubchunkID,4);
+		temp[5] = 0;
+		cout << "\tSubchunkID == " << temp << endl;
 		#endif
 		return false;
 	} else if (fmt.AudioFormat != 1) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Invalid FMT header: AudioFormat != '1' (PCM)" << endl;
+		cout << "\tAudioFormat == " << fmt.AudioFormat << endl;
 		#endif
 		return false;
 	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Invalid FMT header: Bits per sample = " << fmt.BitsPerSample << endl;
+		cout << "\tBits per sample == " << fmt.BitsPerSample << endl;
 		cout << "\tExpected Bits per sample to be '8', '16', or '24'" << endl;
 		#endif
 		return false;
 	} else if (fmt.NumChannels != 2) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Invalid FMT header: Num channels != '2'" << endl;
+		cout << "\tNumChannels == " << fmt.NumChannels << endl;
 		#endif
 		return false;
 	}
@@ -124,6 +131,10 @@ bool wav::validDATA(void) const {
 	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Invalid DATA header: SubchunkID != 'data'" << endl;
+		char temp[5];
+		memcpy(temp,data.SubchunkID,4);
+		temp[5] = 0;
+		cout << "\tSubchunkID == " << temp << endl;
 		#endif
 		return false;
 	} else if (data.SubchunkSize == 0) {
@@ -484,20 +495,21 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		return false;
 	}
 
-
 	/* read into the buffers, process, and write */
 	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
 	dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
 
-	 while (wavBufferSize != 0) {
+	/* while there is data in the buffer encode and write to the file*/
+	while (wavBufferSize != 0) {
+		/* encode and error out if it fails */
 		if ((dataBufferSize != 0) && !encode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
 			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 			free(wavBuffer); free(dataBuffer);
 			return false;
 		}
-
+		/* write the changes to the file */
 		fwrite(wavBuffer, sizeof(BYTE), wavBufferSize, fOutputWAV);
-
+		/* get the next chunk of data */
  		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
 		dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
 	}
