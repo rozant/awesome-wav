@@ -25,6 +25,8 @@ test:
 debug:
 	g++ $(CFLAGS) -g -D _DEBUG -D _DEBUGOUTPUT main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 
+build-test: all test debug clean-all
+
 install: all
 	cp ./bin/$(PROGNAME) $(INSTLOC)
 

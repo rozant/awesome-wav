@@ -420,9 +420,29 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 
 
 	/* Can the file fit? */
+	/* allows the use of only the bottom half of the bits per sample */
 	bytesPerSample = (fmt.BitsPerSample/8);
-	maxSize = (data.SubchunkSize / bytesPerSample) - 1; /* Only doing the lower part of the sample */
-	if (fmt.BitsPerSample == 8) maxSize >>= 2; /* stupid for the 8-bit files */
+	switch (fmt.BitsPerSample) {
+		case 8:
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 2;
+			break;
+		case 16:
+			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
+			break;
+		case 24:
+			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
+			break;
+		case 32:
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 2;
+			break;
+		default:
+			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
+			#ifdef _DEBUGOUTPUT
+			cout << "E: The world is in trouble... this should never happen." << endl;
+			#endif
+			return false;
+			break;
+	}
 
 	if ((DWORD)inputDATAStat.st_size > maxSize) {
 		#ifdef _DEBUGOUTPUT
@@ -600,7 +620,34 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			}
 			break;
 		case 4: //12 bits
+			while (count < dataBufferSize) {
+				/* first 8 bits */
+				*currPos_WavBuffer = *currPos_DataBuffer;
+				currPos_WavBuffer++;
+				currPos_DataBuffer++;
+				/* next 4 bits */
+				tempByte = *currPos_DataBuffer;
+				setBit(*currPos_WavBuffer, 3, getBit(tempByte, 3));
+				setBit(*currPos_WavBuffer, 2, getBit(tempByte, 2));
+				setBit(*currPos_WavBuffer, 1, getBit(tempByte, 1));
+				setBit(*currPos_WavBuffer, 0, getBit(tempByte, 4));
+				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
 		case 5: //16 bits
+			while (count < dataBufferSize) {
+				/* first byte */
+				*currPos_WavBuffer = *currPos_DataBuffer;
+				currPos_WavBuffer += 1;
+				currPos_DataBuffer++;
+				/* second byte */
+				*currPos_WavBuffer = *currPos_DataBuffer;
+				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_DataBuffer++;
+				count++;
+			}
 		default:
 			#ifdef _DEBUGOUTPUT
 			cout << "E: Invalid number of bits used." << endl;
@@ -662,8 +709,29 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	
 
 	/* Could the file fit? */
-	maxSize = (data.SubchunkSize / bytesPerSample) - 1; /* Only doing the lower part of the sample */
-	if (fmt.BitsPerSample == 8) maxSize >>= 1;
+	/* allows the use of only the bottom half of the bits per sample */
+	bytesPerSample = (fmt.BitsPerSample/8);
+	switch (fmt.BitsPerSample) {
+		case 8:
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 2;
+			break;
+		case 16:
+			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
+			break;
+		case 24:
+			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
+			break;
+		case 32:
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 2;
+			break;
+		default:
+			close(fInputWAV); close(fOutputDATA);
+			#ifdef _DEBUGOUTPUT
+			cout << "E: The world is in trouble... this should never happen." << endl;
+			#endif
+			return false;
+			break;
+	}
 
 	bitsInFile = fileSize * 8;
 	if (maxSize * ((BYTE)pow(2.0, bitsUsed)) < bitsInFile) {
@@ -815,7 +883,33 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			}
 			break;
 		case 4: //12 bits
+			while (count < dataBufferSize) {
+				/* first 8 bits */
+				*currPos_DataBuffer = *currPos_WavBuffer;
+				currPos_WavBuffer++;
+				currPos_DataBuffer++;
+				/* next 4 bits */
+				setBit(tempByte, 3, getBit(*currPos_WavBuffer, 3));
+				setBit(tempByte, 2, getBit(*currPos_WavBuffer, 2));
+				setBit(tempByte, 1, getBit(*currPos_WavBuffer, 1));
+				setBit(tempByte, 0, getBit(*currPos_WavBuffer, 0));
+				*currPos_DataBuffer = tempByte;
+				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_DataBuffer++;
+				count++;
+			}
 		case 5: //16 bits
+			while (count < dataBufferSize) {
+				/* first byte */
+				*currPos_DataBuffer = *currPos_WavBuffer;
+				currPos_WavBuffer += 1;
+				currPos_DataBuffer++;
+				/* second byte */
+				*currPos_DataBuffer = *currPos_WavBuffer;
+				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_DataBuffer++;
+				count++;
+			}
 		default:
 			#ifdef _DEBUGOUTPUT
 			cout << "E: Invalid number of bits per sample" << endl;
