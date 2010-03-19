@@ -36,7 +36,7 @@ char DEBUG_DECODED_DATA[] = "D_data.txt";
 /* returns: void												*/
 /****************************************************************/
 void usage(char prog_name[]) {
-	cerr << "Useage: " << prog_name << " [-edc] [ARGUMETS]..." << endl
+	cerr << "Useage: " << prog_name << " [-edc] [ARGUMENTS]..." << endl
 				<< "Encode data into a wav file, or decode data from a wav file." << endl << endl
 				<< "  -e, --encode\tencode arg3 into arg1 and store in arg2" << endl
 				<< "  -d, --decode\tdecode arg2 from arg1 using key arg3" << endl
@@ -88,6 +88,8 @@ int main(int argc, char* argv[]) {
 				}
 				//cout << "Data was sucessfully decoded from the specified file." << endl;
 			}
+			else
+				usage(argv[0]);
 			break;
 		/* DEMONSTRATION: 5 Arguments, Input Wav, Output Wav, In Data, Out Data */
 		case 6:
@@ -103,6 +105,8 @@ int main(int argc, char* argv[]) {
 					exit(EXIT_FAILURE);
 				}
 			}
+			else
+				usage(argv[0]);
 			break;
 		/* invalid use */
 		default:
