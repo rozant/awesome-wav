@@ -446,8 +446,12 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		bitsUsed = 1; // 2 bits
 	} else if ((maxSize * 4) >= bitsInFile) {
 		bitsUsed = 2; // 4 bits
-	} else if ((maxSize * 8) >= bitsInFile && fmt.BitsPerSample != 8) {
+	} else if ((maxSize * 8) >= bitsInFile && fmt.BitsPerSample > 8) {
 		bitsUsed = 3; // 8 bits
+	} else if ((maxSize * 12) >= bitsInFile && fmt.BitsPerSample > 16) {
+		bitsUsed = 4; //12 bits
+	} else if ((maxSize * 16) >= bitsInFile && fmt.BitsPerSample > 24) {
+		bitsUsed = 5; //16 bits
 	} else {
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		#ifdef _DEBUGOUTPUT
@@ -457,10 +461,10 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	}
 
 
-	/* eat 2 bits initially to store how many bits are eaten */ 
+	/* eat 3 bits initially to store how many bits are eaten */ 
 	BYTE* datum = (BYTE*)calloc(bytesPerSample, sizeof(BYTE));
 	fread(datum, sizeof(BYTE), bytesPerSample, fInputWAV);
-	*datum = (((*datum) >> 2) << 2);
+	*datum = (((*datum) >> 3) << 3);
 	*datum += bitsUsed;
 	#ifdef _DEBUGOUTPUT
 	cout << "S: Bits stored per sample: " << pow(2.0, bitsUsed) << endl;
@@ -595,6 +599,8 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				count++;
 			}
 			break;
+		case 4: //12 bits
+		case 5: //16 bits
 		default:
 			#ifdef _DEBUGOUTPUT
 			cout << "E: Invalid number of bits used." << endl;
@@ -638,14 +644,20 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	bytesPerSample = (fmt.BitsPerSample/8);
 
 
-	/* Check first two bits to see how many are used per sample */ 
+	/* Check first 3 bits to see how many are used per sample */ 
 	BYTE* datum = (BYTE*)calloc(bytesPerSample, sizeof(BYTE));
 	fread(datum, sizeof(BYTE), bytesPerSample, fInputWAV);
 	setBit(bitsUsed, 0, getBit(*datum, 0));
 	setBit(bitsUsed, 1, getBit(*datum, 1));
+	setBit(bitsUsed, 2, getBit(*datum, 2));
 	free(datum);
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Bits stored per sample: " << pow(2.0, bitsUsed) << endl;
+	cout << "S: Bits stored per sample: ";
+	if(bitsUsed < 4) {
+		cout << pow(2.0, bitsUsed) << endl;
+	} else {
+		cout << 8 + (4*(bitsUsed-3)) << endl;
+	}
 	#endif
 	
 
@@ -656,14 +668,18 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	bitsInFile = fileSize * 8;
 	if (maxSize * ((BYTE)pow(2.0, bitsUsed)) < bitsInFile) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Data file could not fit at " << pow(2.0, bitsUsed) << " bits per sample" << endl;
+		cout << "E: Data file could not fit at ";
+		if(bitsUsed < 4) { cout << pow(2.0, bitsUsed); } else { cout << 8 + (4*(bitsUsed-3)); }
+		cout << " bits per sample" << endl;
 		cout << "\t (Wanted to retrieve " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data file could fit at " << pow(2.0, bitsUsed) << " bits per sample" << endl;
+	cout << "S: Data file could fit at ";		
+	if(bitsUsed < 4) { cout << pow(2.0, bitsUsed); } else { cout << 8 + (4*(bitsUsed-3)); }
+	cout << " bits per sample" << endl;
 	cout << "\t (Retrieving " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
 	#endif
 
@@ -798,6 +814,8 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				count++;
 			}
 			break;
+		case 4: //12 bits
+		case 5: //16 bits
 		default:
 			#ifdef _DEBUGOUTPUT
 			cout << "E: Invalid number of bits per sample" << endl;
