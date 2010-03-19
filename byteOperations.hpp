@@ -20,7 +20,13 @@
 /* args: BYTE&, const char, const bool&							*/
 /****************************************************************/
 void setBit(BYTE &b, const char index, const bool &torf) {
-	b = b ^ (torf << index);
+	BYTE bitMask = 1;
+	bitMask <<= index;
+
+	if (torf) // Set bit to 1
+		b |= bitMask; 
+	else // Set bit to 0
+		b &= ~bitMask;
 }
 
 /****************************************************************/
@@ -34,6 +40,7 @@ void setBit(BYTE &b, const char index, const bool &torf) {
 bool getBit(const BYTE &b, const char index) {
 	BYTE bitMask = 1;
 	bitMask <<= index;
+
 	if (bitMask & b)
 		return true;
 	return false;
