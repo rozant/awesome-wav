@@ -551,30 +551,30 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 
 	switch (bitsUsed) {
 		case 0: // 1 bit
-			while (count < wavBufferSize) {
+			while (count < dataBufferSize) {
 				tempByte = *currPos_DataBuffer;
 				for (char i = 7; i >= 0; i--) {
 					setBit(*currPos_WavBuffer, 0, getBit(tempByte,i));
 					currPos_WavBuffer += bytesPerSample;
-					count += bytesPerSample;
 				}
 				currPos_DataBuffer++;
+				count++;
 			}
 			break;
 		case 1: // 2 bits
-			while (count < wavBufferSize) {	
+			while (count < dataBufferSize) {	
 				tempByte = *currPos_DataBuffer;
 				for (char i = 3; i >= 0; i--) {
 					setBit(*currPos_WavBuffer, 1, getBit(tempByte, i*2 + 1));
 					setBit(*currPos_WavBuffer, 0, getBit(tempByte, i*2));
 					currPos_WavBuffer += bytesPerSample;
-					count += bytesPerSample;
 				}
 				currPos_DataBuffer++;
+				count++;
 			}
 			break;
 		case 2: // 4 bits
-			while (count < wavBufferSize) {
+			while (count < dataBufferSize) {
 				tempByte = *currPos_DataBuffer;
 				for (char i = 1; i >= 0; i--) {
 					setBit(*currPos_WavBuffer, 3, getBit(tempByte, i*4 + 3));
@@ -582,17 +582,17 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 					setBit(*currPos_WavBuffer, 1, getBit(tempByte, i*4 + 1));
 					setBit(*currPos_WavBuffer, 0, getBit(tempByte, i*4));
 					currPos_WavBuffer += bytesPerSample;
-					count += bytesPerSample;
 				}
 				currPos_DataBuffer++;
+				count++;
 			}
 			break;
 		case 3: // 8 bits
-			while (count < wavBufferSize) {
+			while (count < dataBufferSize) {
 				*currPos_WavBuffer = *currPos_DataBuffer;
 				currPos_WavBuffer += bytesPerSample;
 				currPos_DataBuffer++;
-				count += bytesPerSample;
+				count++;
 			}
 			break;
 		default:
@@ -703,7 +703,8 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 
 		if (count == fileSize)
 			break;
-
+	
+		memset(dataBuffer, 0, maxDataBufferSize);
  		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
 		
 		if (count + maxDataBufferSize > fileSize) {
