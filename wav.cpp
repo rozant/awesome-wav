@@ -455,22 +455,20 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	cout << "S: Data fits (Storing " << (((double)inputDATAStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
 	#endif
 
-
 	/* determine how many bits are to be eaten per sample */
-	bitsInFile = inputDATAStat.st_size * 8;
-	if (fmt.BitsPerSample == 8) { maxSize <<= 1; } /* stupid for the 8-bit files */
+	bitsInFile = inputDATAStat.st_size << 3;
 
 	if(maxSize >= bitsInFile) {
 		bitsUsed = 0; // 1 bits
-	} else if ((maxSize * 2) >= bitsInFile) {
+	} else if ((maxSize << 1) >= bitsInFile) {
 		bitsUsed = 1; // 2 bits
-	} else if ((maxSize * 4) >= bitsInFile) {
+	} else if ((maxSize << 2) >= bitsInFile) {
 		bitsUsed = 2; // 4 bits
-	} else if ((maxSize * 8) >= bitsInFile && fmt.BitsPerSample > 8) {
+	} else if ((maxSize << 3) >= bitsInFile && fmt.BitsPerSample > 8) {
 		bitsUsed = 3; // 8 bits
 	} else if ((maxSize * 12) >= bitsInFile && fmt.BitsPerSample > 16) {
 		bitsUsed = 4; //12 bits
-	} else if ((maxSize * 16) >= bitsInFile && fmt.BitsPerSample > 24) {
+	} else if ((maxSize << 4) >= bitsInFile && fmt.BitsPerSample > 24) {
 		bitsUsed = 5; //16 bits
 	} else {
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
@@ -479,7 +477,6 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		#endif
 		return false;
 	}
-
 
 	/* eat 3 bits initially to store how many bits are eaten */ 
 	BYTE* datum = (BYTE*)calloc(bytesPerSample, sizeof(BYTE));
@@ -713,19 +710,20 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	bytesPerSample = (fmt.BitsPerSample/8);
 	switch (fmt.BitsPerSample) {
 		case 8:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 2;
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 1;
 			break;
 		case 16:
 			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
 			break;
 		case 24:
 			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
+			maxSize += maxSize >> 1;
 			break;
 		case 32:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 2;
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 1;
 			break;
 		default:
-			close(fInputWAV); close(fOutputDATA);
+			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 			#ifdef _DEBUGOUTPUT
 			cout << "E: The world is in trouble... this should never happen." << endl;
 			#endif
@@ -733,7 +731,8 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 			break;
 	}
 
-	bitsInFile = fileSize * 8;
+	/* OH GOD PLEASE FIXME */
+	bitsInFile = fileSize << 3;
 	if (maxSize * ((BYTE)pow(2.0, bitsUsed)) < bitsInFile) {
 		#ifdef _DEBUGOUTPUT
 		cout << "E: Data file could not fit at ";
@@ -750,6 +749,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	cout << " bits per sample" << endl;
 	cout << "\t (Retrieving " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
 	#endif
+	/* end of crazy FIXME */
 
 
 	/* Calculate the size of our buffers */
