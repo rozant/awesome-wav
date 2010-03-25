@@ -13,8 +13,54 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
+#ifndef __util_hpp__
+#define __util_hpp__
 #include <iostream>
-using namespace std;
+
+/****************************************************************/
+/* function: setBit												*/
+/* purpose: sets the bit at a specific position					*/
+/* args: BYTE&, const char, const bool&							*/
+/****************************************************************/
+void setBit(BYTE &b, const char index, const bool &torf) {
+	BYTE bitMask = 1;
+	bitMask <<= index;
+
+	if (torf) // Set bit to 1
+		b |= bitMask; 
+	else // Set bit to 0
+		b &= ~bitMask;
+}
+
+/****************************************************************/
+/* function: getBit												*/
+/* purpose: gets the bit at a specific position					*/
+/* args: const BYTE&, const char								*/
+/* returns: bool												*/
+/*		1 = bit is a 1											*/
+/*		0 = bit is a 0											*/
+/****************************************************************/
+bool getBit(const BYTE &b, const char index) {
+	BYTE bitMask = 1;
+	bitMask <<= index;
+
+	if (bitMask & b)
+		return true;
+	return false;
+}
+
+/****************************************************************/
+/* function: bytencmp											*/
+/* purpose: compares two bytes									*/
+/* args: const BYTE *, const BYTE *, size_t						*/
+/* returns: int													*/
+/****************************************************************/
+int bytencmp(const BYTE* b1, const BYTE* b2, size_t n) {
+	while(n--)
+		if(*b1++!=*b2++)
+			return *(BYTE*)(b1 - 1) - *(BYTE*)(b2 - 1);
+	return 0;
+}
 
 /****************************************************************/
 /* function: open												*/
@@ -30,9 +76,9 @@ FILE* open(const char *filename, const char *mode) {
 
 	#ifdef _DEBUGOUTPUT
 	if (aFile == NULL)
-		cout << "E: Failed to open " << filename << " with mode " << mode << endl;
+		std::cout << "E: Failed to open " << filename << " with mode " << mode << std::endl;
 	else
-		cout << "S: Opened " << filename << " with mode " << mode << endl;
+		std::cout << "S: Opened " << filename << " with mode " << mode << std::endl;
 	#endif
 
 	return aFile;
@@ -50,21 +96,23 @@ bool close(FILE *aFile) {
 	if( aFile) {
 		if ( fclose( aFile ) ) {
 			#ifdef _DEBUGOUTPUT
-			cout << "E: Failed to close file" << endl;
+			std::cout << "E: Failed to close file" << std::endl;
 			#endif
 			return false;
 		} else {
 			#ifdef _DEBUGOUTPUT
-			cout << "S: Closed file" << endl;
+			std::cout << "S: Closed file" << std::endl;
 			#endif
 			return true;
 		}
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: File already closed" << endl;
+	std::cout << "E: File already closed" << std::endl;
 	#endif
 	return false;
 }
+
+#endif
 
 /****************************************************************/
 /****************************************************************/
