@@ -22,6 +22,7 @@ all:
 
 test:
 	g++ $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test
 
 debug:
 	g++ -g $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
