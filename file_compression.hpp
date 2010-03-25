@@ -13,19 +13,14 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#ifndef __typedefs_hpp__
-#define __typedefs_hpp__
+#ifndef __file_compression_hpp__
+#define __file_compression_hpp__
 
-/* typedefs to make things look nice */
-#ifdef _WIN32
-	typedef unsigned __int32 DWORD; 
-	typedef unsigned __int16 SHORT;
-	typedef unsigned __int8 BYTE;
-#else
-	typedef uint32_t DWORD; 
-	typedef uint16_t SHORT;
-	typedef uint8_t BYTE;
-#endif
+#define CHUNK 16384
+
+int def(FILE *source, FILE *dest, int level);
+int inf(FILE *source, FILE *dest);
+void zerr(int ret);
 
 #endif
 
