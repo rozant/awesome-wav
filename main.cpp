@@ -19,6 +19,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+
+#include "typedefs.hpp"
 #include "wav.hpp"
 using namespace std;
 
