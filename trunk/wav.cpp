@@ -423,16 +423,17 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	bytesPerSample = (fmt.BitsPerSample/8);
 	switch (fmt.BitsPerSample) {
 		case 8:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 2;
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 1;
 			break;
 		case 16:
 			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
 			break;
 		case 24:
 			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
+			maxSize += maxSize >> 1;
 			break;
 		case 32:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 2;
+			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 1;
 			break;
 		default:
 			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
