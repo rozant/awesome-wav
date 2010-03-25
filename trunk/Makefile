@@ -24,7 +24,7 @@ test:
 	g++ $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 
 debug:
-	g++ $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+	g++ -g $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 
 build-test: all test debug clean-all
 
