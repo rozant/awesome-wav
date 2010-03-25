@@ -19,8 +19,8 @@
 /* please find the nearest person that does and have them 		*/
 /* escort you away from this computer immediately.				*/
 /****************************************************************/
-#ifndef __wav_h__
-#define __wav_h__
+#ifndef __wav_hpp__
+#define __wav_hpp__
 #include "riff.hpp"
 
 /****************************************************************/
