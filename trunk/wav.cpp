@@ -25,8 +25,7 @@
 #include "riff.hpp"
 #include "wav.hpp"
 #include "buffer.hpp"
-#include "byteOperations.hpp"
-#include "fileOperations.hpp"
+#include "util.hpp"
 
 using namespace std;
 

@@ -37,4 +37,4 @@ clean:
 	rm -f *.o
 
 clean-all: clean
-	rm -f ./bin/$(PROGNAME) ./bin/$(PROGNAME)-debug ./bin/$(PROGNAME)-test
+	rm -f ./bin/$(PROGNAME)*
