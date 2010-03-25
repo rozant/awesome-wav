@@ -19,6 +19,7 @@
 #include <ostream>
 #endif
 #include <stdio.h>
+#include "typedefs.hpp"
 
 /****************************************************************/
 /* function: setBit												*/

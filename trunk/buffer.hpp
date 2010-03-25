@@ -16,7 +16,8 @@
 #ifndef __buffer_hpp__
 #define __buffer_hpp__
 
-#include "riff.hpp"
+#include "typedefs.hpp"
+
 /* macro for defining the size of the buffer */
 #define BUFFER_SIZE(x) 1024*x
 

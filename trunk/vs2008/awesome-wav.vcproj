@@ -283,15 +283,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\byteOperations.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\fileOperations.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\riff.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\typedefs.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\util.hpp"
 				>
 			</File>
 			<File
