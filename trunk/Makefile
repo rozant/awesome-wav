@@ -36,7 +36,7 @@ uninstall:
 	rm -f $(INSTLOC)/$(PROGNAME)
 
 clean:
-	rm -f *.o
+	rm -f *.o *.gch
 
 clean-all: clean
 	rm -f ./bin/$(PROGNAME)*
