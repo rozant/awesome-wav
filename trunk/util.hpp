@@ -15,7 +15,9 @@
 *****************************************************************/
 #ifndef __util_hpp__
 #define __util_hpp__
+#ifdef _DEBUGOUTPUT
 #include <iostream>
+#endif
 
 /****************************************************************/
 /* function: setBit												*/

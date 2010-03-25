@@ -20,8 +20,8 @@
 /* that does and have them escort you away from this computer	*/
 /* immediately.													*/
 /****************************************************************/
-#ifndef __riff_h__
-#define __riff_h__
+#ifndef __riff_hpp__
+#define __riff_hpp__
 #include <stdlib.h>
 /* defines useful for RIFF formatting */
 #define FORMAT_PCM 1

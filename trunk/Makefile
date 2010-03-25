@@ -13,17 +13,18 @@
 
 PROGNAME=awesome-wav
 INSTLOC=/usr/bin
-CFLAGS= -Wall
+CFLAGS= -Wall -O2
+DBGFLAGS = -Wall -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
 
 all:
 	g++ $(CFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME) $(LDFLAGS)
 
 test:
-	g++ $(CFLAGS) -D _DEBUG -D _DEBUGOUTPUT main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	g++ $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 
 debug:
-	g++ $(CFLAGS) -g -D _DEBUG -D _DEBUGOUTPUT main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+	g++ $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 
 build-test: all test debug clean-all
 
