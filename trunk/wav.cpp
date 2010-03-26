@@ -377,7 +377,7 @@ bool wav::writeDATA(FILE* outFile) const {
 DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
 	struct stat inputDATAStat;
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD maxSize = 0,  bitsInFile = 0, bytesPerSample = 0;
+	DWORD maxSize = 0, bytesPerSample = 0;
 	BYTE bitsUsed = 0;
 	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
@@ -441,21 +441,8 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	#endif
 
 	/* determine how many bits are to be eaten per sample */
-	bitsInFile = inputDATAStat.st_size << 3;
-
-	if(maxSize >= bitsInFile) {
-		bitsUsed = 0; // 1 bits
-	} else if ((maxSize << 1) >= bitsInFile) {
-		bitsUsed = 1; // 2 bits
-	} else if ((maxSize << 2) >= bitsInFile) {
-		bitsUsed = 2; // 4 bits
-	} else if ((maxSize << 3) >= bitsInFile && fmt.BitsPerSample > 8) {
-		bitsUsed = 3; // 8 bits
-	} else if ((maxSize * 12) >= bitsInFile && fmt.BitsPerSample > 16) {
-		bitsUsed = 4; //12 bits
-	} else if ((maxSize << 4) >= bitsInFile && fmt.BitsPerSample > 24) {
-		bitsUsed = 5; //16 bits
-	} else {
+	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, inputDATAStat.st_size, maxSize);
+	if (bitsUsed > 5) {
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		#ifdef _DEBUGOUTPUT
 		cout << "E: The world is in trouble... this should never happen." << endl;
@@ -889,9 +876,9 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 }
 
 /****************************************************************/
-/* function: getMaxBytesEncoded										*/
+/* function: getMaxBytesEncoded									*/
 /* purpose: calculate max number of bytes a WAV can encode	 	*/
-/* args: DWORD, DWORD											*/
+/* args: SHORT, DWORD											*/
 /* returns: DWORD												*/
 /****************************************************************/
 DWORD wav::getMaxBytesEncoded(SHORT bitsPerSample, DWORD subchunkSize) {
@@ -917,6 +904,37 @@ DWORD wav::getMaxBytesEncoded(SHORT bitsPerSample, DWORD subchunkSize) {
 			break;
 	}
 	return maxSize;
+}
+
+/****************************************************************/
+/* function: getMinBitsEncodedPS								*/
+/* purpose: calculate min number of bits possibly stored		*/
+/*			per sample	 						*/
+/* args: SHORT, DWORD, DWORD									*/
+/* returns: BYTE												*/
+/****************************************************************/
+BYTE wav::getMinBitsEncodedPS(SHORT bitsPerSample, DWORD fileSize, DWORD maxSize) {
+	DWORD bitsInFile = fileSize << 3;
+	BYTE bitsUsed;
+
+	// Convert maxSize from bytes to bits to prevent division complications
+	if(maxSize >= bitsInFile) {
+		bitsUsed = 0; // 1 bits
+	} else if ((maxSize << 1) >= bitsInFile) {
+		bitsUsed = 1; // 2 bits
+	} else if ((maxSize << 2) >= bitsInFile) {
+		bitsUsed = 2; // 4 bits
+	} else if ((maxSize << 3) >= bitsInFile && bitsPerSample > 8) {
+		bitsUsed = 3; // 8 bits
+	} else if ((maxSize * 12) >= bitsInFile && bitsPerSample > 16) {
+		bitsUsed = 4; //12 bits
+	} else if ((maxSize << 4) >= bitsInFile && bitsPerSample > 24) {
+		bitsUsed = 5; //16 bits
+	} else {
+		bitsUsed = 999;
+	}
+
+	return bitsUsed;
 }
 
 /****************************************************************/
