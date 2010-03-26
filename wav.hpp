@@ -49,6 +49,7 @@ class wav {
 		bool validDATA(void) const;
 		/* data operations */
 		DWORD getMaxBytesEncoded(SHORT, DWORD);
+		BYTE getMinBitsEncodedPS(SHORT, DWORD, DWORD);
 		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		bool decode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		/* buffer operations */
