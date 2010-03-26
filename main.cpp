@@ -25,8 +25,8 @@
 using namespace std;
 
 #ifdef _DEBUG
-char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-24_Bit_PCM.wav";
-char DEBUG_DATA[] = "./test_input-1b-16kbps-43582508.txt";
+char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-8_Bit_PCM.wav";
+char DEBUG_DATA[] = "./test_input-4b-8kbps-21791276.txt";
 char DEBUG_ENCODED_WAV[] = "E_song.wav";
 char DEBUG_DECODED_DATA[] = "D_data.txt";
 #endif

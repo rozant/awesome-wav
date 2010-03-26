@@ -641,7 +641,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
-
+	
 	return decode(fInputWAV, fOutputDATA, fileSize);
 }
 
@@ -860,10 +860,10 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 /****************************************************************/
 /* function: getMaxBytesEncoded									*/
 /* purpose: calculate max number of bytes a WAV can encode	 	*/
-/* args: SHORT, DWORD											*/
+/* args: const SHORT, const DWORD								*/
 /* returns: DWORD												*/
 /****************************************************************/
-DWORD wav::getMaxBytesEncoded(SHORT bitsPerSample, DWORD subchunkSize) {
+DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSize) {
 	DWORD maxSize, bytesPerSample = (bitsPerSample/8);
 
 	/* allows the use of only the bottom half of the bits per sample */
@@ -892,10 +892,10 @@ DWORD wav::getMaxBytesEncoded(SHORT bitsPerSample, DWORD subchunkSize) {
 /* function: getMinBitsEncodedPS								*/
 /* purpose: calculate min number of bits possibly encoded		*/
 /*			per sample					 						*/
-/* args: SHORT, DWORD, DWORD									*/
+/* args: const SHORT, const DWORD, const DWORD					*/
 /* returns: BYTE												*/
 /****************************************************************/
-BYTE wav::getMinBitsEncodedPS(SHORT bitsPerSample, DWORD fileSize, DWORD maxSize) {
+BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, const DWORD maxSize) {
 	DWORD bitsInFile = fileSize << 3;
 	BYTE bitsUsed;
 

@@ -166,6 +166,8 @@ void zerr(int ret) {
 			break;
 		case Z_VERSION_ERROR:
 			fputs("zlib version mismatch!\n", stderr);
+		default:
+			break;
 	}
 }
 

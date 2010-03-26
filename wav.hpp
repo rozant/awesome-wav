@@ -48,8 +48,8 @@ class wav {
 		bool validFMT(void) const;
 		bool validDATA(void) const;
 		/* data operations */
-		DWORD getMaxBytesEncoded(SHORT, DWORD);
-		BYTE getMinBitsEncodedPS(SHORT, DWORD, DWORD);
+		DWORD getMaxBytesEncoded(const SHORT, const DWORD);
+		BYTE getMinBitsEncodedPS(const SHORT, const DWORD, const DWORD);
 		DWORD encode(FILE*, FILE*, FILE*);
 		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		bool decode(FILE*, FILE*, const DWORD&);
