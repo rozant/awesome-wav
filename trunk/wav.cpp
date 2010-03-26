@@ -23,6 +23,7 @@
 #include <string.h>
 #include "riff.hpp"
 #include "wav.hpp"
+#include "global.hpp"
 #include "buffer.hpp"
 #include "util.hpp"
 

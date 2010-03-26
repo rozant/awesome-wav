@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "typedefs.hpp"
+#include "global.hpp"
 #include "wav.hpp"
 using namespace std;
 

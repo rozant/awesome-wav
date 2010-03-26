@@ -23,11 +23,9 @@
 #ifndef __riff_hpp__
 #define __riff_hpp__
 #include <stdlib.h>
-#include "typedefs.hpp"
+#include "global.hpp"
 /* defines useful for RIFF formatting */
 #define FORMAT_PCM 1
-
-
 
 /****************************************************************/
 /* struct: _RIFF												*/
