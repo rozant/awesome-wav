@@ -18,7 +18,6 @@
 /****************************************************************/
 #include <iostream>
 #include <iomanip>
-#include <sys/stat.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -370,17 +369,11 @@ bool wav::writeDATA(FILE* outFile) const {
 
 /****************************************************************/
 /* function: encode												*/
-/* purpose: encode data into the audio file that is in ram	 	*/
+/* purpose: open the files ment for encoding				 	*/
 /* args: const char[], const char[], const char[]				*/
 /* returns: DWORD												*/
 /****************************************************************/
 DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
-	struct stat inputDATAStat;
-	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD maxSize = 0, bytesPerSample = 0;
-	BYTE bitsUsed = 0;
-	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
-
 	/* Open up all of our files */
 	FILE* fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) {
@@ -397,26 +390,35 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		return false;
 	}
 
-
 	/* read and validate wave header (RIFF Chunk), and format chunk */
 	if (!read(fInputWAV)) {
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 
+	return encode(fInputWAV, fInputDATA, fOutputWAV);
+}
 
-	/* Get size of inputDATA */
-	if (stat(inputDATA, &inputDATAStat) != 0) {
-		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to determine input data file size" << endl;
-		#endif
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-		return false;
-	}
+/****************************************************************/
+/* function: encode												*/
+/* purpose: do all necessary calculations and handle buffering 	*/
+/* prerequisites: files are open; header data has been read		*/
+/* args: FILE* FILE* FILE*										*/
+/* returns: DWORD												*/
+/****************************************************************/
+DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
+	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
+	DWORD dataSize = 0, maxSize = 0, bytesPerSample = 0;
+	BYTE bitsUsed = 0;
+	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
+
+	/* Get size of data file we want to encode */
+	fseek(fInputDATA, 0, SEEK_END);
+	dataSize = ftell(fInputDATA);
+	fseek(fInputDATA, 0, SEEK_SET);
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Determined input data file size (" << setprecision(3) << byteToMB(inputDATAStat.st_size) << " MB)" << endl;
+	cout << "S: Determined input data file size (" << setprecision(3) << byteToMB(dataSize) << " MB)" << endl;
 	#endif
-
 
 	/* get the maximum number of bytes the wav file could hold */
 	bytesPerSample = (fmt.BitsPerSample/8);
@@ -429,19 +431,19 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		return false;
 	}
 
-	if ((DWORD)inputDATAStat.st_size > maxSize) {
+	if (dataSize > maxSize) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Data file is too large (Want to store " << byteToMB(inputDATAStat.st_size) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
+		cout << "E: Data file is too large (Want to store " << byteToMB(dataSize) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data fits (Storing " << byteToMB(inputDATAStat.st_size) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
+	cout << "S: Data fits (Storing " << byteToMB(dataSize) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
 	#endif
 
 	/* get the minimum number of bits the wav file could encode per sample */
-	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, inputDATAStat.st_size, maxSize);
+	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, dataSize, maxSize);
 	if (bitsUsed > 5) {
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		#ifdef _DEBUGOUTPUT
@@ -497,12 +499,12 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	}
 
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Number of bytes stored: " << inputDATAStat.st_size << endl;
+	cout << "S: Number of bytes stored: " << dataSize << endl;
 	#endif
 
 	close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 	free(wavBuffer); free(dataBuffer);
-	return inputDATAStat.st_size;
+	return dataSize;
 }
 
 
