@@ -13,8 +13,10 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#ifndef __typedefs_hpp__
-#define __typedefs_hpp__
+#ifndef __global_hpp__
+#define __global_hpp__
+
+#define REVISION $SVN_REV$
 
 /* typedefs to make things look nice */
 #ifdef _WIN32
