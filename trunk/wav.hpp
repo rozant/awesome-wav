@@ -52,6 +52,7 @@ class wav {
 		BYTE getMinBitsEncodedPS(SHORT, DWORD, DWORD);
 		DWORD encode(FILE*, FILE*, FILE*);
 		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
+		bool decode(FILE*, FILE*, const DWORD&);
 		bool decode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		/* buffer operations */
 		template <class T>

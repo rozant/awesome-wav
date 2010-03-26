@@ -620,16 +620,11 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 
 /****************************************************************/
 /* function: decode												*/
-/* purpose: decode data from the audio file that is in ram	 	*/
+/* purpose: open the files ment for decoding				 	*/
 /* args: const char[], const char[], const DWORD&				*/
 /* returns: bool												*/
 /****************************************************************/
 bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize) {
-	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD maxSize = 0, bytesPerSample = 0, count = 0;
-	BYTE bitsUsed = 0x00;
-	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
-	
 	/* Open up all of our files */
 	FILE* fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) {
@@ -641,12 +636,27 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 		return false;
 	}
 
-
 	/* read and validate wave header (RIFF Chunk), and format chunk */
 	if (!read(fInputWAV)) {
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
+
+	return decode(fInputWAV, fOutputDATA, fileSize);
+}
+
+/****************************************************************/
+/* function: decode												*/
+/* purpose: do all necessary calculations and handle buffering 	*/
+/* prerequisites: files are open; header data has been read		*/
+/* args: const char[], const char[], const DWORD&				*/
+/* returns: bool												*/
+/****************************************************************/
+bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
+	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
+	DWORD maxSize = 0, bytesPerSample = 0, count = 0;
+	BYTE bitsUsed = 0x00;
+	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
 	bytesPerSample = (fmt.BitsPerSample/8);
 
@@ -659,7 +669,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 		#endif
 		return false;
 	}
-//a
+
 	/* get the minimum number of bits the wav file could encode per sample */
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, fileSize, maxSize);
 	if (bitsUsed > 5) {
