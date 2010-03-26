@@ -414,45 +414,30 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Determined input data file size (" << setprecision(3) << (((double)inputDATAStat.st_size) / 1048576.0) << " MB)" << endl;
+	cout << "S: Determined input data file size (" << setprecision(3) << byteToMB(inputDATAStat.st_size) << " MB)" << endl;
 	#endif
 
 
-	/* Can the file fit? */
-	/* allows the use of only the bottom half of the bits per sample */
+	/* get the maximum number of bytes the wav file could hold */
 	bytesPerSample = (fmt.BitsPerSample/8);
-	switch (fmt.BitsPerSample) {
-		case 8:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 1;
-			break;
-		case 16:
-			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
-			break;
-		case 24:
-			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
-			maxSize += maxSize >> 1;
-			break;
-		case 32:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 1;
-			break;
-		default:
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-			#ifdef _DEBUGOUTPUT
-			cout << "E: The world is in trouble... this should never happen." << endl;
-			#endif
-			return false;
-			break;
+	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
+	if (maxSize == 0) {
+		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
+		#ifdef _DEBUGOUTPUT
+		cout << "E: The world is in trouble... this should never happen." << endl;
+		#endif
+		return false;
 	}
 
 	if ((DWORD)inputDATAStat.st_size > maxSize) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Data file is too large (Want to store " << (((double)inputDATAStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
+		cout << "E: Data file is too large (Want to store " << byteToMB(inputDATAStat.st_size) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data fits (Storing " << (((double)inputDATAStat.st_size) / 1048576.0) << " MB. Can fit " << (((double)maxSize) / 1048576.0) << " MB.)" << endl;
+	cout << "S: Data fits (Storing " << byteToMB(inputDATAStat.st_size) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
 	#endif
 
 	/* determine how many bits are to be eaten per sample */
@@ -705,30 +690,14 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	#endif
 	
 
-	/* Could the file fit? */
-	/* allows the use of only the bottom half of the bits per sample */
-	bytesPerSample = (fmt.BitsPerSample/8);
-	switch (fmt.BitsPerSample) {
-		case 8:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 1;
-			break;
-		case 16:
-			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
-			break;
-		case 24:
-			maxSize = (data.SubchunkSize / bytesPerSample) - 1;
-			maxSize += maxSize >> 1;
-			break;
-		case 32:
-			maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 1;
-			break;
-		default:
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-			#ifdef _DEBUGOUTPUT
-			cout << "E: The world is in trouble... this should never happen." << endl;
-			#endif
-			return false;
-			break;
+	/* get the maximum number of bytes the wav file could hold */
+	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
+	if (maxSize == 0) {
+		close(fInputWAV); close(fOutputDATA);
+		#ifdef _DEBUGOUTPUT
+		cout << "E: The world is in trouble... this should never happen." << endl;
+		#endif
+		return false;
 	}
 
 	/* OH GOD PLEASE FIXME */
@@ -738,7 +707,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 		cout << "E: Data file could not fit at ";
 		if(bitsUsed < 4) { cout << pow(2.0, bitsUsed); } else { cout << 8 + (4*(bitsUsed-3)); }
 		cout << " bits per sample" << endl;
-		cout << "\t (Wanted to retrieve " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
+		cout << "\t (Wanted to retrieve " << byteToMB(fileSize) << " MB - Could fit " << byteToMB(maxSize / (8 / (BYTE)pow(2.0, bitsUsed))) << " MB)" << endl;
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		return false;
@@ -747,7 +716,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	cout << "S: Data file could fit at ";		
 	if(bitsUsed < 4) { cout << pow(2.0, bitsUsed); } else { cout << 8 + (4*(bitsUsed-3)); }
 	cout << " bits per sample" << endl;
-	cout << "\t (Retrieving " << (((double)fileSize) / 1048576.0) << " MB. Could fit " << (((double)(maxSize / (8 / (BYTE)pow(2.0, bitsUsed)))) / 1048576.0) << " MB.)" << endl;
+	cout << "\t (Retrieving " << byteToMB(fileSize) << " MB - Could fit " << byteToMB(maxSize / (8 / (BYTE)pow(2.0, bitsUsed))) << " MB)" << endl;
 	#endif
 	/* end of crazy FIXME */
 
@@ -919,6 +888,36 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 	return true;
 }
 
+/****************************************************************/
+/* function: getMaxBytesEncoded										*/
+/* purpose: calculate max number of bytes a WAV can encode	 	*/
+/* args: DWORD, DWORD											*/
+/* returns: DWORD												*/
+/****************************************************************/
+DWORD wav::getMaxBytesEncoded(SHORT bitsPerSample, DWORD subchunkSize) {
+	DWORD maxSize, bytesPerSample = (bitsPerSample/8);
+
+	/* allows the use of only the bottom half of the bits per sample */
+	switch (bitsPerSample) {
+		case 8:
+			maxSize = ((subchunkSize / bytesPerSample) - 1) >> 1;
+			break;
+		case 16:
+			maxSize = (subchunkSize / bytesPerSample) - 1;
+			break;
+		case 24:
+			maxSize = (subchunkSize / bytesPerSample) - 1;
+			maxSize += maxSize >> 1;
+			break;
+		case 32:
+			maxSize = ((subchunkSize / bytesPerSample) - 1) << 1;
+			break;
+		default:
+			maxSize = 0;
+			break;
+	}
+	return maxSize;
+}
 
 /****************************************************************/
 /****************************************************************/
