@@ -50,6 +50,7 @@ class wav {
 		/* data operations */
 		DWORD getMaxBytesEncoded(SHORT, DWORD);
 		BYTE getMinBitsEncodedPS(SHORT, DWORD, DWORD);
+		DWORD encode(FILE*, FILE*, FILE*);
 		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		bool decode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
 		/* buffer operations */
