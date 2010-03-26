@@ -116,6 +116,18 @@ bool close(FILE *aFile) {
 	return false;
 }
 
+/****************************************************************/
+/* function: byteToMB											*/
+/* purpose: convers bytes to megabytes							*/
+/* args: DWORD													*/
+/* returns: double												*/
+/****************************************************************/
+#ifdef _DEBUGOUTPUT
+double byteToMB(DWORD bytes) {
+	return bytes / 1048576.0;
+}
+#endif
+
 #endif
 
 /****************************************************************/
