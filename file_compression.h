@@ -16,11 +16,20 @@
 #ifndef __file_compression_h__
 #define __file_compression_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <stdio.h>
+
 #define CHUNK 16384
 
 int def(FILE *source, FILE *dest, int level);
 int inf(FILE *source, FILE *dest);
 void zerr(int ret);
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif
 
