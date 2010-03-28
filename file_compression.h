@@ -13,8 +13,8 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#ifndef __file_compression_hpp__
-#define __file_compression_hpp__
+#ifndef __file_compression_h__
+#define __file_compression_h__
 
 #define CHUNK 16384
 

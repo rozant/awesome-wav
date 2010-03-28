@@ -15,9 +15,6 @@
 *****************************************************************/
 #ifndef __util_hpp__
 #define __util_hpp__
-#ifdef _DEBUGOUTPUT
-#include <ostream>
-#endif
 #include <stdio.h>
 #include "global.hpp"
 
@@ -80,9 +77,9 @@ FILE* open(const char *filename, const char *mode) {
 
 	#ifdef _DEBUGOUTPUT
 	if (aFile == NULL)
-		std::cout << "E: Failed to open " << filename << " with mode " << mode << std::endl;
+		fprintf(stderr,"E: Failed to open %s with mode %s\n",filename,mode);
 	else
-		std::cout << "S: Opened " << filename << " with mode " << mode << std::endl;
+		fprintf(stderr,"S: Opened %s with mode %s\n",filename,mode);
 	#endif
 
 	return aFile;
@@ -100,18 +97,18 @@ bool close(FILE *aFile) {
 	if( aFile) {
 		if ( fclose( aFile ) ) {
 			#ifdef _DEBUGOUTPUT
-			std::cout << "E: Failed to close file" << std::endl;
+			fprintf(stderr,"E: Failed to close file\n");
 			#endif
 			return false;
 		} else {
 			#ifdef _DEBUGOUTPUT
-			std::cout << "S: Closed file" << std::endl;
+			fprintf(stderr,"S: Closed file\n");
 			#endif
 			return true;
 		}
 	}
 	#ifdef _DEBUGOUTPUT
-	std::cout << "E: File already closed" << std::endl;
+	fprintf(stderr,"E: File already closed\n");
 	#endif
 	return false;
 }

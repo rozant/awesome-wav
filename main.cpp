@@ -16,17 +16,16 @@
 /****************************************************************/
 /* main.cpp														*/
 /****************************************************************/
-#include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "global.hpp"
 #include "wav.hpp"
 using namespace std;
 
 #ifdef _DEBUG
-char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-8_Bit_PCM.wav";
-char DEBUG_DATA[] = "./test_input-4b-8kbps-21791276.txt";
+char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-16_Bit_PCM.wav";
+char DEBUG_DATA[] = "./test_input-8b-16kbps-43582508.txt";
 char DEBUG_ENCODED_WAV[] = "E_song.wav";
 char DEBUG_DECODED_DATA[] = "D_data.txt";
 #endif
@@ -38,14 +37,13 @@ char DEBUG_DECODED_DATA[] = "D_data.txt";
 /* returns: void												*/
 /****************************************************************/
 void usage(char prog_name[]) {
-	cerr << "Useage: " << prog_name << " [-edc] [ARGUMENTS]..." << endl
-				<< "Encode data into a wav file, or decode data from a wav file." << endl << endl
-				<< "  -e, --encode\tencode arg3 into arg1 and store in arg2" << endl
-				<< "  -d, --decode\tdecode arg2 from arg1 using key arg3" << endl
-				<< "  -c, --class\tencode arg3 into arg1 and store in arg2,\n\t\tthen decode arg2 and store in arg4" << endl << endl;
+	fprintf(stderr,"Useage: %s [-edc] [ARGUMENTS]...\n",prog_name);
+	fprintf(stderr,"Encode data into a wav file, or decode data from a wav file.\n\n");
+	fprintf(stderr,"  -e, --encode\tencode arg3 into arg1 and store in arg2\n");
+	fprintf(stderr,"  -d, --decode\tdecode arg2 from arg1 using key arg3\n");
+	fprintf(stderr,"  -c, --class\tencode arg3 into arg1 and store in arg2,\n\t\tthen decode arg2 and store in arg4\n\n");
 	return;
 }
-
 /****************************************************************/
 /* function: main												*/
 /* purpose: initial function for program.					 	*/
@@ -55,7 +53,7 @@ void usage(char prog_name[]) {
 int main(int argc, char* argv[]) {
 	/* wav file definitaion */
 	wav in_wav;
-	DWORD size = 0x00;
+	unsigned long int size = 0x00;
 
 	/* decide what to do */
 	switch(argc) {
@@ -83,7 +81,7 @@ int main(int argc, char* argv[]) {
 				}
 				//cout << "Data was sucessfully encoded into the specified file." << endl;
 				//	<< "Enter this when trying to decode file: " << size << endl;
-				cout << size << endl;
+				printf("%lu\n",size);
 			} else if ((strcmp(argv[1],"-d") == 0) || (strcmp(argv[1],"--decode") == 0)) {	/* DECODE: Input Wav, Ouptut Data, Data Size */
 				if (!in_wav.decode(argv[2], argv[3], (DWORD)atol(argv[4]))) {
 					exit(EXIT_FAILURE);
