@@ -283,11 +283,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\riff.hpp"
+				RelativePath="..\global.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\typedefs.hpp"
+				RelativePath="..\riff.hpp"
 				>
 			</File>
 			<File
