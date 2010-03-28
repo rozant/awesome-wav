@@ -436,9 +436,9 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 
 	/* get the minimum number of bits the wav file could encode per sample */
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, dataSize, maxSize);
-	if (bitsUsed == 0) {
+	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: This should never happen" << endl;
+		cout << "E: This should never happen " << (int)bitsUsed << endl;
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
@@ -687,9 +687,9 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 
 	/* get the minimum number of bits the wav file could encode per sample */
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, fileSize, maxSize);
-	if (bitsUsed == 0) {
+	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: This should never happen" << endl;
+		cout << "E: This should never happen " << (int)bitsUsed << endl;
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		return false;
@@ -939,6 +939,8 @@ BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, c
 		return 4;
 	else if (i_MinBPS <= 8)
 		return 8;
+	else if (i_MinBPS <= 12)
+		return 12;
 	else if (i_MinBPS <= 16)
 		return 16;
 	else
