@@ -454,8 +454,9 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	}
 
 	/* Calculate the size of our buffers */
-	maxWavBufferSize = 1024 * (bytesPerSample);
-	maxDataBufferSize = 1024 / (8 / bitsUsed);
+	maxWavBufferSize = 1024 * bytesPerSample;
+	maxDataBufferSize = 128 * bitsUsed;
+
 
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
@@ -580,19 +581,30 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				count++;
 			}
 			break;
-		case 12:
+		case 12: // Ugly and not very efficient
 			while (count < dataBufferSize) {
-				/* first 8 bits */
+				/* first byte */
 				*currPos_WavBuffer = *currPos_DataBuffer;
-				currPos_WavBuffer++;
+				currPos_WavBuffer+= bytesPerSample;
 				currPos_DataBuffer++;
-				/* next 4 bits */
+				count++;
+				/* second byte */
+				*currPos_WavBuffer = *currPos_DataBuffer;
+				currPos_WavBuffer-= (bytesPerSample-1);
+				currPos_DataBuffer++;
+				count++;
+				/* third byte */
 				tempByte = *currPos_DataBuffer;
 				setBit(*currPos_WavBuffer, 3, getBit(tempByte, 3));
 				setBit(*currPos_WavBuffer, 2, getBit(tempByte, 2));
 				setBit(*currPos_WavBuffer, 1, getBit(tempByte, 1));
+				setBit(*currPos_WavBuffer, 0, getBit(tempByte, 0));
+				currPos_WavBuffer += bytesPerSample;
+				setBit(*currPos_WavBuffer, 3, getBit(tempByte, 7));
+				setBit(*currPos_WavBuffer, 2, getBit(tempByte, 6));
+				setBit(*currPos_WavBuffer, 1, getBit(tempByte, 5));
 				setBit(*currPos_WavBuffer, 0, getBit(tempByte, 4));
-				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_WavBuffer++;
 				currPos_DataBuffer++;
 				count++;
 			}
@@ -609,9 +621,10 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				currPos_DataBuffer++;
 				count++;
 			}
+			break;
 		default:
 			#ifdef _DEBUGOUTPUT
-			cout << "E: Invalid number of bits used." << endl;
+			cout << "E: Invalid number of bits used (" << bitsUsed << ")" << endl;
 			#endif
 			return false;
 	}
@@ -687,7 +700,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 
 	/* Calculate the size of our buffers */
 	maxWavBufferSize = 1024 * bytesPerSample;
-	maxDataBufferSize = 1024 / (8 / bitsUsed);
+	maxDataBufferSize = 128 * bitsUsed;
 
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
@@ -821,22 +834,34 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				count++;
 			}
 			break;
-		/*case 12:
+		case 12:
 			while (count < dataBufferSize) {
-				// first 8 bits
+				/* first byte */
 				*currPos_DataBuffer = *currPos_WavBuffer;
-				currPos_WavBuffer++;
+				currPos_WavBuffer += bytesPerSample;
 				currPos_DataBuffer++;
-				// next 4 bits
+				count++;
+				/* second byte */
+				*currPos_DataBuffer = *currPos_WavBuffer;
+				currPos_WavBuffer -= (bytesPerSample-1);
+				currPos_DataBuffer++;
+				count++;
+				/* third byte */
 				setBit(tempByte, 3, getBit(*currPos_WavBuffer, 3));
 				setBit(tempByte, 2, getBit(*currPos_WavBuffer, 2));
 				setBit(tempByte, 1, getBit(*currPos_WavBuffer, 1));
 				setBit(tempByte, 0, getBit(*currPos_WavBuffer, 0));
+				currPos_WavBuffer += bytesPerSample;
+				setBit(tempByte, 7, getBit(*currPos_WavBuffer, 3));
+				setBit(tempByte, 6, getBit(*currPos_WavBuffer, 2));
+				setBit(tempByte, 5, getBit(*currPos_WavBuffer, 1));
+				setBit(tempByte, 4, getBit(*currPos_WavBuffer, 0));
 				*currPos_DataBuffer = tempByte;
-				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_WavBuffer++;
 				currPos_DataBuffer++;
 				count++;
-			}*/
+			}
+			break;
 		case 16:
 			while (count < dataBufferSize) {
 				/* first byte */
@@ -849,9 +874,10 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				currPos_DataBuffer++;
 				count++;
 			}
+			break;
 		default:
 			#ifdef _DEBUGOUTPUT
-			cout << "E: Invalid number of bits per sample" << endl;
+			cout << "E: Invalid number of bits used (" << bitsUsed << ")" << endl;
 			#endif
 			return false;
 	}
@@ -877,7 +903,6 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 			break;
 		case 24:
 			maxSize = (subchunkSize / bytesPerSample);
-			/* maxSize += maxSize >> 1; */
 			break;
 		case 32:
 			maxSize = (subchunkSize / bytesPerSample) << 1;
@@ -897,27 +922,7 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 /* returns: BYTE												*/
 /****************************************************************/
 BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, const DWORD maxSize) {
-	DWORD bitsInFile = fileSize << 3;
-	BYTE bitsUsed;
-
-	// Convert maxSize from bytes to bits to prevent division complications
-	if(maxSize >= bitsInFile) {
-		bitsUsed = 1;
-	} else if ((maxSize << 1) >= bitsInFile) {
-		bitsUsed = 2;
-	} else if ((maxSize << 2) >= bitsInFile) {
-		bitsUsed = 4;
-	} else if ((maxSize << 3) >= bitsInFile && bitsPerSample > 8) {
-		bitsUsed = 8;
-	/*} else if ((maxSize * 12) >= bitsInFile && bitsPerSample > 16) {
-		bitsUsed = 12;*/
-	} else if ((maxSize << 4) >= bitsInFile && bitsPerSample > 24) {
-		bitsUsed = 16;
-	} else {
-		bitsUsed = 0;
-	}
-
-	return bitsUsed;
+	return (bitsPerSample >> 1) / (maxSize / fileSize);
 }
 
 /****************************************************************/
