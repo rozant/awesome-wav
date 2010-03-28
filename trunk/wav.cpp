@@ -16,8 +16,6 @@
 /****************************************************************/
 /* wav.cpp														*/
 /****************************************************************/
-#include <iostream>
-#include <iomanip>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -54,16 +52,16 @@ wav::wav(void) {
 bool wav::validRIFF(void) const {
 	if (bytencmp(riff.Format, (BYTE*)"WAVE", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid RIFF header: Format != 'WAVE'" << endl;
+		fprintf(stderr,"E: Invalid RIFF header: Format != 'WAVE'\n");
 		char temp[5];
 		memcpy(temp,riff.Format,4);
 		temp[5] = 0;
-		cout << "\tFormat == " << temp << endl;
+		fprintf(stderr,"\tFormat == %s\n",temp);
 		#endif
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Valid RIFF header" << endl;
+	fprintf(stderr,"S: Valid RIFF header\n");
 	#endif
 	return true;
 }
@@ -79,41 +77,41 @@ bool wav::validRIFF(void) const {
 bool wav::validFMT(void) const {
 	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: SubchunkID != 'fmt '" << endl;
+		fprintf(stderr,"E: Invalid FMT header: SubchunkID != 'fmt '\n");
 		char temp[5];
 		memcpy(temp,fmt.SubchunkID,4);
 		temp[5] = 0;
-		cout << "\tSubchunkID == " << temp << endl;
+		fprintf(stderr,"\tSubchunkID == %s\n",temp);
 		#endif
 		return false;
 	} else if (fmt.AudioFormat != 1) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: AudioFormat != '1' (PCM)" << endl;
-		cout << "\tAudioFormat == " << fmt.AudioFormat << endl;
+		fprintf(stderr,"E: Invalid FMT header: AudioFormat != '1' (PCM)\n");
+		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
 		#endif
 		return false;
 	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: Bits per sample = " << fmt.BitsPerSample << endl;
-		cout << "\tBits per sample == " << fmt.BitsPerSample << endl;
-		cout << "\tExpected Bits per sample to be '8', '16', or '24'" << endl;
+		fprintf(stderr,"E: Invalid FMT header: Bits per sample = %u\n",(unsigned int)fmt.BitsPerSample);
+		fprintf(stderr,"\tBits per sample == %u\n",(unsigned int)fmt.BitsPerSample);
+		fprintf(stderr,"\tExpected Bits per sample to be '8', '16', or '24'\n");
 		#endif
 		return false;
 	} else if (fmt.NumChannels != 2) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid FMT header: Num channels != '2'" << endl;
-		cout << "\tNumChannels == " << fmt.NumChannels << endl;
+		fprintf(stderr,"E: Invalid FMT header: Num channels != '2'\n");
+		fprintf(stderr,"\tNumChannels == %u\n",(unsigned int)fmt.NumChannels);
 		#endif
 		return false;
 	}
 
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Valid FMT header" << endl;
-	cout << "\t S: Bits per sample: " << fmt.BitsPerSample << endl;
-	cout << "\t S: Block align: " << fmt.BlockAlign << endl;
-	cout << "\t S: Byte rate: " << fmt.ByteRate << endl;
-	cout << "\t S: Num channels: " << fmt.NumChannels << endl;
-	cout << "\t S: Sample rate: " << fmt.SampleRate << endl;
+	fprintf(stderr,"S: Valid FMT header\n");
+	fprintf(stderr,"\tS: Bits per sample: %u\n",(unsigned int)fmt.BitsPerSample);
+	fprintf(stderr,"\tS: Block align: %u\n",(unsigned int)fmt.BlockAlign);
+	fprintf(stderr,"\tS: Byte rate: %u\n",(unsigned int)fmt.ByteRate);
+	fprintf(stderr,"\tS: Num channels: %u\n",(unsigned int)fmt.NumChannels);
+	fprintf(stderr,"\tS: Sample rate: %u\n",(unsigned int)fmt.SampleRate);
 	#endif
 	return true;
 }
@@ -129,21 +127,21 @@ bool wav::validFMT(void) const {
 bool wav::validDATA(void) const {
 	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid DATA header: SubchunkID != 'data'" << endl;
+		fprintf(stderr,"E: Invalid DATA header: SubchunkID != 'data'\n");
 		char temp[5];
 		memcpy(temp,data.SubchunkID,4);
 		temp[5] = 0;
-		cout << "\tSubchunkID == " << temp << endl;
+		fprintf(stderr,"\tSubchunkID == %s\n",temp);
 		#endif
 		return false;
 	} else if (data.SubchunkSize == 0) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid DATA header: No DATA" << endl;
+		fprintf(stderr,"E: Invalid DATA header: No DATA\n");
 		#endif
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Valid DATA header" << endl;
+	fprintf(stderr,"S: Valid DATA header\n");
 	#endif
 	return true;
 }
@@ -162,12 +160,12 @@ bool wav::readRIFF(FILE* inFile) {
 		fread(riff.Format, sizeof(BYTE), 4, inFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Read RIFF header" << endl;
+		fprintf(stderr,"S: Read RIFF header\n");
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to read RIFF header: Could not read bytes" << endl;
+	fprintf(stderr,"E: Failed to read RIFF header: Could not read bytes\n");
 	#endif
 	return false;
 }
@@ -196,7 +194,7 @@ bool wav::readFMT(FILE* inFile) {
 			if (fmt.ExtraFormatBytes > 0) {
 				if ((fmt.ExtraFormat = (BYTE*)malloc(fmt.ExtraFormatBytes)) == NULL) {
 					#ifdef _DEBUGOUTPUT
-					cout << "E: Failed to read FMT header: Could not get memory for extra bytes" << endl;
+					fprintf(stderr,"E: Failed to read FMT header: Could not get memory for extra bytes\n");
 					#endif
 					return false;
 				}
@@ -205,12 +203,12 @@ bool wav::readFMT(FILE* inFile) {
 		}
 
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Read FMT header" << endl;
+		fprintf(stderr,"S: Read FMT header\n");
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to read FMT header: Could not read bytes" << endl;
+	fprintf(stderr,"E: Failed to read FMT header: Could not read bytes\n");
 	#endif
 	return false;
 }
@@ -235,13 +233,13 @@ bool wav::readDATA(FILE* inFile) {
 		data.SubchunkSize = size;
 
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Read DATA header" << endl;
+		fprintf(stderr,"S: Read DATA header\n");
 		#endif
 		return true;
 	}
 
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to read DATA header: Could not locate" << endl;
+	fprintf(stderr,"E: Failed to read DATA header: Could not locate");
 	#endif
 	return false;
 }
@@ -275,7 +273,7 @@ bool wav::read(FILE *inFile) {
 bool wav::writeRIFF(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to write RIFF header: FILE not open" << endl;
+		fprintf(stderr,"E: Failed to write RIFF header: FILE not open\n");
 		#endif
 		return false;
 	}
@@ -285,12 +283,12 @@ bool wav::writeRIFF(FILE* outFile) const {
 		fwrite(riff.Format, sizeof(BYTE), 4, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Wrote RIFF header" << endl;
+		fprintf(stderr,"S: Wrote RIFF header\n");
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to write RIFF header: Could not write bytes" << endl;
+	fprintf(stderr,"E: Failed to write RIFF header: Could not write bytesn\n");
 	#endif
 	return false;
 }
@@ -306,7 +304,7 @@ bool wav::writeRIFF(FILE* outFile) const {
 bool wav::writeFMT(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to write FMT header: FILE not open" << endl;
+		fprintf(stderr,"E: Failed to write FMT header: FILE not open\n");
 		#endif
 		return false;
 	}
@@ -328,12 +326,12 @@ bool wav::writeFMT(FILE* outFile) const {
 			}
 		}
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Wrote FMT header" << endl;
+		fprintf(stderr,"S: Wrote FMT header\n");
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to write FMT header: Could not write bytes" << endl;
+	fprintf(stderr,"E: Failed to write FMT header: Could not write bytes\n");
 	#endif
 	return false;
 }
@@ -349,7 +347,7 @@ bool wav::writeFMT(FILE* outFile) const {
 bool wav::writeDATA(FILE* outFile) const {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to write DATA header: FILE not open" << endl;
+		fprintf(stderr,"E: Failed to write DATA header: FILE not open\n");
 		#endif
 		return false;
 	}
@@ -358,12 +356,12 @@ bool wav::writeDATA(FILE* outFile) const {
 		fwrite(&data.SubchunkSize, sizeof(DWORD), 1, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		cout << "S: Wrote DATA header" << endl;
+		fprintf(stderr,"S: Wrote DATA header\n");
 		#endif
 		return true;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "E: Failed to write DATA header: Could not write bytes" << endl;
+	fprintf(stderr,"E: Failed to write DATA header: Could not write bytes\n");
 	#endif
 	return false;
 }
@@ -418,33 +416,33 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	dataSize = ftell(fInputDATA);
 	fseek(fInputDATA, 0, SEEK_SET);
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Determined input data file size (" << setprecision(3) << byteToMB(dataSize) << " MB)" << endl;
+	fprintf(stderr,"S: Determined input data file size (%.*f MB)\n",3,byteToMB(dataSize));
 	#endif
 
 	/* get the maximum number of bytes the wav file could hold */
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
 	if (dataSize > maxSize) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Data file is too large (Want to store " << byteToMB(dataSize) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
+		fprintf(stderr,"E: Data file is too large (Want to store %.*f MB - Can fit %.*f MB)\n",3,byteToMB(dataSize),3,byteToMB(maxSize));
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data fits (Storing " << byteToMB(dataSize) << " MB - Can fit " << byteToMB(maxSize) << " MB)" << endl;
+	fprintf(stderr,"S: Data fits (Storing %.*f MB - Can Fit %.*f MB)\n",3,byteToMB(dataSize),3,byteToMB(maxSize));
 	#endif
 
 	/* get the minimum number of bits the wav file could encode per sample */
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, dataSize, maxSize);
 	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: This should never happen " << (int)bitsUsed << endl;
+		fprintf(stderr,"E: This should never happen %d\n",(int)bitsUsed);
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data file could fit at " << (int)bitsUsed << " bits per sample" << endl;
+	fprintf(stderr,"S: Data file could fit at %d bits per sample\n",(int)bitsUsed);
 	#endif
 
 	/* Write our headers and how many bits used */
@@ -461,25 +459,25 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to get memory for WAV buffer" << endl;
+		fprintf(stderr,"E: Failed to get memory for WAV buffer\n");
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Got " << maxWavBufferSize << " bytes for WAV buffer" << endl;
+	fprintf(stderr,"S: Got %u bytes for WAV buffer\n",(unsigned int)maxWavBufferSize);
 	#endif
 
 	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize,sizeof(BYTE))) == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to get memory for DATA buffer" << endl;
+		fprintf(stderr,"E: Failed to get memory for DATA buffer\n");
 		#endif
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		free(wavBuffer);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Got " << maxDataBufferSize << " bytes for DATA buffer" << endl;
+	fprintf(stderr,"S: Got %u bytes for DATA buffer\n",(unsigned int)maxDataBufferSize);
 	#endif
 
 	/* read into the buffers, process, and write */
@@ -502,7 +500,7 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	}
 
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Number of bytes stored: " << dataSize << endl;
+	fprintf(stderr,"S: Number of bytes stored: %u\n",(unsigned int)dataSize);
 	#endif
 	close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 	free(wavBuffer); free(dataBuffer);
@@ -524,13 +522,13 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 
 	if ((wavBufferSize == 0)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid WAV buffer size" << endl;
+		fprintf(stderr,"E: Invalid WAV buffer size\n");
 		#endif
 		return false;
 	}
 	if ((dataBufferSize == 0)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid DATA buffer size" << endl;
+		fprintf(stderr,"E: Invalid DATA buffer size\n");
 		#endif
 		return false;
 	}
@@ -624,7 +622,7 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			break;
 		default:
 			#ifdef _DEBUGOUTPUT
-			cout << "E: Invalid number of bits used (" << bitsUsed << ")" << endl;
+			fprintf(stderr,"E: Invalid number of bits used (%hu)\n",(unsigned short)bitsUsed);
 			#endif
 			return false;
 	}
@@ -676,26 +674,26 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
 	if (fileSize > maxSize) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Data file is too large (Want to retrieve " << byteToMB(fileSize) << " MB - Can retrieve " << byteToMB(maxSize) << " MB)" << endl;
+		fprintf(stderr,"E: Data file is too large (Want to retrieve %.*f MB - Can retrieve %.*f MB)\n",3,byteToMB(fileSize),3,byteToMB(maxSize));
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data fits (Retrieving " << byteToMB(fileSize) << " MB - Can retrieve " << byteToMB(maxSize) << " MB)" << endl;
+	fprintf(stderr,"S: Data fits (Retrieving %.*f MB - Can retrieve %.*f MB)\n",3,byteToMB(fileSize),3,byteToMB(maxSize));
 	#endif
 
 	/* get the minimum number of bits the wav file could encode per sample */
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, fileSize, maxSize);
 	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: This should never happen " << (int)bitsUsed << endl;
+		fprintf(stderr,"E: This should never happen %d\n",(int)bitsUsed);
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Data file could fit at " << (int)bitsUsed << " bits per sample" << endl;
+	fprintf(stderr,"S: Data file could fit at %d bits per sample\n",(int)bitsUsed);
 	#endif
 
 	/* Calculate the size of our buffers */
@@ -705,25 +703,25 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to get memory for WAV buffer" << endl;
+		fprintf(stderr,"E: Failed to get memory for WAV buffer\n");
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Got " << maxWavBufferSize << " bytes for WAV buffer" << endl;
+	fprintf(stderr,"S: Got %u bytes for WAV buffer\n",(unsigned int)maxWavBufferSize);
 	#endif
 
 	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize,sizeof(BYTE))) == NULL) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Failed to get memory for DATA buffer" << endl;
+		fprintf(stderr,"E: Failed to get memory for DATA buffer\n");
 		#endif
 		close(fInputWAV); close(fOutputDATA);
 		free(wavBuffer);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Got " << maxDataBufferSize << " bytes for DATA buffer" << endl;
+	fprintf(stderr,"S: Got %u bytes for DATA buffer\n",(unsigned int)maxDataBufferSize);
 	#endif
 
 	/* read into the buffers, process, and write */
@@ -754,7 +752,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	}
 
 	#ifdef _DEBUGOUTPUT
-	cout << "S: Number of bytes retrieved: " << count << endl;
+	fprintf(stderr,"S: Number of bytes retrieved: %u\n",(unsigned int)count);
 	#endif
 	close(fInputWAV); close(fOutputDATA);
 	free(wavBuffer); free(dataBuffer);
@@ -775,13 +773,13 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 
 	if ((wavBufferSize == 0)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid WAV buffer size" << endl;
+		fprintf(stderr,"E: Invalid WAV buffer size\n");
 		#endif
 		return false;
 	}
 	if ((dataBufferSize == 0)) {
 		#ifdef _DEBUGOUTPUT
-		cout << "E: Invalid DATA buffer size" << endl;
+		fprintf(stderr,"E: Invalid DATA buffer size\n");
 		#endif
 		return false;
 	}
@@ -877,7 +875,7 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			break;
 		default:
 			#ifdef _DEBUGOUTPUT
-			cout << "E: Invalid number of bits used (" << bitsUsed << ")" << endl;
+			fprintf(stderr,"E: Invalid number of bits used (%hu)\n",(unsigned short)bitsUsed);
 			#endif
 			return false;
 	}
