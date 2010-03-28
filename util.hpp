@@ -21,9 +21,9 @@
 /****************************************************************/
 /* function: setBit												*/
 /* purpose: sets the bit at a specific position					*/
-/* args: BYTE&, const char, const bool&							*/
+/* args: BYTE&, const char, const bool							*/
 /****************************************************************/
-void setBit(BYTE &b, const char index, const bool &torf) {
+void setBit(BYTE &b, const char index, const bool torf) {
 	BYTE bitMask = 1;
 	bitMask <<= index;
 
@@ -36,12 +36,12 @@ void setBit(BYTE &b, const char index, const bool &torf) {
 /****************************************************************/
 /* function: getBit												*/
 /* purpose: gets the bit at a specific position					*/
-/* args: const BYTE&, const char								*/
+/* args: const BYTE, const char									*/
 /* returns: bool												*/
 /*		1 = bit is a 1											*/
 /*		0 = bit is a 0											*/
 /****************************************************************/
-bool getBit(const BYTE &b, const char index) {
+bool getBit(const BYTE b, const char index) {
 	BYTE bitMask = 1;
 	bitMask <<= index;
 
@@ -116,11 +116,11 @@ bool close(FILE *aFile) {
 /****************************************************************/
 /* function: byteToMB											*/
 /* purpose: convers bytes to megabytes							*/
-/* args: DWORD													*/
+/* args: const DWORD											*/
 /* returns: double												*/
 /****************************************************************/
 #ifdef _DEBUGOUTPUT
-double byteToMB(DWORD bytes) {
+double byteToMB(const DWORD bytes) {
 	return bytes / 1048576.0;
 }
 #endif
