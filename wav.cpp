@@ -834,7 +834,7 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				count++;
 			}
 			break;
-		case 12:
+		case 12: // Ugly and not very efficient
 			while (count < dataBufferSize) {
 				/* first byte */
 				*currPos_DataBuffer = *currPos_WavBuffer;
@@ -903,6 +903,7 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 			break;
 		case 24:
 			maxSize = (subchunkSize / bytesPerSample);
+			maxSize += maxSize >> 1;
 			break;
 		case 32:
 			maxSize = (subchunkSize / bytesPerSample) << 1;
@@ -922,7 +923,26 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 /* returns: BYTE												*/
 /****************************************************************/
 BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, const DWORD maxSize) {
-	return (bitsPerSample >> 1) / (maxSize / fileSize);
+	if (fileSize == 0 || maxSize == 0)
+		return 0;
+
+	double d_MinBPS = ((double)(bitsPerSample >> 1) / ((double)maxSize / (double)fileSize));
+	int i_MinBPS = (int)d_MinBPS;
+	if (d_MinBPS > i_MinBPS)
+		i_MinBPS++;
+
+	if (i_MinBPS == 1)
+		return 1;
+	else if (i_MinBPS == 2)
+		return 2;
+	else if (i_MinBPS <= 4)
+		return 4;
+	else if (i_MinBPS <= 8)
+		return 8;
+	else if (i_MinBPS <= 16)
+		return 16;
+	else
+		return 0;
 }
 
 /****************************************************************/
