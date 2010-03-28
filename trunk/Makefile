@@ -16,16 +16,17 @@ INSTLOC=/usr/bin
 CFLAGS= -Wall -O2
 DBGFLAGS = -Wall -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
+FILES = main.cpp wav.cpp
 
 all:
-	g++ $(CFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME) $(LDFLAGS)
+	g++ $(CFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
 
 test:
-	g++ $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	g++ $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test
 
 debug:
-	g++ -g $(DBGFLAGS) main.cpp wav.cpp -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+	g++ -g $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 
 build-test: all test debug clean-all
 

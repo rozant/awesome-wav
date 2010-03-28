@@ -7,7 +7,7 @@
 #include <string.h>
 #include <assert.h>
 #include "./zlib-1.2.4-slim/zlib.h"
-#include "file_compression.hpp"
+#include "file_compression.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
