@@ -52,7 +52,7 @@ echo DATA FILE:  %DATA%
 echo D_DATAFILE: %D_DATA%
 echo.
 echo Encoding and decoding files.
-awesome-wav.exe -c %PCM% %E_PCM% %DATA% %D_DATA%
+awesome-wav.exe -t %PCM% %E_PCM% %DATA% %D_DATA%
 if %ERRORLEVEL% NEQ 0 goto programfail
 echo Program succeeded.
 echo.

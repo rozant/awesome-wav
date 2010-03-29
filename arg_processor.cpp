@@ -42,6 +42,9 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 					case 'd':				/* decode */
 						options->mode = DECODE;
 						break;
+					case 't':				/* testing */
+						options->mode = TEST;
+						break;
 					case 'c':				/* data compression */
 						options->comp = 1;
 						break;
@@ -69,13 +72,16 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 			} else if (arg_count == 2) {
 				options->data = (char *)calloc(strlen(argv[foo]),sizeof(char));
 				strncpy(options->data,argv[foo],strlen(argv[foo]));
+			} else if (arg_count == 3) {
+				options->test_out = (char *)calloc(strlen(argv[foo]),sizeof(char));
+				strncpy(options->test_out,argv[foo],strlen(argv[foo]));
 			}
 			++arg_count;
 		}
 	}
-	if(arg_count != 3) {
+	if( (options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4) ) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: too many argumets.\n");
+		fprintf(stderr,"E: Incorrect number of arguments.\n");
 		#endif
 		return EXIT_FAILURE;
 	}

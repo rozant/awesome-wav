@@ -23,7 +23,8 @@
 enum opt_modes {
 	NONE = 0,	
 	ENCODE = 1,
-	DECODE = 2
+	DECODE = 2,
+	TEST = 3
 };
 
 /* structure for holding options */
@@ -31,6 +32,7 @@ struct opts {
 	char *input_file;						/* input wav name */
 	char *output_file;						/* output wav name */
 	char *data;								/* data file name */
+	char *test_out;							/* test data output */
 	char mode;								/* encode or decode */
 	char comp;								/* should data/is data be compressed */
 	opts(void) { input_file = output_file = data = NULL; mode = ENCODE; comp = 0; return; }
