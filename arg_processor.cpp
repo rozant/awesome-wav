@@ -18,6 +18,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "arg_processor.hpp"
 
 /****************************************************************/
@@ -34,7 +35,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 	for (foo = 1; foo < argc; ++foo) {
 		/* if it is an option do stuff */
 		if (argv[foo][0] == '-') {
-			if(strlen(argv[foo]) == 2) {
+			if(strlen(argv[foo]) == 2 || (argv[foo][1] == 'c' && strlen(argv[foo]) == 3) ) {
 				switch(argv[foo][1]) {
 					case 'e':				/* encode (default) */
 						options->mode = ENCODE;
@@ -46,7 +47,13 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 						options->mode = TEST;
 						break;
 					case 'c':				/* data compression */
-						options->comp = 6;
+						if( strlen(argv[foo]) == 3 ) {
+							if(isdigit(argv[foo][2])) {
+								options->comp = (char)atoi(&argv[foo][2]);
+							}
+						} else {
+							options->comp = 6;
+						}
 						break;
 					default:
 						#ifdef _DEBUGOUTPUT

@@ -34,11 +34,12 @@ char DEBUG_DECODED_DATA[] = "D_data.txt";
 /* returns: void												*/
 /****************************************************************/
 void usage(const char prog_name[]) {
-	fprintf(stderr,"Useage: %s [-edc] arg1 arg2 arg3\n",prog_name);
+	fprintf(stderr,"Useage: %s [-edcs] arg1 arg2 arg3\n",prog_name);
 	fprintf(stderr,"Encode data into a wav file, or decode data from a wav file.\n\n");
 	fprintf(stderr,"  -e\tencode arg3 into arg1 and store in arg2\n");
 	fprintf(stderr,"  -d\tdecode arg2 from arg1 using key arg3\n");
 	fprintf(stderr,"  -c\tenable data compression.  If decoding, assume retrieved data is compressed\n");
+	fprintf(stderr,"\tdefaults to -c6. valid options are -c1 through -c9, from low to high compression\n");
 	return;
 }
 
