@@ -23,9 +23,9 @@ extern "C" {
 
 #define CHUNK 16384
 
-int def(FILE *source, FILE *dest, int level);
+int def(FILE *source, FILE *dest, const int level);
 int inf(FILE *source, FILE *dest);
-void zerr(int ret);
+void zerr(const int ret);
 
 #ifdef __cplusplus
 }

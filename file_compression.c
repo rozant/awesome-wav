@@ -24,10 +24,10 @@
 /****************************************************************/
 /* function: def												*/
 /* purpose: compress a with a compression level				 	*/
-/* args: FILE *, FILE *, int									*/
+/* args: FILE *, FILE *, const int								*/
 /* returns: int													*/
 /****************************************************************/
-int def(FILE *source, FILE *dest, int level) {
+int def(FILE *source, FILE *dest, const int level) {
 	int ret = 0, flush = 0;
 	unsigned int have = 0;
 	z_stream strm;
@@ -147,10 +147,10 @@ int inf(FILE *source, FILE *dest) {
 /****************************************************************/
 /* function: zerr												*/
 /* purpose: report a zlib or i/o error						 	*/
-/* args: int													*/
+/* args: const int												*/
 /* returns: void												*/
 /****************************************************************/
-void zerr(int ret) {
+void zerr(const int ret) {
 	fputs("zpipe: ", stderr);
 	switch (ret) {
 		case Z_ERRNO:
