@@ -13,10 +13,10 @@
 
 PROGNAME=awesome-wav
 INSTLOC=/usr/bin
-CFLAGS= -Wall -O2
+CFLAGS= -Wall -O2 -lz
 DBGFLAGS = -Wall -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
-FILES = main.cpp wav.cpp arg_processor.cpp
+FILES = main.cpp wav.cpp arg_processor.cpp file_compression.c
 
 all:
 	g++ $(CFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
