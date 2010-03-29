@@ -389,6 +389,12 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		return false;
 	}
 
+	/* read and validate wave header (RIFF Chunk), and format chunk */
+	if (!read(fInputWAV)) {
+		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
+		return false;
+	}
+
 	/* if we are compressing */
 	if(compress > 0) {
 		FILE *fcompDATA = open("data.z", "wb");
@@ -407,28 +413,22 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 			close(fInputWAV); close(fInputDATA); close(fOutputWAV); close(fInputDATA);
 			return false;
 		}
-		/* switch the files around so data.z is input */
-		close(fInputDATA);
-		fInputDATA = fcompDATA;
-		fcompDATA = NULL;
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Compressed input data.\n");
 		#endif
-	}
-
-	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) {
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-		return false;
-	}
-
-	ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
-	if(compress > 0) {
+		/* clean up and reopen data.z in read mode */
+		close(fInputDATA);
+		fInputDATA = NULL;
+		close(fcompDATA);
+		fcompDATA = open("data.z","rb");
+		ret_val = encode(fInputWAV, fcompDATA, fOutputWAV);
 		if( remove("data.z") == -1) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not remove temporary file data.z\n");
 			#endif
 		}
+	} else {
+		ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
 	}
 	return ret_val;
 }
