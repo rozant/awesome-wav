@@ -22,8 +22,8 @@
 using namespace std;
 
 #ifdef _DEBUG
-char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-16_Bit_PCM.wav";
-char DEBUG_DATA[] = "./test_input-8b-16kbps-43582508.txt";
+char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-8_Bit_PCM.wav";
+char DEBUG_DATA[] = "./test_input-4b-8kbps-21791276.txt";
 char DEBUG_ENCODED_WAV[] = "E_song.wav";
 char DEBUG_DECODED_DATA[] = "D_data.txt";
 #endif
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 		if (size == 0x00) {
 			exit(EXIT_FAILURE);
 		}
-		
+
 		if (!in_wav.decode(DEBUG_ENCODED_WAV, DEBUG_DECODED_DATA, size)) {
 			exit(EXIT_FAILURE);
 		}
@@ -75,26 +75,24 @@ int main(int argc, char* argv[]) {
 			usage(argv[0]);
 			exit(EXIT_FAILURE);
 		}
-	}
 
-	/* if we are encoding or decoding, do the right thing */
-	if (options.mode == ENCODE) {
-		printf("MODE = ENCODE\n");
-		size = in_wav.encode(options.input_file,options.output_file,options.data);
-		if(size == 0x00) {
+		/* if we are encoding or decoding, do the right thing */
+		if (options.mode == ENCODE) {
+			size = in_wav.encode(options.input_file,options.output_file,options.data);
+			if(size == 0x00) {
+				exit(EXIT_FAILURE);
+			}
+			printf("Data was sucessfully encoded into the specified file.\n");
+			printf("The Decode key is: %u\n",(unsigned int)size);
+		} else if (options.mode == 2) {
+			if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
+				exit(EXIT_FAILURE);
+			}
+			printf("Data was sucessfully decoded from the specified file.\n");
+		} else {
+			fprintf(stderr,"E: mode was not set.\n");
 			exit(EXIT_FAILURE);
 		}
-		printf("Data was sucessfully encoded into the specified file.\n");
-		printf("The Decode key is: %u\n",(unsigned int)size);
-	} else if (options.mode == 2) {
-		printf("MODE = DECODE\n");
-		if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
-			exit(EXIT_FAILURE);
-		}
-		printf("Data was sucessfully decoded from the specified file.\n");
-	} else {
-		fprintf(stderr,"E: mode was not set.\n");
-		exit(EXIT_FAILURE);
 	}
 
 	/* its over! */
