@@ -64,17 +64,21 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 		} else {
 			/* otherwise assume it is a file name */
 			if (arg_count == 0) {
-				options->input_file = (char *)calloc(strlen(argv[foo]),sizeof(char));
-				strncpy(options->input_file,argv[foo],strlen(argv[foo]));	
+				options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
+				strncpy(options->input_file,argv[foo],strlen(argv[foo]));
+				options->input_file[strlen(argv[foo])] = '\0';
 			} else if (arg_count == 1) {
-				options->output_file = (char *)calloc(strlen(argv[foo]),sizeof(char));
-				strncpy(options->output_file,argv[foo],strlen(argv[foo]));	
+				options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
+				strncpy(options->output_file,argv[foo],strlen(argv[foo]));
+				options->output_file[strlen(argv[foo])] = '\0';
 			} else if (arg_count == 2) {
-				options->data = (char *)calloc(strlen(argv[foo]),sizeof(char));
+				options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 				strncpy(options->data,argv[foo],strlen(argv[foo]));
+				options->data[strlen(argv[foo])] = '\0';
 			} else if (arg_count == 3) {
-				options->test_out = (char *)calloc(strlen(argv[foo]),sizeof(char));
+				options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 				strncpy(options->test_out,argv[foo],strlen(argv[foo]));
+				options->test_out[strlen(argv[foo])] = '\0';
 			}
 			++arg_count;
 		}
