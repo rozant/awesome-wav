@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 		/* if we are encoding or decoding, do the right thing */
 		switch(options.mode) {
 			case ENCODE:
-				size = in_wav.encode(options.input_file,options.output_file,options.data);
+				size = in_wav.encode(options.input_file,options.data,options.output_file);
 				if(size == 0x00) {
 					exit(EXIT_FAILURE);
 				}
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
 			case TEST:
-				if( (size = in_wav.encode(options.input_file,options.output_file,options.data)) == 0x00) {
+				if( (size = in_wav.encode(options.input_file,options.data,options.output_file)) == 0x00) {
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully encoded into the specified file.\n");
