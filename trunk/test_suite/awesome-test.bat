@@ -6,11 +6,21 @@ set PCM8bit="PCM8bit.wav"
 set PCM16bit="PCM16bit.wav"
 set PCM24bit="PCM24bit.wav"
 set E_PCM="E_PCM.wav"
-set DATA="DATA1bit.txt"
-set D_DATA="D_DATA1bit.txt"
+set DATA=""
+set D_DATA="D_data.txt"
+set DATA8bit1b="test_input-1b-8kbps-21791276.txt"
+set DATA8bit2b="test_input-2b-8kbps-21791276.txt"
+set DATA8bit4b="test_input-4b-8kbps-21791276.txt"
+set DATA16bit1b="test_input-1b-16kbps-43582508.txt"
+set DATA16bit2b="test_input-2b-16kbps-43582508.txt"
+set DATA16bit4b="test_input-4b-16kbps-43582508.txt"
+set DATA16bit8b="test_input-8b-16kbps-43582508.txt"
+set DATA24bit12b="test_input-12b-24kbps.txt"
+
+set /A TEST_NUM=0
+set /A TEST_PASS=0
 
 :start
-set /A TEST_NUM=0
 cls
 echo Select an option:
 echo 1.Run Tests
@@ -24,17 +34,51 @@ goto start
 :test1
 cls
 set PCM=%PCM8bit%
+set DATA=%DATA8bit1b%
 goto tester
 
 :test2
-set PCM=%PCM16bit%
+set PCM=%PCM8bit%
+set DATA=%DATA8bit2b%
 goto tester
 
 :test3
-set PCM=%PCM24bit%
+set PCM=%PCM8bit%
+set DATA=%DATA8bit4b%
 goto tester
 
 :test4
+set PCM=%PCM16bit%
+set DATA=%DATA16bit1b%
+goto tester
+
+:test5
+set PCM=%PCM16bit%
+set DATA=%DATA16bit2b%
+goto tester
+
+:test6
+set PCM=%PCM16bit%
+set DATA=%DATA16bit4b%
+goto tester
+
+:test7
+set PCM=%PCM16bit%
+set DATA=%DATA16bit8b%
+goto tester
+
+:test8
+set PCM=%PCM24bit%
+set DATA=%DATA24bit12b%
+goto tester
+
+:test9
+set /A TEST_NUM-=1
+echo ===================================================================================
+echo Passed %TEST_PASS% / %TEST_NUM%
+echo ===================================================================================
+set /A TEST_NUM=0
+set /A TEST_PASS=0
 pause
 goto start
 
@@ -63,6 +107,7 @@ echo File comparison succeeded.
 echo.
 echo Passed.
 echo.
+set /A TEST_PASS+=1
 goto nexttest
 
 
