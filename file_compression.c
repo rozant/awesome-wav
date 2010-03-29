@@ -6,7 +6,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#ifdef _WIN32
+#include "./win32/include/zlib.h"
+#else
 #include <zlib.h>
+#endif
 #include "file_compression.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
