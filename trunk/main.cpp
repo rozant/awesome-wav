@@ -80,20 +80,20 @@ int main(int argc, char* argv[]) {
 	/* if we are encoding or decoding, do the right thing */
 	if (options.mode == ENCODE) {
 		printf("MODE = ENCODE\n");
-//		size = in_wav.encode(options.input_file,options.output_file,options.data);
-//		if(size == 0x00) {
-//			exit(EXIT_FAILURE);
-//		}
+		size = in_wav.encode(options.input_file,options.output_file,options.data);
+		if(size == 0x00) {
+			exit(EXIT_FAILURE);
+		}
 		printf("Data was sucessfully encoded into the specified file.\n");
 		printf("The Decode key is: %u\n",(unsigned int)size);
 	} else if (options.mode == 2) {
 		printf("MODE = DECODE\n");
-//		if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
-//			exit(EXIT_FAILURE);
-//		}
-//		printf("Data was sucessfully decoded from the specified file.\n");
+		if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
+			exit(EXIT_FAILURE);
+		}
+		printf("Data was sucessfully decoded from the specified file.\n");
 	} else {
-		fprintf(stderr,"Error: mode was not set.\n");
+		fprintf(stderr,"E: mode was not set.\n");
 		exit(EXIT_FAILURE);
 	}
 
