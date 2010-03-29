@@ -77,21 +77,35 @@ int main(int argc, char* argv[]) {
 		}
 
 		/* if we are encoding or decoding, do the right thing */
-		if (options.mode == ENCODE) {
-			size = in_wav.encode(options.input_file,options.output_file,options.data);
-			if(size == 0x00) {
+		switch(options.mode) {
+			case ENCODE:
+				size = in_wav.encode(options.input_file,options.output_file,options.data);
+				if(size == 0x00) {
+					exit(EXIT_FAILURE);
+				}
+				printf("Data was sucessfully encoded into the specified file.\n");
+				printf("The Decode key is: %u\n",(unsigned int)size);
+				break;
+			case DECODE:
+				if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
+					exit(EXIT_FAILURE);
+				}
+				printf("Data was sucessfully decoded from the specified file.\n");
+				break;
+			case TEST:
+				if( (size = in_wav.encode(options.input_file,options.output_file,options.data)) == 0x00) {
+					exit(EXIT_FAILURE);
+				}
+				printf("Data was sucessfully encoded into the specified file.\n");
+				if (!in_wav.decode(options.output_file,options.test_out,size)) {
+					exit(EXIT_FAILURE);
+				}
+				printf("Data was sucessfully decoded from the specified file.\n");
+				break;
+			default:
+				fprintf(stderr,"E: mode was not set.\n");
 				exit(EXIT_FAILURE);
-			}
-			printf("Data was sucessfully encoded into the specified file.\n");
-			printf("The Decode key is: %u\n",(unsigned int)size);
-		} else if (options.mode == 2) {
-			if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
-				exit(EXIT_FAILURE);
-			}
-			printf("Data was sucessfully decoded from the specified file.\n");
-		} else {
-			fprintf(stderr,"E: mode was not set.\n");
-			exit(EXIT_FAILURE);
+				break;
 		}
 	}
 
