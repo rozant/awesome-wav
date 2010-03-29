@@ -19,7 +19,6 @@
 #include "arg_processor.hpp"
 #include "global.hpp"
 #include "wav.hpp"
-using namespace std;
 
 #ifdef _DEBUG
 char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-8_Bit_PCM.wav";

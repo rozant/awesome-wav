@@ -25,8 +25,6 @@
 #include "buffer.hpp"
 #include "util.hpp"
 
-using namespace std;
-
 /****************************************************************/
 /* function: wav::wav											*/
 /* purpose: constructor for the wav class						*/
