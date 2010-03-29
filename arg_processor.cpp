@@ -46,7 +46,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 						options->mode = TEST;
 						break;
 					case 'c':				/* data compression */
-						options->comp = 1;
+						options->comp = 6;
 						break;
 					default:
 						#ifdef _DEBUGOUTPUT
