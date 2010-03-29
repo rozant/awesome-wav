@@ -57,12 +57,12 @@ int main(int argc, char* argv[]) {
 	/* decide what to do */
 	if(argc == 1) {
 		#ifdef _DEBUG
-		size = in_wav.encode(DEBUG_WAV, DEBUG_DATA, DEBUG_ENCODED_WAV);
+		size = in_wav.encode(DEBUG_WAV, DEBUG_DATA, DEBUG_ENCODED_WAV,options.comp);
 		if (size == 0x00) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!in_wav.decode(DEBUG_ENCODED_WAV, DEBUG_DECODED_DATA, size)) {
+		if (!in_wav.decode(DEBUG_ENCODED_WAV, DEBUG_DECODED_DATA, size,options.comp)) {
 			exit(EXIT_FAILURE);
 		}
 		#else
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 		/* if we are encoding or decoding, do the right thing */
 		switch(options.mode) {
 			case ENCODE:
-				size = in_wav.encode(options.input_file,options.data,options.output_file);
+				size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
 				if(size == 0x00) {
 					exit(EXIT_FAILURE);
 				}
@@ -86,17 +86,17 @@ int main(int argc, char* argv[]) {
 				printf("The Decode key is: %u\n",(unsigned int)size);
 				break;
 			case DECODE:
-				if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data))) {
+				if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data),options.comp)) {
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
 			case TEST:
-				if( (size = in_wav.encode(options.input_file,options.data,options.output_file)) == 0x00) {
+				if( (size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp)) == 0x00) {
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully encoded into the specified file.\n");
-				if (!in_wav.decode(options.output_file,options.test_out,size)) {
+				if (!in_wav.decode(options.output_file,options.test_out,size,options.comp)) {
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully decoded from the specified file.\n");

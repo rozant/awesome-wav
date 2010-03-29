@@ -64,8 +64,8 @@ class wav {
 		/* destructor */
 		~wav(void) { return; }
 		/* manipulation */
-		DWORD encode(const char[], const char[], const char[]);
-		bool decode(const char[], const char[], const DWORD&);
+		DWORD encode(const char[], const char[], const char[], const char);
+		bool decode(const char[], const char[], const DWORD&, const char);
 };
 
 #endif
