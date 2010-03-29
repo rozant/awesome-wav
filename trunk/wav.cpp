@@ -421,6 +421,13 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		fInputDATA = NULL;
 		close(fcompDATA);
 		fcompDATA = open("data.z","rb");
+		if( fcompDATA == NULL ) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Could not re-open temp data file.\n");
+			#endif
+			close(fInputWAV); close(fInputDATA); close(fOutputWAV); close(fInputDATA);
+			return false;
+		}
 		ret_val = encode(fInputWAV, fcompDATA, fOutputWAV);
 		if( remove("data.z") == -1) {
 			#ifdef _DEBUGOUTPUT
@@ -690,8 +697,49 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
-	
-	ret_val = decode(fInputWAV, fOutputDATA, fileSize);
+
+	/* if we are compressing */
+	if(compress > 0) {
+		FILE *fcompDATA = open("data.z", "wb");
+		/* open a temp file and compress */
+		if( fcompDATA == NULL ) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Could not open temp data file.\n");
+			#endif
+			close(fInputWAV); close(fOutputDATA);
+			return false;
+		}
+		ret_val = decode(fInputWAV, fcompDATA, fileSize);
+		/* re-open in read mode */
+		close(fcompDATA);		
+		fcompDATA = open("data.z", "rb");
+		if( fcompDATA == NULL ) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Could not re-open temp data file.\n");
+			#endif
+			close(fInputWAV); close(fOutputDATA);
+			return false;
+		}
+		/* decompress */
+		if( inf(fcompDATA,fOutputDATA) != 0) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Could not decompress data file.\n");
+			#endif
+			close(fInputWAV); close(fOutputDATA); close(fcompDATA);
+			return false;
+		}
+		close(fcompDATA);
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"S: Decompressed input data.\n");
+		#endif
+		if( remove("data.z") == -1) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Could not remove temporary file data.z\n");
+			#endif
+		}
+	} else {
+		ret_val = decode(fInputWAV, fOutputDATA, fileSize);
+	}
 
 	close(fInputWAV); close(fOutputDATA);
 	return ret_val;
