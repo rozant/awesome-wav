@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* modes enum */
+/* defines for all of the modes the program supports */
 enum opt_modes {
 	NONE = 0,	
 	ENCODE = 1,
@@ -36,11 +36,11 @@ struct opts {
 	char mode;								/* encode or decode */
 	char comp;								/* should data/is data be compressed */
 	opts(void) { input_file = output_file = data = NULL; mode = ENCODE; comp = 0; return; }
-	~opts(void) { free(input_file); free(output_file); return; }
 };
 
-/* function prototype */
+/* function prototypes */
 int arg_processor(const int argc, const char **argv, opts *options);
+void opt_clean(opts *);
 
 #endif
 /****************************************************************/
