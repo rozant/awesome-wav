@@ -17,18 +17,21 @@ set DATA16bit4b="test_input-4b-16kbps-43582508.txt"
 set DATA16bit8b="test_input-8b-16kbps-43582508.txt"
 set DATA24bit12b="test_input-12b-24kbps.txt"
 
+set /A COMPRESSION_LEVEL=0
 set /A TEST_NUM=0
 set /A TEST_PASS=0
 
 :start
 cls
 echo Select an option:
-echo 1.Run Tests
-echo 2.Quit
+echo 1.Run tests
+echo 2.Set compression level
+echo 3.Quit
 echo.
-set /p choice=Enter your choice (1-2): 
+set /p choice=Enter your choice (1-3): 
 if %choice%==1 goto nexttest
-if %choice%==2 goto quit
+if %choice%==2 goto setcompression
+if %choice%==3 goto quit
 goto start
 
 :test1
@@ -90,13 +93,14 @@ goto test%TEST_NUM%
 echo ===================================================================================
 echo Test %TEST_NUM%
 echo ===================================================================================
-echo WAV FILE:   %PCM%
-echo E_WAV FILE: %E_PCM%
-echo DATA FILE:  %DATA%
-echo D_DATAFILE: %D_DATA%
+echo WAV FILE:    %PCM%
+echo E_WAV FILE:  %E_PCM%
+echo DATA FILE:   %DATA%
+echo D_DATAFILE:  %D_DATA%
+echo COMPRESSION LEVEL: %COMPRESSION_LEVEL%
 echo.
 echo Encoding and decoding files.
-awesome-wav.exe -t %PCM% %E_PCM% %DATA% %D_DATA%
+awesome-wav.exe -c%COMPRESSION_LEVEL% -t %PCM% %E_PCM% %DATA% %D_DATA%
 if %ERRORLEVEL% NEQ 0 goto programfail
 echo Program succeeded.
 echo.
@@ -110,8 +114,6 @@ echo.
 set /A TEST_PASS+=1
 goto nexttest
 
-
-
 :programfail
 echo Program failed.
 echo.
@@ -121,6 +123,14 @@ goto nexttest
 echo File comparison failed.
 echo.
 goto nexttest
+
+:setcompression
+cls
+set /p choice=Enter file compression level (0-9): 
+if %choice% LSS 0 goto setcompression
+if %choice% GTR 9 goto setcompression
+set /A COMPRESSION_LEVEL = %choice%
+goto start
 
 :quit
 cls
