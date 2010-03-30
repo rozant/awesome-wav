@@ -54,6 +54,8 @@ int main(int argc, char* argv[]) {
 	opts options;
 	/* wav file definitaion */
 	wav in_wav;
+	/* set up the options struct */
+	opt_init(&options);
 
 	/* decide what to do */
 	if(argc == 1) {

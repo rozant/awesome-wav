@@ -118,6 +118,19 @@ void opt_clean(opts *foo) {
 	foo->data = foo->test_out = NULL;
 }
 
+/****************************************************************/
+/* function: opt_init											*/
+/* purpose: make sure all values are clear						*/
+/* args: opts *													*/
+/* returns: void												*/
+/****************************************************************/
+void opt_init(opts *foo) { 
+	foo->input_file = foo->output_file = NULL;
+	foo->data = foo->test_out = NULL;
+	foo->mode = ENCODE; 
+	foo->comp = 0; 
+	return;
+}
 
 /****************************************************************/
 /****************************************************************/

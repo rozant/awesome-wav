@@ -12,6 +12,7 @@
 #include <zlib.h>
 #endif
 #include "file_compression.h"
+#include "global.hpp"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -148,31 +149,31 @@ int inf(FILE *source, FILE *dest) {
 /* function: zerr												*/
 /* purpose: report a zlib or i/o error						 	*/
 /* args: const int												*/
-/* returns: void												*/
+/* returns: const char *										*/
 /****************************************************************/
-void zerr(const int ret) {
-	fputs("zpipe: ", stderr);
+const char * zerr(const int ret) {
 	switch (ret) {
 		case Z_ERRNO:
 			if (ferror(stdin))
-				fputs("error reading stdin\n", stderr);
+				return gettext("error reading stdin");
 			if (ferror(stdout))
-				fputs("error writing stdout\n", stderr);
+				return gettext("error writing stdout");
 			break;
 		case Z_STREAM_ERROR:
-			fputs("invalid compression level\n", stderr);
+			return gettext("invalid compression level");
 			break;
 		case Z_DATA_ERROR:
-			fputs("invalid or incomplete deflate data\n", stderr);
+			return gettext("invalid or incomplete deflate data");
 			break;
 		case Z_MEM_ERROR:
-			fputs("out of memory\n", stderr);
+			return gettext("out of memory");
 			break;
 		case Z_VERSION_ERROR:
-			fputs("zlib version mismatch!\n", stderr);
+			return gettext("zlib version mismatch!");
 		default:
 			break;
 	}
+	return gettext("unknown zlib error");
 }
 
 /****************************************************************/

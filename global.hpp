@@ -16,6 +16,8 @@
 #ifndef __global_hpp__
 #define __global_hpp__
 
+# define gettext(Msgid) ((const char *) (Msgid))
+
 /* typedefs to make things look nice */
 #ifdef _WIN32
 	typedef unsigned __int32 DWORD; 
