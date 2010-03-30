@@ -89,11 +89,11 @@ bool wav::validFMT(void) const {
 		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
 		#endif
 		return false;
-	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24) {
+	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: Bits per sample = %u\n",(unsigned int)fmt.BitsPerSample);
 		fprintf(stderr,"\tBits per sample == %u\n",(unsigned int)fmt.BitsPerSample);
-		fprintf(stderr,"\tExpected Bits per sample to be '8', '16', or '24'\n");
+		fprintf(stderr,"\tExpected Bits per sample to be '8', '16', '24', or 32\n");
 		#endif
 		return false;
 	} else if (fmt.NumChannels != 2) {
@@ -653,13 +653,16 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			while (count < dataBufferSize) {
 				/* first byte */
 				*currPos_WavBuffer = *currPos_DataBuffer;
-				currPos_WavBuffer += 1;
-				currPos_DataBuffer++;
-				/* second byte */
-				*currPos_WavBuffer = *currPos_DataBuffer;
-				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_WavBuffer++;
 				currPos_DataBuffer++;
 				count++;
+				/* second byte */
+				if(count < dataBufferSize) {
+					*currPos_WavBuffer = *currPos_DataBuffer;
+					currPos_WavBuffer += (bytesPerSample - 1);
+					currPos_DataBuffer++;
+					count++;
+				}
 			}
 			break;
 		default:
@@ -951,13 +954,16 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			while (count < dataBufferSize) {
 				/* first byte */
 				*currPos_DataBuffer = *currPos_WavBuffer;
-				currPos_WavBuffer += 1;
-				currPos_DataBuffer++;
-				/* second byte */
-				*currPos_DataBuffer = *currPos_WavBuffer;
-				currPos_WavBuffer += (bytesPerSample - 1);
+				currPos_WavBuffer++;
 				currPos_DataBuffer++;
 				count++;
+				/* second byte */
+				if(count < dataBufferSize) {
+					*currPos_WavBuffer = *currPos_DataBuffer;
+					currPos_WavBuffer += (bytesPerSample - 1);
+					currPos_DataBuffer++;
+					count++;
+				}
 			}
 			break;
 		default:
