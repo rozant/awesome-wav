@@ -35,11 +35,11 @@ struct opts {
 	char *test_out;							/* test data output */
 	char mode;								/* encode or decode */
 	char comp;								/* should data/is data be compressed */
-	opts(void) { input_file = output_file = data = NULL; mode = ENCODE; comp = 0; return; }
 };
 
 /* function prototypes */
 int arg_processor(const int argc, const char **argv, opts *options);
+void opt_init(opts *);
 void opt_clean(opts *);
 
 #endif

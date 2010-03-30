@@ -25,7 +25,7 @@ extern "C" {
 
 int def(FILE *source, FILE *dest, const int level);
 int inf(FILE *source, FILE *dest);
-void zerr(const int ret);
+const char * zerr(const int ret);
 
 #ifdef __cplusplus
 }
