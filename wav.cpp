@@ -83,7 +83,7 @@ bool wav::validFMT(void) const {
 		fprintf(stderr,"\tSubchunkID == %s\n",temp);
 		#endif
 		return false;
-	} else if (fmt.AudioFormat != 1) {
+	} else if (fmt.AudioFormat != WAVE_FORMAT_PCM) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: AudioFormat != '1' (PCM)\n");
 		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
@@ -375,16 +375,18 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	FILE *fInputWAV, *fInputDATA, *fOutputWAV, *fCompDATA;
 	DWORD ret_val = 0;
 
-	/* Open up all of our files */
+	/* Open up our input files */
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
 	fInputDATA = open(inputDATA, "rb");
 	if (fInputDATA == NULL) { close(fInputWAV); return false; }
-	fOutputWAV = open(outputWAV, "wb");
-	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) { close(fInputWAV); close(fInputDATA); close(fOutputWAV); return false; }
+	if (!read(fInputWAV)) { close(fInputWAV); close(fInputDATA); return false; }
+
+	/* open up output file */
+	fOutputWAV = open(outputWAV, "wb");
+	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
 	/* if we are compressing */
 	if (compressionLevel > 0) {
@@ -672,14 +674,16 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	FILE *fInputWAV, *fOutputDATA, *fCompDATA;
 	bool ret_val = 0;
 
-	/* Open up all of our files */
+	/* Open up our input file */
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
-	fOutputDATA = open(outputDATA, "wb");
-	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) { close(fInputWAV); close(fOutputDATA); return false; }
+	if (!read(fInputWAV)) { close(fInputWAV);  return false; }
+
+	/* open up our output file */
+	fOutputDATA = open(outputDATA, "wb");
+	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
 
 	/* if we are compressing */
 	if (compress > 0) {
