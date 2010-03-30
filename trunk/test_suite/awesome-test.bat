@@ -2,6 +2,7 @@
 setlocal enabledelayedexpansion
 title Awesome-WAV Batch Checker
 
+set PROGRAM=awesome-wav.exe
 set PCM8bit="PCM8bit.wav"
 set PCM16bit="PCM16bit.wav"
 set PCM24bit="PCM24bit.wav"
@@ -99,8 +100,9 @@ echo DATA FILE:   %DATA%
 echo D_DATAFILE:  %D_DATA%
 echo COMPRESSION LEVEL: %COMPRESSION_LEVEL%
 echo.
+if not exist %PROGRAM% goto noprogram
 echo Encoding and decoding files.
-awesome-wav.exe -c%COMPRESSION_LEVEL% -t %PCM% %E_PCM% %DATA% %D_DATA%
+%PROGRAM% -c%COMPRESSION_LEVEL% -t %PCM% %E_PCM% %DATA% %D_DATA%
 if %ERRORLEVEL% NEQ 0 goto programfail
 echo Program succeeded.
 echo.
@@ -130,6 +132,11 @@ set /p choice=Enter file compression level (0-9):
 if %choice% LSS 0 goto setcompression
 if %choice% GTR 9 goto setcompression
 set /A COMPRESSION_LEVEL = %choice%
+goto start
+
+:noprogram
+echo %PROGRAM% not found.
+pause
 goto start
 
 :quit
