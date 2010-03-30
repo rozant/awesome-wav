@@ -371,72 +371,69 @@ bool wav::writeDATA(FILE* outFile) const {
 /* args: const char[], const char[], const char[], const char	*/
 /* returns: DWORD												*/
 /****************************************************************/
-DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[], const char compress) {
+DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[], const char compressionLevel) {
+	FILE *fInputWAV, *fInputDATA, *fOutputWAV, *fCompDATA;
 	DWORD ret_val = 0;
+
 	/* Open up all of our files */
-	FILE* fInputWAV = open(inputWAV, "rb");
-	if (fInputWAV == NULL) {
-		return false;
-	}
-	FILE* fInputDATA = open(inputDATA, "rb");
-	if (fInputDATA == NULL) {
-		close(fInputWAV);
-		return false;
-	}
-	FILE* fOutputWAV = open(outputWAV, "wb");
-	if (fOutputWAV == NULL) {
-		close(fInputWAV); close(fInputDATA);
-		return false;
-	}
+	fInputWAV = open(inputWAV, "rb");
+	if (fInputWAV == NULL) { return false; }
+	fInputDATA = open(inputDATA, "rb");
+	if (fInputDATA == NULL) { close(fInputWAV); return false; }
+	fOutputWAV = open(outputWAV, "wb");
+	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) {
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-		return false;
-	}
+	if (!read(fInputWAV)) { close(fInputWAV); close(fInputDATA); close(fOutputWAV); return false; }
 
 	/* if we are compressing */
-	if(compress > 0) {
-		FILE *fcompDATA = open("data.z", "wb");
+	if (compressionLevel > 0) {
+		fCompDATA = open("data.z", "wb");
+
 		/* open a temp file and compress */
-		if( fcompDATA == NULL ) {
+		if( fCompDATA == NULL ) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not open temp data file.\n");
 			#endif
 			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 			return false;
 		}
-		if( def(fInputDATA,fcompDATA,compress) != 0) {
+		if( def(fInputDATA, fCompDATA, compressionLevel) != 0) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not compress data file.\n");
 			#endif
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV); close(fInputDATA);
+			close(fInputWAV); close(fInputDATA); close(fOutputWAV); close(fCompDATA);
 			return false;
 		}
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Compressed input data.\n");
 		#endif
+
 		/* clean up and reopen data.z in read mode */
 		close(fInputDATA);
-		fInputDATA = NULL;
-		close(fcompDATA);
-		fcompDATA = open("data.z","rb");
-		if( fcompDATA == NULL ) {
+		close(fCompDATA);
+		fInputDATA = open("data.z","rb");
+		if( fCompDATA == NULL ) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not re-open temp data file.\n");
 			#endif
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV); close(fInputDATA);
+			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 			return false;
 		}
-		ret_val = encode(fInputWAV, fcompDATA, fOutputWAV);
-		if( remove("data.z") == -1) {
+		
+		ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
+		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
+
+		if (remove("data.z") == -1) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not remove temporary file data.z\n");
 			#endif
 		}
 	} else {
 		ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
+		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 	}
+	
 	return ret_val;
 }
 
@@ -467,7 +464,6 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Data file is too large (Want to store %.*f MB - Can fit %.*f MB)\n",3,byteToMB(dataSize),3,byteToMB(maxSize));
 		#endif
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -480,7 +476,6 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: This should never happen %d\n",(int)bitsUsed);
 		#endif
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -488,22 +483,17 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	#endif
 
 	/* Write our headers and how many bits used */
-	if (!writeRIFF(fOutputWAV) || !writeFMT(fOutputWAV) || !writeDATA(fOutputWAV)) {	
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-		return false;
-	}
+	if (!writeRIFF(fOutputWAV) || !writeFMT(fOutputWAV) || !writeDATA(fOutputWAV)) { return false; }
 
 	/* Calculate the size of our buffers */
 	maxWavBufferSize = 1024 * bytesPerSample;
 	maxDataBufferSize = 128 * bitsUsed;
-
 
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Failed to get memory for WAV buffer\n");
 		#endif
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -514,7 +504,6 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Failed to get memory for DATA buffer\n");
 		#endif
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 		free(wavBuffer);
 		return false;
 	}
@@ -530,7 +519,6 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	while (wavBufferSize != 0) {
 		/* encode and error out if it fails */
 		if ((dataBufferSize != 0) && !encode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 			free(wavBuffer); free(dataBuffer);
 			return false;
 		}
@@ -544,7 +532,6 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: Number of bytes stored: %u\n",(unsigned int)dataSize);
 	#endif
-	close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 	free(wavBuffer); free(dataBuffer);
 	return dataSize;
 }
@@ -682,59 +669,58 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 /* returns: bool												*/
 /****************************************************************/
 bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize, const char compress) {
+	FILE *fInputWAV, *fOutputDATA, *fCompDATA;
 	bool ret_val = 0;
-	/* Open up all of our files */
-	FILE* fInputWAV = open(inputWAV, "rb");
-	if (fInputWAV == NULL) {
-		return false;
-	}
 
-	FILE* fOutputDATA = open(outputDATA, "wb");
-	if (fOutputDATA == NULL) {
-		close(fInputWAV);
-		return false;
-	}
+	/* Open up all of our files */
+	fInputWAV = open(inputWAV, "rb");
+	if (fInputWAV == NULL) { return false; }
+	fOutputDATA = open(outputDATA, "wb");
+	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) {
-		close(fInputWAV); close(fOutputDATA);
-		return false;
-	}
+	if (!read(fInputWAV)) { close(fInputWAV); close(fOutputDATA); return false; }
 
 	/* if we are compressing */
-	if(compress > 0) {
-		FILE *fcompDATA = open("data.z", "wb");
-		/* open a temp file and compress */
-		if( fcompDATA == NULL ) {
+	if (compress > 0) {
+		fCompDATA = open("data.z", "wb");
+
+		/* open the temp file */
+		if( fCompDATA == NULL ) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not open temp data file.\n");
 			#endif
 			close(fInputWAV); close(fOutputDATA);
 			return false;
 		}
-		ret_val = decode(fInputWAV, fcompDATA, fileSize);
-		/* re-open in read mode */
-		close(fcompDATA);		
-		fcompDATA = open("data.z", "rb");
-		if( fcompDATA == NULL ) {
+
+		ret_val = decode(fInputWAV, fCompDATA, fileSize);
+		close(fCompDATA);
+		if (!ret_val) { close(fInputWAV); close(fOutputDATA); return ret_val; }
+
+		/* re-open the temp file in read mode */
+		fCompDATA = open("data.z", "rb");
+		if( fCompDATA == NULL ) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not re-open temp data file.\n");
 			#endif
 			close(fInputWAV); close(fOutputDATA);
 			return false;
 		}
+
 		/* decompress */
-		if( inf(fcompDATA,fOutputDATA) != 0) {
+		if( inf(fCompDATA, fOutputDATA) != 0) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not decompress data file.\n");
 			#endif
-			close(fInputWAV); close(fOutputDATA); close(fcompDATA);
+			close(fInputWAV); close(fOutputDATA); close(fCompDATA);
 			return false;
 		}
-		close(fcompDATA);
+		close(fCompDATA);
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Decompressed input data.\n");
 		#endif
+
 		if( remove("data.z") == -1) {
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Could not remove temporary file data.z\n");
@@ -767,7 +753,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Data file is too large (Want to retrieve %.*f MB - Can retrieve %.*f MB)\n",3,byteToMB(fileSize),3,byteToMB(maxSize));
 		#endif
-		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -780,7 +765,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: This should never happen %d\n",(int)bitsUsed);
 		#endif
-		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -796,7 +780,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Failed to get memory for WAV buffer\n");
 		#endif
-		close(fInputWAV); close(fOutputDATA);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
@@ -807,7 +790,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Failed to get memory for DATA buffer\n");
 		#endif
-		close(fInputWAV); close(fOutputDATA);
 		free(wavBuffer);
 		return false;
 	}
@@ -821,7 +803,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 
 	while (count <= fileSize) {
 		if (!decode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
-			close(fInputWAV); close(fOutputDATA);
 			free(wavBuffer); free(dataBuffer);
 			return false;
 		}
