@@ -60,19 +60,23 @@ int main(int argc, char* argv[]) {
 		#ifdef _DEBUG
 		size = in_wav.encode(DEBUG_WAV, DEBUG_DATA, DEBUG_ENCODED_WAV,options.comp);
 		if (size == 0x00) {
+			opt_clean(&options);
 			exit(EXIT_FAILURE);
 		}
 
 		if (!in_wav.decode(DEBUG_ENCODED_WAV, DEBUG_DECODED_DATA, size,options.comp)) {
+			opt_clean(&options);
 			exit(EXIT_FAILURE);
 		}
 		#else
 		usage(argv[0]);
+		opt_clean(&options);
 		exit(EXIT_FAILURE);
 		#endif
 	} else {
 		if (arg_processor(argc,(const char **)argv,&options) == EXIT_FAILURE) {
 			usage(argv[0]);
+			opt_clean(&options);
 			exit(EXIT_FAILURE);
 		}
 
@@ -81,6 +85,7 @@ int main(int argc, char* argv[]) {
 			case ENCODE:
 				size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
 				if(size == 0x00) {
+					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully encoded into the specified file.\n");
@@ -88,27 +93,33 @@ int main(int argc, char* argv[]) {
 				break;
 			case DECODE:
 				if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data),options.comp)) {
+					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
 			case TEST:
 				if( (size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp)) == 0x00) {
+					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully encoded into the specified file.\n");
 				if (!in_wav.decode(options.output_file,options.test_out,size,options.comp)) {
+					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
 			default:
 				fprintf(stderr,"E: mode was not set.\n");
+				opt_clean(&options);
 				exit(EXIT_FAILURE);
 				break;
 		}
 	}
 
+	/* cleanup */
+	opt_clean(&options);
 	/* its over! */
 	exit(EXIT_SUCCESS);
 }

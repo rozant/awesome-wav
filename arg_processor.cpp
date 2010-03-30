@@ -70,30 +70,54 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 			}
 		} else {
 			/* otherwise assume it is a file name */
-			if (arg_count == 0) {
-				options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-				strncpy(options->input_file,argv[foo],strlen(argv[foo]));
-			} else if (arg_count == 1) {
-				options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-				strncpy(options->output_file,argv[foo],strlen(argv[foo]));
-			} else if (arg_count == 2) {
-				options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-				strncpy(options->data,argv[foo],strlen(argv[foo]));
-			} else if (arg_count == 3) {
-				options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-				strncpy(options->test_out,argv[foo],strlen(argv[foo]));
+			switch(arg_count) {
+				case 0:					/* arg 1 */
+					options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
+					memcpy(options->input_file,argv[foo],strlen(argv[foo]));
+					break;
+				case 1:					/* arg 2 */
+					options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
+					memcpy(options->output_file,argv[foo],strlen(argv[foo]));
+					break;
+				case 2:					/* arg 3 */
+					options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
+					memcpy(options->data,argv[foo],strlen(argv[foo]));
+					break;
+				case 3:					/* arg 4 */
+					options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
+					memcpy(options->test_out,argv[foo],strlen(argv[foo]));
+				default:				/* others */;
+					break;
 			}
 			++arg_count;
 		}
 	}
+	/* check for arguemnt errors that have not been caught yet */
 	if( (options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4) ) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Incorrect number of arguments.\n");
 		#endif
 		return EXIT_FAILURE;
 	}
+	/* its over */
 	return EXIT_SUCCESS;
 }
+
+/****************************************************************/
+/* function: opt_clean											*/
+/* purpose: free the stuff that opts use						*/
+/* args: opts *													*/
+/* returns: void												*/
+/****************************************************************/
+void opt_clean(opts *foo) {
+	free(foo->input_file);
+	free(foo->output_file);
+	free(foo->data);
+	free(foo->test_out);
+	foo->input_file = foo->output_file = NULL;
+	foo->data = foo->test_out = NULL;
+}
+
 
 /****************************************************************/
 /****************************************************************/
