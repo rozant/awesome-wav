@@ -21,8 +21,10 @@ extern "C" {
 #endif
 #include <stdio.h>
 
-#define CHUNK 16384
+/* chunk size for compression */
+#define Z_CHUNK 16384
 
+/* function prototypes */
 int def(FILE *source, FILE *dest, const int level);
 int inf(FILE *source, FILE *dest);
 const char * zerr(const int ret);

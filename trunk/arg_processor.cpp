@@ -55,14 +55,14 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 							options->comp = 6;
 						}
 						break;
-					default:
+					default:				/* invalid option */
 						#ifdef _DEBUGOUTPUT
 						fprintf(stderr,"E: Invalid option '%s'.\n",argv[foo]);
 						#endif
 						return EXIT_FAILURE;
 						break;
 				}
-			} else {
+			} else {						/* more invalid option */
 				#ifdef _DEBUGOUTPUT
 				fprintf(stderr,"E: Invalid option '%s'.\n",argv[foo]);
 				#endif
@@ -71,22 +71,22 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 		} else {
 			/* otherwise assume it is a file name */
 			switch(arg_count) {
-				case 0:					/* arg 1 */
+				case 0:						/* arg 1 */
 					options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->input_file,argv[foo],strlen(argv[foo]));
 					break;
-				case 1:					/* arg 2 */
+				case 1:						/* arg 2 */
 					options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->output_file,argv[foo],strlen(argv[foo]));
 					break;
-				case 2:					/* arg 3 */
+				case 2:						/* arg 3 */
 					options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->data,argv[foo],strlen(argv[foo]));
 					break;
-				case 3:					/* arg 4 */
+				case 3:						/* arg 4 */
 					options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->test_out,argv[foo],strlen(argv[foo]));
-				default:				/* others */;
+				default:					/* others */;
 					break;
 			}
 			++arg_count;

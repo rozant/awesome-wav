@@ -32,8 +32,8 @@ int def(FILE *source, FILE *dest, const int level) {
 	int ret = 0, flush = 0;
 	unsigned int have = 0;
 	z_stream strm;
-	unsigned char in[CHUNK];
-	unsigned char out[CHUNK];
+	unsigned char in[Z_CHUNK];
+	unsigned char out[Z_CHUNK];
 
 	/* allocate deflate state */
 	strm.zalloc = Z_NULL;
@@ -46,7 +46,7 @@ int def(FILE *source, FILE *dest, const int level) {
 
 	/* compress until end of file */
 	do {
-		strm.avail_in = fread(in, 1, CHUNK, source);
+		strm.avail_in = fread(in, 1, Z_CHUNK, source);
 		if (ferror(source)) {
 			(void)deflateEnd(&strm);
 			return Z_ERRNO;
@@ -57,13 +57,13 @@ int def(FILE *source, FILE *dest, const int level) {
 		/* run deflate() on input until output buffer not full, finish
 		   compression if all of source has been read in */
 		do {
-			strm.avail_out = CHUNK;
+			strm.avail_out = Z_CHUNK;
 			strm.next_out = out;
 								 /* no bad return value */
 			ret = deflate(&strm, flush);
 								 /* state not clobbered */
 			assert(ret != Z_STREAM_ERROR);
-			have = CHUNK - strm.avail_out;
+			have = Z_CHUNK - strm.avail_out;
 			if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
 				(void)deflateEnd(&strm);
 				return Z_ERRNO;
@@ -82,16 +82,16 @@ int def(FILE *source, FILE *dest, const int level) {
 
 /****************************************************************/
 /* function: inf												*/
-/* purpose: compress a with a compression level				 	*/
-/* args: FILE *, FILE *, int									*/
+/* purpose: decompress a file 									*/
+/* args: FILE *, FILE *											*/
 /* returns: int													*/
 /****************************************************************/
 int inf(FILE *source, FILE *dest) {
 	int ret;
 	unsigned int have;
 	z_stream strm;
-	unsigned char in[CHUNK];
-	unsigned char out[CHUNK];
+	unsigned char in[Z_CHUNK];
+	unsigned char out[Z_CHUNK];
 
 	/* allocate inflate state */
 	strm.zalloc = Z_NULL;
@@ -106,7 +106,7 @@ int inf(FILE *source, FILE *dest) {
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		strm.avail_in = fread(in, 1, CHUNK, source);
+		strm.avail_in = fread(in, 1, Z_CHUNK, source);
 		if (ferror(source)) {
 			(void)inflateEnd(&strm);
 			return Z_ERRNO;
@@ -117,7 +117,7 @@ int inf(FILE *source, FILE *dest) {
 
 		/* run inflate() on input until output buffer not full */
 		do {
-			strm.avail_out = CHUNK;
+			strm.avail_out = Z_CHUNK;
 			strm.next_out = out;
 			ret = inflate(&strm, Z_NO_FLUSH);
 								 /* state not clobbered */
@@ -131,7 +131,7 @@ int inf(FILE *source, FILE *dest) {
 					(void)inflateEnd(&strm);
 					return ret;
 			}
-			have = CHUNK - strm.avail_out;
+			have = Z_CHUNK - strm.avail_out;
 			if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
 				(void)inflateEnd(&strm);
 				return Z_ERRNO;
