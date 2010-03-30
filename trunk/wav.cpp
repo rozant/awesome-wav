@@ -612,12 +612,12 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			while (count < dataBufferSize) {
 				/* first byte */
 				*currPos_WavBuffer = *currPos_DataBuffer;
-				currPos_WavBuffer+= bytesPerSample;
+				currPos_WavBuffer += bytesPerSample;
 				currPos_DataBuffer++;
 				count++;
 				/* second byte */
 				*currPos_WavBuffer = *currPos_DataBuffer;
-				currPos_WavBuffer-= (bytesPerSample-1);
+				currPos_WavBuffer -= (bytesPerSample-1);
 				currPos_DataBuffer++;
 				count++;
 				/* third byte */
@@ -940,7 +940,7 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				count++;
 				/* second byte */
 				if(count < dataBufferSize) {
-					*currPos_WavBuffer = *currPos_DataBuffer;
+					*currPos_DataBuffer = *currPos_WavBuffer;
 					currPos_WavBuffer += (bytesPerSample - 1);
 					currPos_DataBuffer++;
 					count++;
