@@ -196,7 +196,8 @@ bool wav::readFMT(FILE* inFile) {
 				fread(fmt.SubFormat, sizeof(BYTE), 16, inFile);
 			} else if (fmt.ExtraFormatBytes != 0) {
 				#ifdef _DEBUGOUTPUT
-				fprintf(stderr,"E: Failed to read FMT header: Could not get memory for extra bytes\n");
+				fprintf(stderr,"E: Invalid FMT header. Incorrect number of extra format bits.\n");
+				fprintf(stderr,"\tExtra format bytes == %u\n",(unsigned int)fmt.ExtraFormatBytes);
 				#endif
 				return false;
 			}
