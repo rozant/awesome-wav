@@ -96,9 +96,9 @@ bool wav::validFMT(void) const {
 		fprintf(stderr,"\tExpected Bits per sample to be '8', '16', '24', or 32\n");
 		#endif
 		return false;
-	} else if (fmt.NumChannels != 2) {
+	} else if (fmt.NumChannels > 2) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid FMT header: Num channels != '2'\n");
+		fprintf(stderr,"E: Invalid FMT header: Num channels > 2\n");
 		fprintf(stderr,"\tNumChannels == %u\n",(unsigned int)fmt.NumChannels);
 		#endif
 		return false;
