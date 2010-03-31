@@ -58,12 +58,11 @@ struct _FMT {
 	SHORT BlockAlign;
 	SHORT BitsPerSample;
 	SHORT ExtraFormatBytes;
-	BYTE *ExtraFormat;
+	SHORT ValidBitsPerSample;
+	DWORD ChannelMask;
+	BYTE SubFormat[16];
 	_FMT(void) { return; }
-	~_FMT(void) {
-		free(ExtraFormat);
-		return;
-	}
+	~_FMT(void) { return; }
 };
 /****************************************************************/
 /* struct: _DATA												*/
