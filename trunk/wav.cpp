@@ -111,6 +111,14 @@ bool wav::validFMT(void) const {
 	fprintf(stderr,"\tS: Byte rate: %u\n",(unsigned int)fmt.ByteRate);
 	fprintf(stderr,"\tS: Num channels: %u\n",(unsigned int)fmt.NumChannels);
 	fprintf(stderr,"\tS: Sample rate: %u\n",(unsigned int)fmt.SampleRate);
+	if (fmt.SubchunkSize-16 != 0) {
+		fprintf(stderr,"\tS: Extra format bytes: %u\n",(unsigned int)fmt.ExtraFormatBytes);
+		if(fmt.ExtraFormatBytes == 22) {
+			fprintf(stderr,"\tS: Valid bits per sample: %u\n",(unsigned int)fmt.ValidBitsPerSample);
+			fprintf(stderr,"\tS: Channel mask: %u\n",(unsigned int)fmt.ChannelMask);
+			fprintf(stderr,"\tS: Sub format: %s\n",(char *)fmt.SubFormat);
+		}
+	}
 	#endif
 	return true;
 }
