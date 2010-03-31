@@ -223,16 +223,9 @@ bool wav::readFMT(FILE* inFile) {
 /*		0 = read incorrectly or did not read					*/
 /****************************************************************/
 bool wav::readDATA(FILE* inFile) {
-	DWORD size;
-	BYTE id[4];
-
-	fread(id, sizeof(BYTE), 4, inFile);
-	fread(&size, sizeof(DWORD), 1, inFile);
-
-	if (bytencmp(id, (BYTE*)"data", 4) == 0) {
-		data.SubchunkID[0] = 'd'; data.SubchunkID[1] = 'a'; data.SubchunkID[2] = 't'; data.SubchunkID[3] = 'a';
-		data.SubchunkSize = size;
-
+	if (fread(data.SubchunkID, sizeof(BYTE), 4, inFile) &&
+		fread(&data.SubchunkSize, sizeof(DWORD), 1, inFile))
+	{
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Read DATA header\n");
 		#endif
@@ -240,7 +233,7 @@ bool wav::readDATA(FILE* inFile) {
 	}
 
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read DATA header: Could not locate");
+	fprintf(stderr,"E: Failed to read DATA header: Could not read bytes\n");
 	#endif
 	return false;
 }

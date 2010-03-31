@@ -45,7 +45,7 @@ struct _RIFF {
 /****************************************************************/
 /* struct: _FMT													*/
 /* purpose: define a structure to make it easy to look at the 	*/
-/* second chunk in RIFF formatted files.						*/
+/* FMT chunk in RIFF formatted files.							*/
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _FMT {
@@ -65,9 +65,23 @@ struct _FMT {
 	~_FMT(void) { return; }
 };
 /****************************************************************/
+/* struct: _FACT												*/
+/* purpose: define a structure to make it easy to look at the 	*/
+/* FACT chunk in WAV (RIFF subset) formatted files.				*/
+/* notes: be warned - the SubchunkID may not be NULL terminated	*/
+/*		this chunk will not exist in PCM wav files.				*/
+/****************************************************************/
+struct _FACT {
+	BYTE SubchunkID[4]; // "fact"
+	DWORD SubchunkSize;	// 4
+	DWORD SampleLength; // per channel
+	_FACT(void) { return; }
+	~_FACT(void) { return; }
+};
+/****************************************************************/
 /* struct: _DATA												*/
 /* purpose: define a structure to make it easy to look at the 	*/
-/* third chunk in WAV (RIFF subset) formatted files.			*/
+/* DATA chunk in WAV (RIFF subset) formatted files.				*/
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _DATA {
