@@ -60,8 +60,8 @@ struct _FMT {
 	SHORT ExtraFormatBytes;
 	SHORT ValidBitsPerSample;
 	DWORD ChannelMask;
-	BYTE SubFormat[16];
-	_FMT(void) { return; }
+	BYTE SubFormat[17];
+	_FMT(void) { SubFormat[16] = 0; return; }
 	~_FMT(void) { return; }
 };
 /****************************************************************/
@@ -77,6 +77,31 @@ struct _FACT {
 	DWORD SampleLength; // per channel
 	_FACT(void) { return; }
 	~_FACT(void) { return; }
+};
+/****************************************************************/
+/* struct: _PPEAK												*/
+/* purpose: define a structure to make it easy to look at the 	*/
+/* position peak chunks in WAV (RIFF subset) formatted files.	*/
+/* notes: be warned - the SubchunkID may not be NULL terminated	*/
+/*		this chunk will not exist in PCM wav files.				*/
+/****************************************************************/
+struct _PPEAK {
+	float Value;		// peak value
+	DWORD Position;		// sample frame for peak
+};
+/****************************************************************/
+/* struct: _PEAK												*/
+/* purpose: define a structure to make it easy to look at the 	*/
+/* PEAK chunk in WAV (RIFF subset) formatted files.				*/
+/* notes: be warned - the SubchunkID may not be NULL terminated	*/
+/*		this chunk will not exist in PCM wav files.				*/
+/****************************************************************/
+struct _PEAK {
+	BYTE SubchunkID[4]; // "PEAK"
+	DWORD SubchunkSize; 
+	DWORD Version;		// peak chunk version
+	DWORD timestamp;	// UNIX timestamp of creation
+	_PPEAK *peak;		// one for each channel
 };
 /****************************************************************/
 /* struct: _DATA												*/
