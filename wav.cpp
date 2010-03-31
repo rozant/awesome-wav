@@ -522,7 +522,6 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	clock_t start = clock();
 	#endif
 
-
 	/* read into the buffers, process, and write */
 	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
 	dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
@@ -601,8 +600,6 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			break;
 		case 4:
 			while (count < dataBufferSize) {
-//fprintf(stderr,"\tWB == %u\n",(unsigned int)tempWB);
-
 				tempByte = *currPos_DataBuffer;
 				clearLowerBits(*currPos_WavBuffer);
 				tempByte >>= 4;
@@ -614,7 +611,6 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				clearUpperBits(tempByte);
 				*currPos_WavBuffer += tempByte;
 				currPos_WavBuffer += bytesPerSample;	
-
 				currPos_DataBuffer++;
 				count++;
 			}
@@ -816,6 +812,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: Got %u bytes for DATA buffer\n",(unsigned int)maxDataBufferSize);
+	clock_t start = clock();
 	#endif
 
 	/* read into the buffers, process, and write */
@@ -845,6 +842,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	}
 
 	#ifdef _DEBUGOUTPUT
+	fprintf(stderr,"S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
 	fprintf(stderr,"S: Number of bytes retrieved: %u\n",(unsigned int)count);
 	#endif
 	free(wavBuffer); free(dataBuffer);
@@ -903,15 +901,17 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			}
 			break;
 		case 4:
-			while (count < dataBufferSize) {			
-				for (char j = 1; j >= 0; j--) {
-					setBit(tempByte, j*4 + 3, getBit(*currPos_WavBuffer, 3));
-					setBit(tempByte, j*4 + 2, getBit(*currPos_WavBuffer, 2));
-					setBit(tempByte, j*4 + 1, getBit(*currPos_WavBuffer, 1));
-					setBit(tempByte, j*4, getBit(*currPos_WavBuffer, 0));
-					currPos_WavBuffer += bytesPerSample;
-				}
-				*currPos_DataBuffer = tempByte;
+			while (count < dataBufferSize) {
+				tempByte = *currPos_WavBuffer;
+				*currPos_DataBuffer = 0;
+				tempByte <<= 4;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				tempByte = *currPos_WavBuffer;
+				clearUpperBits(tempByte);
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
 				currPos_DataBuffer++;
 				count++;
 			}
