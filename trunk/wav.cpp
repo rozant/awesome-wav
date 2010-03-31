@@ -25,6 +25,9 @@
 #include "global.hpp"
 #include "buffer.hpp"
 #include "util.hpp"
+#ifdef _DEBUGOUTPUT
+#include <time.h>
+#endif
 
 /****************************************************************/
 /* function: wav::wav											*/
@@ -516,7 +519,9 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: Got %u bytes for DATA buffer\n",(unsigned int)maxDataBufferSize);
+	clock_t start = clock();
 	#endif
+
 
 	/* read into the buffers, process, and write */
 	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
@@ -537,6 +542,7 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	}
 
 	#ifdef _DEBUGOUTPUT
+	fprintf(stderr,"S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
 	fprintf(stderr,"S: Number of bytes stored: %u\n",(unsigned int)dataSize);
 	#endif
 	free(wavBuffer); free(dataBuffer);
@@ -595,14 +601,20 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			break;
 		case 4:
 			while (count < dataBufferSize) {
+//fprintf(stderr,"\tWB == %u\n",(unsigned int)tempWB);
+
 				tempByte = *currPos_DataBuffer;
-				for (char i = 1; i >= 0; i--) {
-					setBit(*currPos_WavBuffer, 3, getBit(tempByte, i*4 + 3));
-					setBit(*currPos_WavBuffer, 2, getBit(tempByte, i*4 + 2));
-					setBit(*currPos_WavBuffer, 1, getBit(tempByte, i*4 + 1));
-					setBit(*currPos_WavBuffer, 0, getBit(tempByte, i*4));
-					currPos_WavBuffer += bytesPerSample;
-				}
+				clearLowerBits(*currPos_WavBuffer);
+				tempByte >>= 4;
+				*currPos_WavBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				tempByte = *currPos_DataBuffer;
+				clearLowerBits(*currPos_WavBuffer);
+				clearUpperBits(tempByte);
+				*currPos_WavBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;	
+
 				currPos_DataBuffer++;
 				count++;
 			}
