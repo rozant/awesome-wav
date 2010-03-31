@@ -190,14 +190,15 @@ bool wav::readFMT(FILE* inFile) {
 		// Need to read extra stuff
 		if (fmt.SubchunkSize-16 != 0) {
 			fread(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, inFile);
-			if (fmt.ExtraFormatBytes > 0) {
-				if ((fmt.ExtraFormat = (BYTE*)malloc(fmt.ExtraFormatBytes)) == NULL) {
-					#ifdef _DEBUGOUTPUT
-					fprintf(stderr,"E: Failed to read FMT header: Could not get memory for extra bytes\n");
-					#endif
-					return false;
-				}
-				fread(fmt.ExtraFormat, (fmt.ExtraFormatBytes), 1, inFile);
+			if (fmt.ExtraFormatBytes == 22) {
+				fread(&fmt.ValidBitsPerSample, sizeof(SHORT), 1, inFile);
+				fread(&fmt.ChannelMask, sizeof(DWORD), 1, inFile);
+				fread(fmt.SubFormat, sizeof(BYTE), 16, inFile);
+			} else if (fmt.ExtraFormatBytes != 0) {
+				#ifdef _DEBUGOUTPUT
+				fprintf(stderr,"E: Failed to read FMT header: Could not get memory for extra bytes\n");
+				#endif
+				return false;
 			}
 		}
 
@@ -321,7 +322,9 @@ bool wav::writeFMT(FILE* outFile) const {
 		if (fmt.SubchunkSize-16 != 0) {
 			fwrite(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, outFile);
 			if (fmt.ExtraFormatBytes > 0) {
-				fwrite(fmt.ExtraFormat, fmt.ExtraFormatBytes, 1, outFile);
+				fwrite(&fmt.ValidBitsPerSample, sizeof(SHORT), 1, outFile);
+				fwrite(&fmt.ChannelMask, sizeof(DWORD), 1, outFile);
+				fwrite(fmt.SubFormat, sizeof(BYTE), 16, outFile);
 			}
 		}
 		#ifdef _DEBUGOUTPUT
@@ -488,8 +491,8 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	if (!writeRIFF(fOutputWAV) || !writeFMT(fOutputWAV) || !writeDATA(fOutputWAV)) { return false; }
 
 	/* Calculate the size of our buffers */
-	maxWavBufferSize = 1024 * bytesPerSample;
-	maxDataBufferSize = 128 * bitsUsed;
+	maxWavBufferSize = BUFFER_MULT*(1024 * bytesPerSample);
+	maxDataBufferSize = BUFFER_MULT*(128 * bitsUsed);
 
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
@@ -776,8 +779,8 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	#endif
 
 	/* Calculate the size of our buffers */
-	maxWavBufferSize = 1024 * bytesPerSample;
-	maxDataBufferSize = 128 * bitsUsed;
+	maxWavBufferSize = BUFFER_MULT*(1024 * bytesPerSample);
+	maxDataBufferSize = BUFFER_MULT*(128 * bitsUsed);
 
 	/* Get memory for our buffers */
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
