@@ -588,6 +588,38 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 			break;
 		case 2:
 			while (count < dataBufferSize) {	
+				/* About the same speed
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				*currPos_WavBuffer++;
+				
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte <<= 2;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				*currPos_WavBuffer++;
+
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte <<= 4;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				*currPos_WavBuffer++;
+
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte <<= 6;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				*currPos_WavBuffer++;
+
+				currPos_DataBuffer++;
+				count++;*/
+
+
 				tempByte = *currPos_DataBuffer;
 				for (char i = 3; i >= 0; i--) {
 					setBit(*currPos_WavBuffer, 1, getBit(tempByte, i*2 + 1));
@@ -601,14 +633,14 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 		case 4:
 			while (count < dataBufferSize) {
 				tempByte = *currPos_DataBuffer;
-				clearLowerBits(*currPos_WavBuffer);
+				clearLower4Bits(*currPos_WavBuffer);
 				tempByte >>= 4;
 				*currPos_WavBuffer += tempByte;
 				currPos_WavBuffer += bytesPerSample;
 
 				tempByte = *currPos_DataBuffer;
-				clearLowerBits(*currPos_WavBuffer);
-				clearUpperBits(tempByte);
+				clearLower4Bits(*currPos_WavBuffer);
+				clearUpper4Bits(tempByte);
 				*currPos_WavBuffer += tempByte;
 				currPos_WavBuffer += bytesPerSample;	
 				currPos_DataBuffer++;
@@ -646,7 +678,7 @@ bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				setBit(*currPos_WavBuffer, 2, getBit(tempByte, 6));
 				setBit(*currPos_WavBuffer, 1, getBit(tempByte, 5));
 				setBit(*currPos_WavBuffer, 0, getBit(tempByte, 4));
-				currPos_WavBuffer++;
+				currPos_WavBuffer += (bytesPerSample-1);
 				currPos_DataBuffer++;
 				count++;
 			}
@@ -909,7 +941,7 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				currPos_WavBuffer += bytesPerSample;
 
 				tempByte = *currPos_WavBuffer;
-				clearUpperBits(tempByte);
+				clearUpper4Bits(tempByte);
 				*currPos_DataBuffer += tempByte;
 				currPos_WavBuffer += bytesPerSample;
 				currPos_DataBuffer++;
@@ -947,7 +979,7 @@ bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wa
 				setBit(tempByte, 5, getBit(*currPos_WavBuffer, 1));
 				setBit(tempByte, 4, getBit(*currPos_WavBuffer, 0));
 				*currPos_DataBuffer = tempByte;
-				currPos_WavBuffer++;
+				currPos_WavBuffer += (bytesPerSample-1);
 				currPos_DataBuffer++;
 				count++;
 			}
