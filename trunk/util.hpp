@@ -51,20 +51,29 @@ bool getBit(const BYTE b, const char index) {
 }
 
 /****************************************************************/
-/* function: clearLowerBits										*/
+/* function: clearLower2Bits									*/
+/* purpose: clears the 2 lower bits in a BYTE					*/
+/* args: BYTE&													*/
+/****************************************************************/
+inline void clearLower2Bits(BYTE &b) {
+	b &= ~3; // 3
+}
+
+/****************************************************************/
+/* function: clearLower4Bits									*/
 /* purpose: clears the 4 lower bits in a BYTE					*/
 /* args: BYTE&													*/
 /****************************************************************/
-inline void clearLowerBits(BYTE &b) {
+inline void clearLower4Bits(BYTE &b) {
 	b &= ~0xF; // 15
 }
 
 /****************************************************************/
-/* function: clearUpperBits										*/
+/* function: clearUpper4Bits									*/
 /* purpose: clears the 4 upper bits in a BYTE					*/
 /* args: BYTE&													*/
 /****************************************************************/
-inline void clearUpperBits(BYTE &b) {
+inline void clearUpper4Bits(BYTE &b) {
 	b &= ~0xF0; // 240
 }
 
