@@ -17,7 +17,7 @@
 #define __global_hpp__
 
 #define gettext(Msgid) ((const char *) (Msgid))
-#define BUFFER_MULT 1
+#define BUFFER_MULT 16
 
 /* typedefs to make things look nice */
 #ifdef _WIN32
