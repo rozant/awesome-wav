@@ -32,10 +32,7 @@ class wav {
 	private:
 		_RIFF riff;
 		_FMT fmt;
-		_DATA data;
-		DWORD buff_loc;
-		DWORD max_buff_loc;
-		SHORT* bps;
+		_DATA data;;
 		/* file operations */
 		bool readRIFF(FILE*);
 		bool readFMT(FILE*);
@@ -55,9 +52,6 @@ class wav {
 		bool encode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
 		bool decode(FILE*, FILE*, const DWORD&);
 		bool decode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
-		/* buffer operations */
-		template <class T>
-		friend void next_chunk(T input, BYTE * buffer, DWORD * buff_len);
 	public:
 		/* constructors */
 		wav(void);
