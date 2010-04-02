@@ -666,16 +666,16 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 					if( count < dataBufferSize ) {
 						/* third byte */
 						tempByte = *currPos_DataBuffer;
-						setBit(*currPos_WavBuffer, 3, getBit(tempByte, 3));
-						setBit(*currPos_WavBuffer, 2, getBit(tempByte, 2));
-						setBit(*currPos_WavBuffer, 1, getBit(tempByte, 1));
-						setBit(*currPos_WavBuffer, 0, getBit(tempByte, 0));
+						clearLower4Bits(*currPos_WavBuffer);
+						tempByte >>= 4;
+						*currPos_WavBuffer += tempByte;
 						currPos_WavBuffer += bytesPerSample;
-						setBit(*currPos_WavBuffer, 3, getBit(tempByte, 7));
-						setBit(*currPos_WavBuffer, 2, getBit(tempByte, 6));
-						setBit(*currPos_WavBuffer, 1, getBit(tempByte, 5));
-						setBit(*currPos_WavBuffer, 0, getBit(tempByte, 4));
-						currPos_WavBuffer += (bytesPerSample-1);
+
+						tempByte = *currPos_DataBuffer;
+						clearLower4Bits(*currPos_WavBuffer);
+						clearUpper4Bits(tempByte);
+						*currPos_WavBuffer += tempByte;
+						currPos_WavBuffer += (bytesPerSample-1);	
 						currPos_DataBuffer++;
 						count++;
 					}
@@ -971,16 +971,15 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 					count++;
 					if( count < dataBufferSize ) {
 						/* third byte */
-						setBit(tempByte, 3, getBit(*currPos_WavBuffer, 3));
-						setBit(tempByte, 2, getBit(*currPos_WavBuffer, 2));
-						setBit(tempByte, 1, getBit(*currPos_WavBuffer, 1));
-						setBit(tempByte, 0, getBit(*currPos_WavBuffer, 0));
+						tempByte = *currPos_WavBuffer;
+						*currPos_DataBuffer = 0;
+						tempByte <<= 4;
+						*currPos_DataBuffer += tempByte;
 						currPos_WavBuffer += bytesPerSample;
-						setBit(tempByte, 7, getBit(*currPos_WavBuffer, 3));
-						setBit(tempByte, 6, getBit(*currPos_WavBuffer, 2));
-						setBit(tempByte, 5, getBit(*currPos_WavBuffer, 1));
-						setBit(tempByte, 4, getBit(*currPos_WavBuffer, 0));
-						*currPos_DataBuffer = tempByte;
+
+						tempByte = *currPos_WavBuffer;
+						clearUpper4Bits(tempByte);
+						*currPos_DataBuffer += tempByte;
 						currPos_WavBuffer += (bytesPerSample-1);
 						currPos_DataBuffer++;
 						count++;
