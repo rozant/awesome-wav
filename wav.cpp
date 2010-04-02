@@ -546,10 +546,11 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 /****************************************************************/
 /* function: encode												*/
 /* purpose: encode data into the audio file using a buffer	 	*/
-/* args: BYTE, DWORD, BYTE*, size_t, BYTE*, size_t				*/
+/* args: const BYTE, const DWORD, BYTE*, const size_t, BYTE*,	*/
+/*		const size_t											*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::encode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wavBufferSize, BYTE *dataBuffer, size_t dataBufferSize) {
+bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffer, const size_t wavBufferSize, BYTE *dataBuffer, const size_t dataBufferSize) {
 	BYTE tempByte = 0x00;
 	size_t count = 0x00;
 	BYTE* currPos_WavBuffer = wavBuffer;
@@ -882,10 +883,11 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 /****************************************************************/
 /* function: decode												*/
 /* purpose: decode data from the audio file that is in ram	 	*/
-/* args: BYTE, DWORD, BYTE*, size_t, BYTE*, size_t				*/
+/* args: const BYTE, const DWORD, BYTE*, const size_t, BYTE*,	*/
+/*		const size_t											*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::decode(BYTE bitsUsed, DWORD bytesPerSample, BYTE *wavBuffer, size_t wavBufferSize, BYTE *dataBuffer, size_t dataBufferSize) {
+bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffer, const size_t wavBufferSize, BYTE *dataBuffer, const size_t dataBufferSize) {
 	BYTE tempByte = 0x00;
 	size_t count = 0x00;
 	BYTE* currPos_WavBuffer = wavBuffer;
