@@ -18,6 +18,7 @@
 
 #define gettext(Msgid) ((const char *) (Msgid))
 #define BUFFER_MULT 16
+#define Z_MULT 2
 
 /* typedefs to make things look nice */
 #ifdef _WIN32
