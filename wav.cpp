@@ -23,7 +23,6 @@
 #include "wav.hpp"
 #include "file_compression.h"
 #include "global.hpp"
-#include "buffer.hpp"
 #include "util.hpp"
 #ifdef _DEBUGOUTPUT
 #include <time.h>
@@ -38,9 +37,6 @@ wav::wav(void) {
 	memset(&riff, 0, sizeof(_RIFF));
 	memset(&fmt, 0, sizeof(_FMT));
 	memset(&data, 0, sizeof(_DATA));
-	buff_loc = 0;
-	max_buff_loc = 0;
-	bps = NULL;
 }
 
 /****************************************************************/
@@ -254,8 +250,6 @@ bool wav::readDATA(FILE* inFile) {
 bool wav::read(FILE *inFile) {
 	/* read and validate wave header (RIFF Chunk), format chunk, and DATA */
 	if ( (readRIFF(inFile) && validRIFF() && readFMT(inFile) && validFMT() && readDATA(inFile) && validDATA())) {
-		max_buff_loc = (data.SubchunkSize / (fmt.BitsPerSample/8));
-		bps = &fmt.BitsPerSample;
 		return true;
 	}
 	return false;
