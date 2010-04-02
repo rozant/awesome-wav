@@ -22,7 +22,7 @@ extern "C" {
 #include <stdio.h>
 
 /* chunk size for compression */
-#define Z_CHUNK 16384
+#define Z_CHUNK (Z_MULT*16384)
 
 /* function prototypes */
 int def(FILE *source, FILE *dest, const int level);
