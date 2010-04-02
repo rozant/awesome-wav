@@ -55,9 +55,7 @@ bool wav::validRIFF(void) const {
 	if (bytencmp(riff.Format, (BYTE*)"WAVE", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid RIFF header: Format != 'WAVE'\n");
-		char temp[5];
-		memcpy(temp,riff.Format,4);
-		temp[5] = 0;
+		char temp[5]; memcpy(temp,riff.Format,4); temp[4] = 0;
 		fprintf(stderr,"\tFormat == %s\n",temp);
 		#endif
 		return false;
@@ -80,9 +78,7 @@ bool wav::validFMT(void) const {
 	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: SubchunkID != 'fmt '\n");
-		char temp[5];
-		memcpy(temp,fmt.SubchunkID,4);
-		temp[5] = 0;
+		char temp[5]; memcpy(temp,fmt.SubchunkID,4); temp[4] = 0;
 		fprintf(stderr,"\tSubchunkID == %s\n",temp);
 		#endif
 		return false;
@@ -138,9 +134,7 @@ bool wav::validDATA(void) const {
 	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid DATA header: SubchunkID != 'data'\n");
-		char temp[5];
-		memcpy(temp,data.SubchunkID,4);
-		temp[5] = 0;
+		char temp[5]; memcpy(temp,data.SubchunkID,4); temp[4] = 0;
 		fprintf(stderr,"\tSubchunkID == %s\n",temp);
 		#endif
 		return false;
