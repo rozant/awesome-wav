@@ -41,8 +41,8 @@ class wav {
 		bool readFMT(FILE*);
 		bool readDATA(FILE*);
 		bool read(FILE*);
-		bool writeRIFF(FILE*) const;
 		bool writeFMT(FILE*) const;
+		bool writeRIFF(FILE*) const;
 		bool writeDATA(FILE*) const;
 		/* data integrity checks */
 		bool validRIFF(void) const;
@@ -52,9 +52,9 @@ class wav {
 		DWORD getMaxBytesEncoded(const SHORT, const DWORD);
 		BYTE getMinBitsEncodedPS(const SHORT, const DWORD, const DWORD);
 		DWORD encode(FILE*, FILE*, FILE*);
-		bool encode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
+		bool encode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
 		bool decode(FILE*, FILE*, const DWORD&);
-		bool decode(BYTE, DWORD, BYTE *, size_t, BYTE *, size_t);
+		bool decode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
 		/* buffer operations */
 		template <class T>
 		friend void next_chunk(T input, BYTE * buffer, DWORD * buff_len);
