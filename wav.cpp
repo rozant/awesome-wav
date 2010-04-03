@@ -577,44 +577,33 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 			break;
 		case 2:
 			while (count < dataBufferSize) {	
-				/* About the same speed
 				clearLower2Bits(*currPos_WavBuffer);
 				tempByte = *currPos_DataBuffer;
 				tempByte >>= 6;
 				*currPos_WavBuffer += tempByte;
-				*currPos_WavBuffer++;
+				currPos_WavBuffer += bytesPerSample;
 				
 				clearLower2Bits(*currPos_WavBuffer);
 				tempByte = *currPos_DataBuffer;
 				tempByte <<= 2;
 				tempByte >>= 6;
 				*currPos_WavBuffer += tempByte;
-				*currPos_WavBuffer++;
+				currPos_WavBuffer += bytesPerSample;
 
 				clearLower2Bits(*currPos_WavBuffer);
 				tempByte = *currPos_DataBuffer;
 				tempByte <<= 4;
 				tempByte >>= 6;
 				*currPos_WavBuffer += tempByte;
-				*currPos_WavBuffer++;
+				currPos_WavBuffer += bytesPerSample;
 
 				clearLower2Bits(*currPos_WavBuffer);
 				tempByte = *currPos_DataBuffer;
 				tempByte <<= 6;
 				tempByte >>= 6;
 				*currPos_WavBuffer += tempByte;
-				*currPos_WavBuffer++;
+				currPos_WavBuffer += bytesPerSample;
 
-				currPos_DataBuffer++;
-				count++;*/
-
-
-				tempByte = *currPos_DataBuffer;
-				for (char i = 3; i >= 0; i--) {
-					setBit(*currPos_WavBuffer, 1, getBit(tempByte, i*2 + 1));
-					setBit(*currPos_WavBuffer, 0, getBit(tempByte, i*2));
-					currPos_WavBuffer += bytesPerSample;
-				}
 				currPos_DataBuffer++;
 				count++;
 			}
@@ -915,13 +904,32 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 			}
 			break;
 		case 2:
-			while (count < dataBufferSize) {			
-				for (char j = 3; j >= 0; j--) {
-					setBit(tempByte, j*2 + 1, getBit(*currPos_WavBuffer, 1));
-					setBit(tempByte, j*2, getBit(*currPos_WavBuffer, 0));
-					currPos_WavBuffer += bytesPerSample;
-				}
-				*currPos_DataBuffer = tempByte;
+			while (count < dataBufferSize) {
+				*currPos_DataBuffer = 0;
+
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+				
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				tempByte >>= 2;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				tempByte >>= 4;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				tempByte >>= 6;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
 				currPos_DataBuffer++;
 				count++;
 			}
