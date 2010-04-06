@@ -36,10 +36,10 @@
 /* notes: be warned - the ChunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _RIFF {
-	BYTE ChunkID[4]; // "RIFF"
+	BYTE ChunkID[5]; // "RIFF"
 	DWORD ChunkSize; // file size - 8
-	BYTE Format[4]; // "WAVE"
-	_RIFF(void) { return; }
+	BYTE Format[5]; // "WAVE"
+	_RIFF(void) { ChunkID[4] = 0; Format[4] = 0; return; }
 	~_RIFF(void) { return; }
 };
 /****************************************************************/
@@ -49,7 +49,7 @@ struct _RIFF {
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _FMT {
-	BYTE SubchunkID[4]; // "fmt "
+	BYTE SubchunkID[5]; // "fmt "
 	DWORD SubchunkSize; // 16 + extra format bytes
 	SHORT AudioFormat;
 	SHORT NumChannels;
@@ -61,7 +61,7 @@ struct _FMT {
 	SHORT ValidBitsPerSample;
 	DWORD ChannelMask;
 	BYTE SubFormat[17];
-	_FMT(void) { SubFormat[16] = 0; return; }
+	_FMT(void) { SubchunkID[4] = 0; SubFormat[16] = 0; return; }
 	~_FMT(void) { return; }
 };
 /****************************************************************/
@@ -72,10 +72,10 @@ struct _FMT {
 /*		this chunk will not exist in PCM wav files.				*/
 /****************************************************************/
 struct _FACT {
-	BYTE SubchunkID[4]; // "fact"
+	BYTE SubchunkID[5]; // "fact"
 	DWORD SubchunkSize;	// 4
 	DWORD SampleLength; // per channel
-	_FACT(void) { return; }
+	_FACT(void) { SubchunkID[4] = 0; return; }
 	~_FACT(void) { return; }
 };
 /****************************************************************/
@@ -97,11 +97,13 @@ struct _PPEAK {
 /*		this chunk will not exist in PCM wav files.				*/
 /****************************************************************/
 struct _PEAK {
-	BYTE SubchunkID[4]; // "PEAK"
+	BYTE SubchunkID[5]; // "PEAK"
 	DWORD SubchunkSize; 
 	DWORD Version;		// peak chunk version
 	DWORD timestamp;	// UNIX timestamp of creation
 	_PPEAK *peak;		// one for each channel
+	_PEAK(void) { peak = NULL; SubchunkID[4] = 0; return; }
+	~_PEAK(void) { free(peak); return; }
 };
 /****************************************************************/
 /* struct: _DATA												*/
@@ -110,14 +112,11 @@ struct _PEAK {
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _DATA {
-	BYTE SubchunkID[4];
+	BYTE SubchunkID[5];
 	DWORD SubchunkSize;
 	BYTE *Data;
-	_DATA(void) { return; }
-	~_DATA(void) {
-		free(Data);
-		return;
-	}
+	_DATA(void) { Data = NULL; SubchunkID[4] = 0; return; }
+	~_DATA(void) { free(Data); return; }
 };
 
 #endif
