@@ -41,6 +41,11 @@ wav::wav(void) {
 	peak = NULL;
 }
 
+/****************************************************************/
+/* function: wav::~wav											*/
+/* purpose: destructor for the wav class						*/
+/* args: void													*/
+/****************************************************************/
 wav::~wav(void) {
 	if(fact != NULL) {
 		free(fact);
@@ -60,8 +65,7 @@ bool wav::validRIFF(void) const {
 	if (bytencmp(riff.Format, (BYTE*)"WAVE", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid RIFF header: Format != 'WAVE'\n");
-		char temp[5]; memcpy(temp,riff.Format,4); temp[4] = 0;
-		fprintf(stderr,"\tFormat == %s\n",temp);
+		fprintf(stderr,"\tFormat == %s\n",(char*)riff.Format);
 		#endif
 		return false;
 	}
@@ -83,8 +87,7 @@ bool wav::validFMT(void) const {
 	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: SubchunkID != 'fmt '\n");
-		char temp[5]; memcpy(temp,fmt.SubchunkID,4); temp[4] = 0;
-		fprintf(stderr,"\tSubchunkID == %s\n",temp);
+		fprintf(stderr,"\tSubchunkID == %s\n",(char*)fmt.SubchunkID);
 		#endif
 		return false;
 	} else if (fmt.AudioFormat != WAVE_FORMAT_PCM) {
@@ -140,7 +143,7 @@ bool wav::validFACT(void) const {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FACT header: SubchunkID != 'fact'\n");
 		char temp[5]; memcpy(temp,fact->SubchunkID,4); temp[4] = 0;
-		fprintf(stderr,"\tSubchunkID == %s\n",temp);
+		fprintf(stderr,"\tSubchunkID == %s\n",(char*)fact->SubchunkID);
 		#endif
 		return false;
 	} else if (fact->SubchunkSize == 0) {
@@ -167,8 +170,7 @@ bool wav::validDATA(void) const {
 	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid DATA header: SubchunkID != 'data'\n");
-		char temp[5]; memcpy(temp,data.SubchunkID,4); temp[4] = 0;
-		fprintf(stderr,"\tSubchunkID == %s\n",temp);
+		fprintf(stderr,"\tSubchunkID == %s\n",(char*)data.SubchunkID);
 		#endif
 		return false;
 	} else if (data.SubchunkSize == 0) {
