@@ -32,18 +32,23 @@ class wav {
 	private:
 		_RIFF riff;
 		_FMT fmt;
+		_FACT *fact;
+		_PEAK *peak;
 		_DATA data;;
 		/* file operations */
 		bool readRIFF(FILE*);
 		bool readFMT(FILE*);
+		bool readFACT(FILE*);
 		bool readDATA(FILE*);
 		bool read(FILE*);
 		bool writeFMT(FILE*) const;
 		bool writeRIFF(FILE*) const;
+		bool writeFACT(FILE*) const;
 		bool writeDATA(FILE*) const;
 		/* data integrity checks */
 		bool validRIFF(void) const;
 		bool validFMT(void) const;
+		bool validFACT(void) const;
 		bool validDATA(void) const;
 		/* data operations */
 		DWORD getMaxBytesEncoded(const SHORT, const DWORD);
@@ -56,7 +61,7 @@ class wav {
 		/* constructors */
 		wav(void);
 		/* destructor */
-		~wav(void) { return; }
+		~wav(void);
 		/* manipulation */
 		DWORD encode(const char[], const char[], const char[], const char);
 		bool decode(const char[], const char[], const DWORD&, const char);
