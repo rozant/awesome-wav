@@ -54,6 +54,20 @@ wav::~wav(void) {
 }
 
 /****************************************************************/
+/* function: wav::validWAV										*/
+/* purpose: checks if the WAV file is valid						*/
+/* args: void													*/
+/* returns: bool												*/
+/*		1 = valid header										*/
+/*		0 = invalid header										*/
+/****************************************************************/
+bool wav::validWAV(void) const {
+	if (!(validRIFF() && validFMT() && validFACT() && validDATA())) {
+		return false;
+	}
+	return true;
+}
+/****************************************************************/
 /* function: wav::validRIFF										*/
 /* purpose: checks if the RIFF header is valid					*/
 /* args: void													*/
@@ -139,6 +153,9 @@ bool wav::validFMT(void) const {
 /*		0 = invalid header										*/
 /****************************************************************/
 bool wav::validFACT(void) const {
+	if (fact == NULL) {
+		return true;
+	}
 	if (bytencmp(fact->SubchunkID, (BYTE*)"fact", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FACT header: SubchunkID != 'fact'\n");
@@ -186,292 +203,6 @@ bool wav::validDATA(void) const {
 }
 
 /****************************************************************/
-/* function: wav::readRIFF										*/
-/* purpose: reads the riff header from a wav file				*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = read correctly										*/
-/*		0 = read incorrectly or did not read					*/
-/****************************************************************/
-bool wav::readRIFF(FILE* inFile) {
-	if (fread(riff.ChunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(riff.Format, sizeof(BYTE), 4, inFile))
-	{
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Read RIFF header\n");
-		#endif
-		return true;
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read RIFF header: Could not read bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::readFMT										*/
-/* purpose: reads the fmt header from a wav file				*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = read correctly										*/
-/*		0 = read incorrectly or did not read					*/
-/****************************************************************/
-bool wav::readFMT(FILE* inFile) {
-	if (fread(fmt.SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&fmt.SubchunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(&fmt.AudioFormat, sizeof(SHORT), 1, inFile) &&
-		fread(&fmt.NumChannels, sizeof(SHORT), 1, inFile) &&
-		fread(&fmt.SampleRate, sizeof(DWORD), 1, inFile) &&
-		fread(&fmt.ByteRate, sizeof(DWORD), 1, inFile) &&
-		fread(&fmt.BlockAlign, sizeof(SHORT), 1, inFile) &&
-		fread(&fmt.BitsPerSample, sizeof(SHORT), 1, inFile))
-	{
-		// Need to read extra stuff
-		if (fmt.SubchunkSize-16 != 0) {
-			fread(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, inFile);
-			if (fmt.ExtraFormatBytes == 22) {
-				fread(&fmt.ValidBitsPerSample, sizeof(SHORT), 1, inFile);
-				fread(&fmt.ChannelMask, sizeof(DWORD), 1, inFile);
-				fread(fmt.SubFormat, sizeof(BYTE), 16, inFile);
-			} else if (fmt.ExtraFormatBytes != 0) {
-				#ifdef _DEBUGOUTPUT
-				fprintf(stderr,"E: Invalid FMT header. Incorrect number of extra format bits.\n");
-				fprintf(stderr,"\tExtra format bytes == %u\n",(unsigned int)fmt.ExtraFormatBytes);
-				#endif
-				return false;
-			}
-		}
-
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Read FMT header\n");
-		#endif
-		return true;
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read FMT header: Could not read bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::readFACT										*/
-/* purpose: reads the fact chunk from a wav file				*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = read correctly										*/
-/*		0 = read incorrectly or did not read					*/
-/****************************************************************/
-bool wav::readFACT(FILE* inFile) {
-	if (fread(fact->SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&fact->SubchunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(&fact->SampleLength, sizeof(DWORD), 1, inFile))
-	{
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Read FACT header\n");
-		#endif
-		return true;
-	}
-
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read FACT header: Could not read bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::readDATA										*/
-/* purpose: reads the data from a wav file						*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = read correctly										*/
-/*		0 = read incorrectly or did not read					*/
-/****************************************************************/
-bool wav::readDATA(FILE* inFile) {
-	if (fread(data.SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&data.SubchunkSize, sizeof(DWORD), 1, inFile))
-	{
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Read DATA header\n");
-		#endif
-		return true;
-	}
-
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read DATA header: Could not read bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::read											*/
-/* purpose: reads a wav file into memory						*/
-/* args: const char[]											*/
-/* returns: bool												*/
-/*		1 = read correctly										*/
-/*		0 = read incorrectly or did not read					*/
-/****************************************************************/
-bool wav::read(FILE *inFile) {
-	BYTE temp[4];
-	fpos_t pos;
-	/* read and validate wave header (RIFF Chunk), format chunk, and DATA */
-	if ( (readRIFF(inFile) && validRIFF() && readFMT(inFile) && validFMT())) {
-		fgetpos(inFile,&pos);
-		fgets((char *)temp,4,inFile);
-		if (bytencmp(temp, (BYTE*)"fact", 4) == 0) {
-			fsetpos(inFile,&pos);
-			fact = (_FACT *)malloc(sizeof(_FACT));
-			if(!(readFACT(inFile) && validFACT())) {
-				return false;
-			}
-		} else {
-			fsetpos(inFile,&pos);
-		}
-		if (readDATA(inFile) && validDATA()) {
-			return true;
-		}
-	}
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::writeRIFF										*/
-/* purpose: writes the riff header to a file					*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = wrote correctly										*/
-/*		0 = wrote incorrectly or did not open					*/
-/****************************************************************/
-bool wav::writeRIFF(FILE* outFile) const {
-	if (outFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Failed to write RIFF header: FILE not open\n");
-		#endif
-		return false;
-	}
-
-	if (fwrite(riff.ChunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&riff.ChunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(riff.Format, sizeof(BYTE), 4, outFile))
-	{
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Wrote RIFF header\n");
-		#endif
-		return true;
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to write RIFF header: Could not write bytesn\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::writeFMT										*/
-/* purpose: writes the fmt header to a file						*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = wrote correctly										*/
-/*		0 = wrote incorrectly or did not open					*/
-/****************************************************************/
-bool wav::writeFMT(FILE* outFile) const {
-	if (outFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Failed to write FMT header: FILE not open\n");
-		#endif
-		return false;
-	}
-
-	if (fwrite(fmt.SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&fmt.SubchunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(&fmt.AudioFormat, sizeof(SHORT), 1, outFile) &&
-		fwrite(&fmt.NumChannels, sizeof(SHORT), 1, outFile) &&
-		fwrite(&fmt.SampleRate, sizeof(DWORD), 1, outFile) &&
-		fwrite(&fmt.ByteRate, sizeof(DWORD), 1, outFile) &&
-		fwrite(&fmt.BlockAlign, sizeof(SHORT), 1, outFile) &&
-		fwrite(&fmt.BitsPerSample, sizeof(SHORT), 1, outFile))
-	{
-		// Need to write extra stuff
-		if (fmt.SubchunkSize-16 != 0) {
-			fwrite(&fmt.ExtraFormatBytes, sizeof(SHORT), 1, outFile);
-			if (fmt.ExtraFormatBytes > 0) {
-				fwrite(&fmt.ValidBitsPerSample, sizeof(SHORT), 1, outFile);
-				fwrite(&fmt.ChannelMask, sizeof(DWORD), 1, outFile);
-				fwrite(fmt.SubFormat, sizeof(BYTE), 16, outFile);
-			}
-		}
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Wrote FMT header\n");
-		#endif
-		return true;
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to write FMT header: Could not write bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::writeFACT										*/
-/* purpose: writes the FACT header to a file					*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = wrote correctly										*/
-/*		0 = wrote incorrectly or did not open					*/
-/****************************************************************/
-bool wav::writeFACT(FILE* outFile) const {
-	if (outFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Failed to write FACT header: FILE not open\n");
-		#endif
-		return false;
-	}
-
-	if (fwrite(fact->SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&fact->SubchunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(&fact->SampleLength, sizeof(DWORD), 1, outFile))
-	{
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Wrote FACT header\n");
-		#endif
-		return true;
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to write FACT header: Could not write bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
-/* function: wav::writeDATA										*/
-/* purpose: writes the data header to a file					*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = wrote correctly										*/
-/*		0 = wrote incorrectly or did not open					*/
-/****************************************************************/
-bool wav::writeDATA(FILE* outFile) const {
-	if (outFile == NULL) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Failed to write DATA header: FILE not open\n");
-		#endif
-		return false;
-	}
-
-	if (fwrite(data.SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&data.SubchunkSize, sizeof(DWORD), 1, outFile))
-	{
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Wrote DATA header\n");
-		#endif
-		return true;
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to write DATA header: Could not write bytes\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
 /* function: encode												*/
 /* purpose: open the files ment for encoding				 	*/
 /* args: const char[], const char[], const char[], const char	*/
@@ -488,7 +219,7 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	if (fInputDATA == NULL) { close(fInputWAV); return false; }
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) { close(fInputWAV); close(fInputDATA); return false; }
+	if (!(RIFFread(fInputWAV,this) && validWAV())) { close(fInputWAV); close(fInputDATA); return false; }
 
 	/* open up output file */
 	fOutputWAV = open(outputWAV, "wb");
@@ -591,11 +322,9 @@ DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	#endif
 
 	/* Write our headers and how many bits used */
-	if (!writeRIFF(fOutputWAV) || !writeFMT(fOutputWAV)) { return false; }
-	if (fact != NULL) {
-		if (!writeFACT(fOutputWAV)) { return false; }
+	if( !RIFFwrite(fOutputWAV,this)) {
+		return false;
 	}
-	if (!writeDATA(fOutputWAV)) { return false; }
 
 	/* Calculate the size of our buffers */
 	maxWavBufferSize = BUFFER_MULT*(1024 * bytesPerSample);
@@ -820,7 +549,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	if (fInputWAV == NULL) { return false; }
 
 	/* read and validate wave header (RIFF Chunk), and format chunk */
-	if (!read(fInputWAV)) { close(fInputWAV);  return false; }
+	if (!(RIFFread(fInputWAV,this) && validWAV())) { close(fInputWAV);  return false; }
 
 	/* open up our output file */
 	fOutputDATA = open(outputDATA, "wb");
