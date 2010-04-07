@@ -36,16 +36,28 @@ class wav {
 		_PEAK *peak;
 		_DATA data;;
 		/* file operations */
-		bool readRIFF(FILE*);
-		bool readFMT(FILE*);
-		bool readFACT(FILE*);
-		bool readDATA(FILE*);
-		bool read(FILE*);
-		bool writeFMT(FILE*) const;
-		bool writeRIFF(FILE*) const;
-		bool writeFACT(FILE*) const;
-		bool writeDATA(FILE*) const;
+		template <class T>
+		friend bool RIFFread(FILE*,T *);
+		template <class T>
+		friend bool RIFFreadRIFF(FILE *, T *);
+		template <class T>
+		friend bool RIFFreadFMT(FILE *, T *);
+		template <class T>
+		friend bool RIFFreadFACT(FILE *, T *);
+		template <class T>
+		friend bool RIFFreadDATA(FILE *, T *);
+		template <class T>
+		friend bool RIFFwrite(FILE *, const T *);
+		template <class T>
+		friend bool RIFFwriteRIFF(FILE *, const T *);
+		template <class T>
+		friend bool RIFFwriteFMT(FILE *, const T *);
+		template <class T>
+		friend bool RIFFwriteFACT(FILE *, const T *);
+		template <class T>
+		friend bool RIFFwriteDATA(FILE *, const T *);
 		/* data integrity checks */
+		bool validWAV(void) const;
 		bool validRIFF(void) const;
 		bool validFMT(void) const;
 		bool validFACT(void) const;
