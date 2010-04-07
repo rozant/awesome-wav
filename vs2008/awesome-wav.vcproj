@@ -313,6 +313,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\riff_func.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\riff_struct.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\util.hpp"
 				>
 			</File>
