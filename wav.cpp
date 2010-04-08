@@ -98,9 +98,9 @@ bool wav::validRIFF(void) const {
 /*		0 = invalid header										*/
 /****************************************************************/
 bool wav::validFMT(void) const {
-	if (fmt.AudioFormat != WAVE_FORMAT_PCM) {
+	if (fmt.AudioFormat != WAVE_FORMAT_PCM && fmt.AudioFormat != WAVE_FORMAT_IEEE_FLOAT) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid FMT header: AudioFormat != '1' (PCM)\n");
+		fprintf(stderr,"E: Invalid FMT header: AudioFormat != '%d' (PCM) or '%d' (IEEE FLOAT)\n",WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT);
 		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
 		#endif
 		return false;

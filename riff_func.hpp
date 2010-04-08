@@ -63,7 +63,7 @@ bool RIFFread(FILE *inFile, T *input) {
 	/* read wave wav file chunks */
 	if ( (RIFFreadRIFF(inFile,input) && RIFFreadFMT(inFile,input))) {
 		fgetpos(inFile,&pos);
-		fgets(temp,4,inFile);
+		fread(temp, sizeof(char), 4, inFile);
 		if (memcmp(temp, "fact", 4) == 0) {
 			fsetpos(inFile,&pos);
 			input->fact = (_FACT *)malloc(sizeof(_FACT));
@@ -73,9 +73,9 @@ bool RIFFread(FILE *inFile, T *input) {
 		} else {
 			fsetpos(inFile,&pos);
 		}
-/*		fgetpos(inFile,&pos);
-		fgets(temp,4,inFile);
-		if (memcmp(temp, "peak", 4) == 0) {
+		fgetpos(inFile,&pos);
+		fread(temp, sizeof(char), 4, inFile);
+		if (memcmp(temp, "PEAK", 4) == 0) {
 			fsetpos(inFile,&pos);
 			input->peak = (_PEAK *)malloc(sizeof(_PEAK));
 			if(!RIFFreadPEAK(inFile,input)) {
@@ -83,7 +83,7 @@ bool RIFFread(FILE *inFile, T *input) {
 			}
 		} else {
 			fsetpos(inFile,&pos);
-		}*/
+		}
 		if (RIFFreadDATA(inFile,input)) {
 			return true;
 		}
@@ -162,11 +162,14 @@ bool RIFFreadFMT(FILE *inFile, T *input) {
 				#endif
 				return false;
 			}
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"S: Read Extended FMT header\n");
+			#endif
+		} else {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"S: Read FMT header\n");
+			#endif
 		}
-
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Read FMT header\n");
-		#endif
 	} else {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Failed to read FMT header: Could not read bytes\n");
@@ -259,7 +262,7 @@ bool RIFFreadPEAK(FILE *inFile, T *input) {
 		#endif
 		return false;
 	}
-	if (input->peak->SubchunkSize == 0) {
+	if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK))) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid PEAK chunk size\n");
 		#endif
@@ -321,6 +324,11 @@ bool RIFFwrite(FILE *outFile, const T *input) {
 	}
 	if (input->fact != NULL) {
 		if (!RIFFwriteFACT(outFile,input)) {
+			return false;
+		}
+	}
+	if (input->peak != NULL) {
+		if (!RIFFwritePEAK(outFile,input)) {
 			return false;
 		}
 	}
@@ -460,7 +468,8 @@ bool RIFFwritePEAK(FILE *outFile, const T *input) {
 	if (fwrite(input->peak->SubchunkID, sizeof(BYTE), 4, outFile) &&
 		fwrite(&input->peak->SubchunkSize, sizeof(DWORD), 1, outFile) &&
 		fwrite(&input->peak->Version, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->peak->timestamp, sizeof(DWORD), 1, outFile))
+		fwrite(&input->peak->timestamp, sizeof(DWORD), 1, outFile) &&
+		fwrite(input->peak->peak, sizeof(_PPEAK), input->fmt.NumChannels,outFile))
 	{
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Wrote PEAK header\n");

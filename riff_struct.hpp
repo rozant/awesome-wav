@@ -17,10 +17,6 @@
 #define __riff_struct_hpp__
 #include <stdlib.h>
 #include "global.hpp"
-/* defines useful for RIFF formatting */
-#define WAVE_FORMAT_UNKNOWN    	0x0000
-#define	WAVE_FORMAT_PCM			0x0001	
-#define WAVE_FORMAT_IEEE_FLOAT 	0x0003
 
 /****************************************************************/
 /* struct: _RIFF												*/
