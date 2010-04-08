@@ -98,13 +98,7 @@ bool wav::validRIFF(void) const {
 /*		0 = invalid header										*/
 /****************************************************************/
 bool wav::validFMT(void) const {
-	if (bytencmp(fmt.SubchunkID, (BYTE*)"fmt ", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid FMT header: SubchunkID != 'fmt '\n");
-		fprintf(stderr,"\tSubchunkID == %s\n",(char*)fmt.SubchunkID);
-		#endif
-		return false;
-	} else if (fmt.AudioFormat != WAVE_FORMAT_PCM) {
+	if (fmt.AudioFormat != WAVE_FORMAT_PCM) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: AudioFormat != '1' (PCM)\n");
 		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
@@ -156,19 +150,6 @@ bool wav::validFACT(void) const {
 	if (fact == NULL) {
 		return true;
 	}
-	if (bytencmp(fact->SubchunkID, (BYTE*)"fact", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid FACT header: SubchunkID != 'fact'\n");
-		char temp[5]; memcpy(temp,fact->SubchunkID,4); temp[4] = 0;
-		fprintf(stderr,"\tSubchunkID == %s\n",(char*)fact->SubchunkID);
-		#endif
-		return false;
-	} else if (fact->SubchunkSize == 0) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid FACT header: No DATA\n");
-		#endif
-		return false;
-	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: Valid FACT header\n");
 	#endif
@@ -184,13 +165,7 @@ bool wav::validFACT(void) const {
 /*		0 = invalid header										*/
 /****************************************************************/
 bool wav::validDATA(void) const {
-	if (bytencmp(data.SubchunkID, (BYTE*)"data", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid DATA header: SubchunkID != 'data'\n");
-		fprintf(stderr,"\tSubchunkID == %s\n",(char*)data.SubchunkID);
-		#endif
-		return false;
-	} else if (data.SubchunkSize == 0) {
+	if (data.SubchunkSize == 0) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid DATA header: No DATA\n");
 		#endif
