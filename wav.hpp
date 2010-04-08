@@ -73,6 +73,8 @@ class wav {
 		bool encode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
 		bool decode(FILE*, FILE*, const DWORD&);
 		bool decode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
+		/* other things */
+		void clean(void);
 	public:
 		/* constructors */
 		wav(void);

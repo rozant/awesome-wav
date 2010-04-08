@@ -47,8 +47,27 @@ wav::wav(void) {
 /* args: void													*/
 /****************************************************************/
 wav::~wav(void) {
+	clean();
+	return;
+}
+
+/****************************************************************/
+/* function: wav::clean											*/
+/* purpose: eddective destructor for the wav class				*/
+/* args: void													*/
+/****************************************************************/
+void wav::clean(void) {
 	if(fact != NULL) {
 		free(fact);
+		fact = NULL;
+	}
+	if(peak != NULL) {
+		if(peak->peak != NULL) {
+			free(peak->peak);
+			peak->peak = NULL;
+		}
+		free(peak);
+		peak = NULL;
 	}
 	return;
 }
@@ -247,7 +266,9 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 		ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
 		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 	}
-	
+
+	/* clean up */
+	clean();
 	return ret_val;
 }
 
@@ -609,7 +630,9 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 		ret_val = decode(fInputWAV, fOutputDATA, fileSize);
 	}
 
+	/* clean up */
 	close(fInputWAV); close(fOutputDATA);
+	clean();
 	return ret_val;
 }
 
