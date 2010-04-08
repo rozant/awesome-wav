@@ -21,6 +21,7 @@
 #include "riff.hpp"
 
 /**********************Function Prototypes***********************/
+/* read */
 template <class T>
 bool RIFFread(FILE *, T *);
 template <class T>
@@ -31,6 +32,7 @@ template <class T>
 bool RIFFreadFACT(FILE *, T *);
 template <class T>
 bool RIFFreadDATA(FILE *, T *);
+/* write */
 template <class T>
 bool RIFFwrite(FILE *, const T *);
 template <class T>
@@ -83,19 +85,33 @@ bool RIFFread(FILE *inFile, T *input) {
 /****************************************************************/
 template <class T>
 bool RIFFreadRIFF(FILE *inFile, T *input) {
+	/* read */
 	if (fread(input->riff.ChunkID, sizeof(BYTE), 4, inFile) &&
 		fread(&input->riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(input->riff.Format, sizeof(BYTE), 4, inFile))
-	{
+		fread(input->riff.Format, sizeof(BYTE), 4, inFile)) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Read RIFF header\n");
 		#endif
-		return true;
+	} else {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Failed to read RIFF header: Could not read bytes\n");
+		#endif
+		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read RIFF header: Could not read bytes\n");
-	#endif
-	return false;
+	/* basic validation */
+	if (memcmp(input->riff.ChunkID, "RIFF", 4) != 0) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid RIFF header: ChunkID != 'RIFF'\n");
+		fprintf(stderr,"\tChunkID == %s\n",(char*)input->riff.ChunkID);
+		#endif
+		return false;
+	} else if (input->riff.ChunkSize == 0) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid RIFF header: Chunk Size canot be 0\n");
+		#endif
+		return false;
+	}
+	return true;
 }
 
 /****************************************************************/
@@ -136,12 +152,25 @@ bool RIFFreadFMT(FILE *inFile, T *input) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Read FMT header\n");
 		#endif
-		return true;
+	} else {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Failed to read FMT header: Could not read bytes\n");
+		#endif
+		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read FMT header: Could not read bytes\n");
-	#endif
-	return false;
+	if (memcmp(input->fmt.SubchunkID, "fmt ", 4) != 0) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid FMT header: SubchunkID != 'fmt '\n");
+		fprintf(stderr,"\tSubchunkID == %s\n",(char*)input->fmt.SubchunkID);
+		#endif
+		return false;
+	} else if (input->fmt.SubchunkSize != 16 && input->fmt.SubchunkSize != 18 && input->fmt.SubchunkSize != 40) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid FMT header: invalid SubchunkSize\n");
+		#endif
+		return false;
+	}
+	return true;
 }
 
 /****************************************************************/
@@ -161,13 +190,17 @@ bool RIFFreadFACT(FILE *inFile, T *input) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Read FACT header\n");
 		#endif
-		return true;
+	} else {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Failed to read FACT header: Could not read bytes\n");
+		#endif
 	}
-
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read FACT header: Could not read bytes\n");
-	#endif
-	return false;
+	if (input->fact->SubchunkSize != 4) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid FACT chunk size\n");
+		#endif
+	}
+	return true;
 }
 
 /****************************************************************/
@@ -186,13 +219,20 @@ bool RIFFreadDATA(FILE *inFile, T *input) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Read DATA header\n");
 		#endif
-		return true;
+	} else {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Failed to read DATA header: Could not read bytes\n");
+		#endif
+		return false;
 	}
-
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: Failed to read DATA header: Could not read bytes\n");
-	#endif
-	return false;
+	if (memcmp(input->data.SubchunkID, (BYTE*)"data", 4) != 0) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid DATA header: SubchunkID != 'data'\n");
+		fprintf(stderr,"\tSubchunkID == %s\n",(char*)input->data.SubchunkID);
+		#endif
+		return false;
+	}
+	return true;
 }
 
 /****************************************************************/
