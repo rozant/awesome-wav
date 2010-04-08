@@ -104,7 +104,7 @@ bool wav::validFMT(void) const {
 		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
 		#endif
 		return false;
-	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32) {
+	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32 && fmt.BitsPerSample != 64) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: Bits per sample = %u\n",(unsigned int)fmt.BitsPerSample);
 		fprintf(stderr,"\tBits per sample == %u\n",(unsigned int)fmt.BitsPerSample);
@@ -499,6 +499,36 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 				}
 			}
 			break;
+		case 32:
+			while (count < dataBufferSize) {
+				/* first byte */
+				*currPos_WavBuffer = *currPos_DataBuffer;
+				currPos_WavBuffer++;
+				currPos_DataBuffer++;
+				count++;
+				/* second byte */
+				if(count < dataBufferSize) {
+					*currPos_WavBuffer = *currPos_DataBuffer;
+					currPos_WavBuffer++;
+					currPos_DataBuffer++;
+					count++;
+					/* third byte */
+					if(count < dataBufferSize) {
+						*currPos_WavBuffer = *currPos_DataBuffer;
+						currPos_WavBuffer++;
+						currPos_DataBuffer++;
+						count++;
+						/* fourth byte */
+						if(count < dataBufferSize) {
+							*currPos_WavBuffer = *currPos_DataBuffer;
+							currPos_WavBuffer += (bytesPerSample - 3);
+							currPos_DataBuffer++;
+							count++;
+						}
+					}
+				}
+			}
+			break;
 		default:
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Invalid number of bits used (%hu)\n",(unsigned short)bitsUsed);
@@ -823,6 +853,36 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 				}
 			}
 			break;
+		case 32:
+			while (count < dataBufferSize) {
+				/* first byte */
+				*currPos_DataBuffer = *currPos_WavBuffer;
+				currPos_WavBuffer++;
+				currPos_DataBuffer++;
+				count++;
+				/* second byte */
+				if(count < dataBufferSize) {
+					*currPos_DataBuffer = *currPos_WavBuffer;
+					currPos_WavBuffer++;
+					currPos_DataBuffer++;
+					count++;
+					/* third byte */
+					if(count < dataBufferSize) {
+						*currPos_DataBuffer = *currPos_WavBuffer;
+						currPos_WavBuffer++;
+						currPos_DataBuffer++;
+						count++;
+						/* fourth byte */
+						if(count < dataBufferSize) {
+							*currPos_DataBuffer = *currPos_WavBuffer;
+							currPos_WavBuffer += (bytesPerSample - 3);
+							currPos_DataBuffer++;
+							count++;
+						}
+					}
+				}
+			}
+			break;
 		default:
 			#ifdef _DEBUGOUTPUT
 			fprintf(stderr,"E: Invalid number of bits used (%hu)\n",(unsigned short)bitsUsed);
@@ -855,6 +915,9 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 			break;
 		case 32:
 			maxSize = (subchunkSize / bytesPerSample) << 1;
+			break;
+		case 64:
+			maxSize = (subchunkSize / bytesPerSample) << 2;
 			break;
 		default:
 			maxSize = 0;
@@ -891,6 +954,8 @@ BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, c
 		return 12;
 	else if (i_MinBPS <= 16)
 		return 16;
+	else if (i_MinBPS <= 32)
+		return 32;
 	else
 		return 0;
 }
