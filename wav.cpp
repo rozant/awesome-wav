@@ -117,20 +117,36 @@ bool wav::validRIFF(void) const {
 /*		0 = invalid header										*/
 /****************************************************************/
 bool wav::validFMT(void) const {
+	/* check encoding method */
 	if (fmt.AudioFormat != WAVE_FORMAT_PCM && fmt.AudioFormat != WAVE_FORMAT_IEEE_FLOAT) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: AudioFormat != '%d' (PCM) or '%d' (IEEE FLOAT)\n",WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT);
 		fprintf(stderr,"\tAudioFormat == %u\n",(unsigned int)fmt.AudioFormat);
 		#endif
 		return false;
-	} else if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32 && fmt.BitsPerSample != 64) {
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"E: Invalid FMT header: Bits per sample = %u\n",(unsigned int)fmt.BitsPerSample);
-		fprintf(stderr,"\tBits per sample == %u\n",(unsigned int)fmt.BitsPerSample);
-		fprintf(stderr,"\tExpected Bits per sample to be '8', '16', '24', or 32\n");
-		#endif
-		return false;
-	} else if (fmt.NumChannels > 2) {
+	}
+	/* check bits per sample */
+	if (fmt.AudioFormat == WAVE_FORMAT_PCM) {
+		if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Invalid FMT header: Bits per sample = %u\n",(unsigned int)fmt.BitsPerSample);
+			fprintf(stderr,"\tBits per sample == %u\n",(unsigned int)fmt.BitsPerSample);
+			fprintf(stderr,"\tExpected Bits per sample to be '8', '16', '24', or 32\n");
+			#endif
+			return false;
+		}
+	} else if (fmt.AudioFormat == WAVE_FORMAT_IEEE_FLOAT) {
+		if (fmt.BitsPerSample != 32 && fmt.BitsPerSample != 64) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Invalid FMT header: Bits per sample = %u\n",(unsigned int)fmt.BitsPerSample);
+			fprintf(stderr,"\tBits per sample == %u\n",(unsigned int)fmt.BitsPerSample);
+			fprintf(stderr,"\tExpected Bits per sample to be '8', '16', '24', or 32\n");
+			#endif
+			return false;
+		}
+	}
+	/* check channel count */
+	if (fmt.NumChannels > 2) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FMT header: Num channels > 2\n");
 		fprintf(stderr,"\tNumChannels == %u\n",(unsigned int)fmt.NumChannels);
