@@ -31,6 +31,8 @@ bool RIFFreadFMT(FILE *, T *);
 template <class T>
 bool RIFFreadFACT(FILE *, T *);
 template <class T>
+bool RIFFreadPEAK(FILE *, T *);
+template <class T>
 bool RIFFreadDATA(FILE *, T *);
 /* write */
 template <class T>
@@ -41,6 +43,8 @@ template <class T>
 bool RIFFwriteFMT(FILE *, const T *);
 template <class T>
 bool RIFFwriteFACT(FILE *, const T *);
+template <class T>
+bool RIFFwritePEAK(FILE *, const T *);
 template <class T>
 bool RIFFwriteDATA(FILE *, const T *);
 /***************************Functions****************************/
@@ -69,6 +73,17 @@ bool RIFFread(FILE *inFile, T *input) {
 		} else {
 			fsetpos(inFile,&pos);
 		}
+/*		fgetpos(inFile,&pos);
+		fgets(temp,4,inFile);
+		if (memcmp(temp, "peak", 4) == 0) {
+			fsetpos(inFile,&pos);
+			input->peak = (_PEAK *)malloc(sizeof(_PEAK));
+			if(!RIFFreadPEAK(inFile,input)) {
+				return false;
+			}
+		} else {
+			fsetpos(inFile,&pos);
+		}*/
 		if (RIFFreadDATA(inFile,input)) {
 			return true;
 		}
@@ -199,6 +214,56 @@ bool RIFFreadFACT(FILE *inFile, T *input) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid FACT chunk size\n");
 		#endif
+	}
+	return true;
+}
+
+/****************************************************************/
+/* function: RIFFreadPEAK										*/
+/* purpose: reads the peak chunk from a wav file				*/
+/* args: FILE *, T *											*/
+/* returns: bool												*/
+/*		1 = read correctly										*/
+/*		0 = read incorrectly or did not read					*/
+/****************************************************************/
+template <class T>
+bool RIFFreadPEAK(FILE *inFile, T *input) {
+	unsigned int foo = 0;
+	if (fread(input->peak->SubchunkID, sizeof(BYTE), 4, inFile) &&
+		fread(&input->peak->SubchunkSize, sizeof(DWORD), 1, inFile) &&
+		fread(&input->peak->Version, sizeof(DWORD), 1, inFile) &&
+		fread(&input->peak->timestamp, sizeof(DWORD), 1, inFile))
+	{
+		input->peak->peak = (_PPEAK *)malloc(input->fmt.NumChannels * sizeof(_PPEAK));
+		if(input->peak->peak == NULL) {
+			#ifdef _DEBUGOUTPUT
+			fprintf(stderr,"E: Failed to read PEAK header: Could not allocate memory\n");
+			#endif
+			return false;
+		}
+		for(foo = 0; foo < input->fmt.NumChannels; ++foo) {
+			if (!(fread(&input->peak->peak[foo].Value, sizeof(float), 1, inFile) &&
+				fread(&input->peak->peak[foo].Position, sizeof(DWORD), 1, inFile))) {
+				#ifdef _DEBUGOUTPUT
+				fprintf(stderr,"E: Failed to read PEAK header: Could not read bytes\n");
+				#endif
+				return false;
+			}
+		}
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"S: Read PEAK header\n");
+		#endif
+	} else {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Failed to read PEAK header: Could not read bytes\n");
+		#endif
+		return false;
+	}
+	if (input->peak->SubchunkSize == 0) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Invalid PEAK chunk size\n");
+		#endif
+		return false;
 	}
 	return true;
 }
@@ -371,6 +436,39 @@ bool RIFFwriteFACT(FILE *outFile, const T *input) {
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"E: Failed to write FACT header: Could not write bytes\n");
+	#endif
+	return false;
+}
+
+/****************************************************************/
+/* function: RIFFwritePEAK										*/
+/* purpose: writes the PEAK header to a file					*/
+/* args: FILE *, const T *										*/
+/* returns: bool												*/
+/*		1 = wrote correctly										*/
+/*		0 = wrote incorrectly or did not open					*/
+/****************************************************************/
+template <class T>
+bool RIFFwritePEAK(FILE *outFile, const T *input) {
+	if (outFile == NULL) {
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"E: Failed to write PEAK header: FILE not open\n");
+		#endif
+		return false;
+	}
+
+	if (fwrite(input->peak->SubchunkID, sizeof(BYTE), 4, outFile) &&
+		fwrite(&input->peak->SubchunkSize, sizeof(DWORD), 1, outFile) &&
+		fwrite(&input->peak->Version, sizeof(DWORD), 1, outFile) &&
+		fwrite(&input->peak->timestamp, sizeof(DWORD), 1, outFile))
+	{
+		#ifdef _DEBUGOUTPUT
+		fprintf(stderr,"S: Wrote PEAK header\n");
+		#endif
+		return true;
+	}
+	#ifdef _DEBUGOUTPUT
+	fprintf(stderr,"E: Failed to write PEAK header: Could not write bytes\n");
 	#endif
 	return false;
 }
