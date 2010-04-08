@@ -16,6 +16,11 @@
 #ifndef __riff_hpp__
 #define __riff_hpp__
 
+/* defines useful for RIFF formatting */
+#define WAVE_FORMAT_UNKNOWN    	0x0000
+#define	WAVE_FORMAT_PCM			0x0001	
+#define WAVE_FORMAT_IEEE_FLOAT 	0x0003
+
 /* include the parts of riff */
 #include "riff_struct.hpp"
 #include "riff_func.hpp"
