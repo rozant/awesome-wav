@@ -45,6 +45,8 @@ class wav {
 		template <class T>
 		friend bool RIFFreadFACT(FILE *, T *);
 		template <class T>
+		friend bool RIFFreadPEAK(FILE *, T *);
+		template <class T>
 		friend bool RIFFreadDATA(FILE *, T *);
 		template <class T>
 		friend bool RIFFwrite(FILE *, const T *);
@@ -54,6 +56,8 @@ class wav {
 		friend bool RIFFwriteFMT(FILE *, const T *);
 		template <class T>
 		friend bool RIFFwriteFACT(FILE *, const T *);
+		template <class T>
+		friend bool RIFFwritePEAK(FILE *, const T *);
 		template <class T>
 		friend bool RIFFwriteDATA(FILE *, const T *);
 		/* data integrity checks */
