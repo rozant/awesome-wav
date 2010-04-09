@@ -21,6 +21,13 @@
 #define	WAVE_FORMAT_PCM			0x0001	
 #define WAVE_FORMAT_IEEE_FLOAT 	0x0003
 
+/* error code defines */
+#define RIFF_SUCCESS		1
+#define RIFF_READ_FAIL		-1
+#define RIFF_WRITE_FAIL		-2
+#define RIFF_VALID_FAIL		-3
+#define RIFF_FILE_CLOSED	-4
+
 /* include the parts of riff */
 #include "riff_struct.hpp"
 #include "riff_func.hpp"
