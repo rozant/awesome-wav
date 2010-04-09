@@ -37,29 +37,29 @@ class wav {
 		_DATA data;;
 		/* file operations */
 		template <class T>
-		friend bool RIFFread(FILE*,T *);
+		friend int RIFFread(FILE*,T *);
 		template <class T>
-		friend bool RIFFreadRIFF(FILE *, T *);
+		friend int RIFFreadRIFF(FILE *, T *);
 		template <class T>
-		friend bool RIFFreadFMT(FILE *, T *);
+		friend int RIFFreadFMT(FILE *, T *);
 		template <class T>
-		friend bool RIFFreadFACT(FILE *, T *);
+		friend int RIFFreadFACT(FILE *, T *);
 		template <class T>
-		friend bool RIFFreadPEAK(FILE *, T *);
+		friend int RIFFreadPEAK(FILE *, T *);
 		template <class T>
-		friend bool RIFFreadDATA(FILE *, T *);
+		friend int RIFFreadDATA(FILE *, T *);
 		template <class T>
-		friend bool RIFFwrite(FILE *, const T *);
+		friend int RIFFwrite(FILE *, const T *);
 		template <class T>
-		friend bool RIFFwriteRIFF(FILE *, const T *);
+		friend int RIFFwriteRIFF(FILE *, const T *);
 		template <class T>
-		friend bool RIFFwriteFMT(FILE *, const T *);
+		friend int RIFFwriteFMT(FILE *, const T *);
 		template <class T>
-		friend bool RIFFwriteFACT(FILE *, const T *);
+		friend int RIFFwriteFACT(FILE *, const T *);
 		template <class T>
-		friend bool RIFFwritePEAK(FILE *, const T *);
+		friend int RIFFwritePEAK(FILE *, const T *);
 		template <class T>
-		friend bool RIFFwriteDATA(FILE *, const T *);
+		friend int RIFFwriteDATA(FILE *, const T *);
 		/* data integrity checks */
 		bool validWAV(void) const;
 		bool validRIFF(void) const;
