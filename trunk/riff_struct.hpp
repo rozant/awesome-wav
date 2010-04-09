@@ -91,9 +91,9 @@ struct _PEAK {
 	DWORD Version;		// peak chunk version
 	DWORD timestamp;	// UNIX timestamp of creation
 	_PPEAK *peak;		// one for each channel
-	SHORT bit_align;	// space for the 64-bit alignment variable
-	_PEAK(void) { peak = NULL; SubchunkID[4] = 0; return; }
-	~_PEAK(void) { free(peak); return; }
+	SHORT *bit_align;	// space for the 64-bit alignment variable
+	_PEAK(void) { bit_align = NULL; peak = NULL; SubchunkID[4] = 0; return; }
+	~_PEAK(void) { free(peak); free(bit_align); return; }
 };
 /****************************************************************/
 /* struct: _DATA												*/
