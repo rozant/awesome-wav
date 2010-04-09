@@ -269,6 +269,15 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 				return RIFF_READ_FAIL;
 			}
 		}
+		if(input->peak->SubchunkSize == (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
+			input->peak->bit_align = (SHORT *)malloc(sizeof(SHORT));
+			if(!fread(input->peak->bit_align, sizeof(SHORT), 1, inFile)) {
+				#ifdef _DEBUGOUTPUT
+				fprintf(stderr,"E: Failed to read PEAK header: Could not read bytes\n");
+				#endif
+				return RIFF_READ_FAIL;
+			}
+		}
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"S: Read PEAK header\n");
 		#endif
@@ -278,7 +287,8 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 		#endif
 		return RIFF_READ_FAIL;
 	}
-	if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK))) {
+	if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
+		input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
 		#ifdef _DEBUGOUTPUT
 		fprintf(stderr,"E: Invalid PEAK chunk size\n");
 		#endif
