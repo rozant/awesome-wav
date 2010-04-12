@@ -34,7 +34,7 @@ class wav {
 		_FMT fmt;
 		_FACT *fact;
 		_PEAK *peak;
-		_DATA data;;
+		_DATA data;
 		/* file operations */
 		template <class T>
 		friend int RIFFread(FILE*,T *);
