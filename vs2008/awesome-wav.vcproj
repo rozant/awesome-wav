@@ -275,11 +275,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\cd_da.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\cd_da.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\file_compression.c"
 				>
 			</File>
 			<File
 				RelativePath="..\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\util.cpp"
 				>
 			</File>
 			<File
