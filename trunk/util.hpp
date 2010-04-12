@@ -29,12 +29,10 @@ bool close(FILE *aFile);
 /* args: BYTE&, const char, const bool							*/
 /****************************************************************/
 inline void setBit(BYTE &b, const char index, const bool torf) {
-	BYTE bitMask = (1 << index);
-
 	if (torf) // Set bit to 1
-		b |= bitMask; 
+		b |= (1 << index); 
 	else // Set bit to 0
-		b &= ~bitMask;
+		b &= ~(1 << index);
 }
 
 /****************************************************************/
