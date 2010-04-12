@@ -18,12 +18,17 @@
 #include <stdio.h>
 #include "global.hpp"
 
+/* non inline functions */
+int bytencmp(const BYTE* b1, const BYTE* b2, size_t n);
+FILE* open(const char *filename, const char *mode);
+bool close(FILE *aFile);
+
 /****************************************************************/
 /* function: setBit												*/
 /* purpose: sets the bit at a specific position					*/
 /* args: BYTE&, const char, const bool							*/
 /****************************************************************/
-void setBit(BYTE &b, const char index, const bool torf) {
+inline void setBit(BYTE &b, const char index, const bool torf) {
 	BYTE bitMask = (1 << index);
 
 	if (torf) // Set bit to 1
@@ -72,76 +77,13 @@ inline void clearUpper4Bits(BYTE &b) {
 }
 
 /****************************************************************/
-/* function: bytencmp											*/
-/* purpose: compares two bytes									*/
-/* args: const BYTE *, const BYTE *, size_t						*/
-/* returns: int													*/
-/****************************************************************/
-int bytencmp(const BYTE* b1, const BYTE* b2, size_t n) {
-	while(n--)
-		if(*b1++!=*b2++)
-			return *(BYTE*)(b1 - 1) - *(BYTE*)(b2 - 1);
-	return 0;
-}
-
-/****************************************************************/
-/* function: open												*/
-/* purpose: open a file.										*/
-/* args: const char *, const char * 							*/
-/* returns: FILE *												*/
-/*		*	 = opened correctly									*/
-/*		NULL = opened incorrectly								*/
-/****************************************************************/
-FILE* open(const char *filename, const char *mode) {
-	FILE* aFile = NULL;
-	aFile = fopen(filename, mode);
-
-	#ifdef _DEBUGOUTPUT
-	if (aFile == NULL)
-		fprintf(stderr,"E: Failed to open %s with mode %s\n",filename,mode);
-	else
-		fprintf(stderr,"S: Opened %s with mode %s\n",filename,mode);
-	#endif
-
-	return aFile;
-}
-
-/****************************************************************/
-/* function: close												*/
-/* purpose: close an open file.									*/
-/* args: FILE *													*/
-/* returns: bool												*/
-/*		1 = closed correctly									*/
-/*		0 = closed incorrectly, or already closed				*/
-/****************************************************************/
-bool close(FILE *aFile) {
-	if( aFile) {
-		if ( fclose( aFile ) ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Failed to close file\n");
-			#endif
-			return false;
-		} else {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"S: Closed file\n");
-			#endif
-			return true;
-		}
-	}
-	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: File already closed\n");
-	#endif
-	return false;
-}
-
-/****************************************************************/
 /* function: byteToMB											*/
 /* purpose: convers bytes to megabytes							*/
 /* args: const DWORD											*/
 /* returns: double												*/
 /****************************************************************/
 #ifdef _DEBUGOUTPUT
-double byteToMB(const DWORD bytes) {
+inline double byteToMB(const DWORD bytes) {
 	return bytes / 1048576.0;
 }
 #endif
