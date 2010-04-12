@@ -16,7 +16,7 @@ INSTLOC=/usr/bin
 CFLAGS= -Wall -O2 -lz
 DBGFLAGS = -Wall -lz -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
-FILES = main.cpp wav.cpp arg_processor.cpp file_compression.c
+FILES = main.cpp wav.cpp arg_processor.cpp util.cpp file_compression.c
 
 all:
 	g++ $(CFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
