@@ -15,10 +15,10 @@
 *****************************************************************/
 #ifndef __riff_func_hpp__
 #define __riff_func_hpp__
-#include <stdio.h>
-#include <string.h>
 #include "global.hpp"
 #include "riff.hpp"
+#include <stdio.h>
+#include <string.h>
 
 /**********************Function Prototypes***********************/
 /* read */
@@ -62,11 +62,13 @@ int RIFFread(FILE *inFile, T *input) {
 	char temp[4];
 	fpos_t pos;
 	/* read riff chunk */
-	if (!(ret_val = RIFFreadRIFF(inFile,input))) {
+	ret_val = RIFFreadRIFF(inFile,input);
+	if (!ret_val) {
 		return ret_val;
 	}
 	/* read fmt chunk */
-	if (!(ret_val = RIFFreadFMT(inFile,input))) {
+	ret_val = RIFFreadFMT(inFile,input);
+	if (!ret_val) {
 		return ret_val;
 	}
 	/* read fact chunk if needed */
@@ -75,7 +77,8 @@ int RIFFread(FILE *inFile, T *input) {
 	if (memcmp(temp, "fact", 4) == 0) {
 		fsetpos(inFile,&pos);
 		input->fact = (_FACT *)malloc(sizeof(_FACT));
-		if(!(ret_val = RIFFreadFACT(inFile,input))) {
+		ret_val = RIFFreadFACT(inFile,input);
+		if(!ret_val) {
 			return ret_val;
 		}
 	} else {
@@ -87,14 +90,16 @@ int RIFFread(FILE *inFile, T *input) {
 	if (memcmp(temp, "PEAK", 4) == 0) {
 		fsetpos(inFile,&pos);
 		input->peak = (_PEAK *)malloc(sizeof(_PEAK));
-		if(!(ret_val = RIFFreadPEAK(inFile,input))) {
+		ret_val = RIFFreadPEAK(inFile,input);
+		if(!ret_val) {
 			return ret_val;
 		}
 	} else {
 		fsetpos(inFile,&pos);
 	}
 	/* read data chunk */
-	if (!(ret_val = RIFFreadDATA(inFile,input))) {
+	ret_val = RIFFreadDATA(inFile,input);
+	if (!ret_val) {
 		return ret_val;
 	}
 	return RIFF_SUCCESS;
@@ -347,27 +352,32 @@ int RIFFwrite(FILE *outFile, const T *input) {
 		return RIFF_FILE_CLOSED;
 	}
 	/* write riff header */
-	if (!(ret_val = RIFFwriteRIFF(outFile,input))) { 
+	ret_val = RIFFwriteRIFF(outFile,input);
+	if (!ret_val) { 
 		return ret_val;
 	}
 	/* write format header */
-	if (!(ret_val = RIFFwriteFMT(outFile,input))) {
+	ret_val = RIFFwriteFMT(outFile,input);
+	if (!ret_val) {
 		return ret_val;
 	}
 	/* write fact header if needed */
 	if (input->fact != NULL) {
-		if (!(ret_val = RIFFwriteFACT(outFile,input))) {
+		ret_val = RIFFwriteFACT(outFile,input);
+		if (!ret_val) {
 			return ret_val;
 		}
 	}
 	/* write peak header if needed */
 	if (input->peak != NULL) {
-		if (!(ret_val = RIFFwritePEAK(outFile,input))) {
+		ret_val = RIFFwritePEAK(outFile,input);
+		if (!ret_val) {
 			return ret_val;
 		}
 	}
 	/* write data header */
-	if (!(ret_val = RIFFwriteDATA(outFile,input))) {
+	ret_val = RIFFwriteDATA(outFile,input);
+	if (!ret_val) {
 		return ret_val;
 	}
 	return RIFF_SUCCESS;
