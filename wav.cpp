@@ -665,9 +665,9 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 /****************************************************************/
 bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD maxSize = 0, bytesPerSample = (fmt.BitsPerSample/8), count = 0;
+	DWORD maxSize = 0, bytesPerSample = (fmt.BitsPerSample/8);
 	BYTE bitsUsed = 0x00;
-	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
+	size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
 	/* get the maximum number of bytes the wav file could hold */
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);

@@ -410,9 +410,9 @@ bool cd_da::decode(const char inputCDDA[], const char outputDATA[], const DWORD&
 /****************************************************************/
 bool cd_da::decode(FILE* fInputCDDA, FILE* fOutputDATA, const DWORD& fileSize) {
 	BYTE *cddaBuffer = NULL, *dataBuffer = NULL;
-	DWORD cddaSize = 0, maxSize = 0, bytesPerSample = (bitsPerSample/8), count = 0;
+	DWORD cddaSize = 0, maxSize = 0, bytesPerSample = (bitsPerSample/8);
 	BYTE bitsUsed = 0x00;
-	size_t cddaBufferSize, maxAudioBufferSize, dataBufferSize, maxDataBufferSize;
+	size_t count = 0, cddaBufferSize, maxAudioBufferSize, dataBufferSize, maxDataBufferSize;
 
 	/* Get size of cdda file we want to encode */
 	fseek(fInputCDDA, 0, SEEK_END);
