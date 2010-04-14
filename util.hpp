@@ -15,8 +15,8 @@
 *****************************************************************/
 #ifndef __util_hpp__
 #define __util_hpp__
-#include <stdio.h>
 #include "global.hpp"
+#include <stdio.h>
 
 /* non inline functions */
 int bytencmp(const BYTE* b1, const BYTE* b2, size_t n);
@@ -44,7 +44,7 @@ inline void setBit(BYTE &b, const char index, const bool torf) {
 /*		0 = bit is a 0											*/
 /****************************************************************/
 inline bool getBit(const BYTE b, const char index) {
-	return ((1 << index) & b);
+	return (bool)((1 << index) & b);
 }
 
 /****************************************************************/
