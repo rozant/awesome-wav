@@ -13,13 +13,13 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
+#include "arg_processor.hpp"
 #ifdef _DEBUGOUTPUT
 #include <stdio.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "arg_processor.hpp"
 
 /****************************************************************/
 /* function: arg_processor										*/
