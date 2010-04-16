@@ -50,6 +50,8 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 						if( strlen(argv[foo]) == 3 ) {
 							if(isdigit(argv[foo][2])) {
 								options->comp = (char)atoi(&argv[foo][2]);
+							} else {
+								options->comp = 6;
 							}
 						} else {
 							options->comp = 6;
