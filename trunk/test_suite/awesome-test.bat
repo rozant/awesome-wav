@@ -74,11 +74,6 @@ echo 6.Run 32 Bit IEEE tests
 echo 7.Run 64 Bit IEEE tests
 echo 8.Set compression level
 echo 9.Quit
-
-set /A AA=2
-set /A AAA=3
-set /A AA=(%AA%+%AAA%)
-echo %AA%
 echo.
 set /p choice=Enter your choice (1-9): 
 if %choice%==1 goto START
