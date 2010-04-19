@@ -3,145 +3,327 @@ setlocal enabledelayedexpansion
 title Awesome-WAV Batch Checker
 
 set PROGRAM=awesome-wav.exe
-set PCM8bit="PCM8bit.wav"
-set PCM16bit="PCM16bit.wav"
-set PCM24bit="PCM24bit.wav"
-set E_PCM="E_PCM.wav"
+set FILE=""
 set DATA=""
-set D_DATA="D_data.txt"
-set DATA8bit1b="test_input-1b-8kbps-21791276.txt"
-set DATA8bit2b="test_input-2b-8kbps-21791276.txt"
-set DATA8bit4b="test_input-4b-8kbps-21791276.txt"
-set DATA16bit1b="test_input-1b-16kbps-43582508.txt"
-set DATA16bit2b="test_input-2b-16kbps-43582508.txt"
-set DATA16bit4b="test_input-4b-16kbps-43582508.txt"
-set DATA16bit8b="test_input-8b-16kbps-43582508.txt"
-set DATA24bit12b="test_input-12b-24kbps.txt"
-
+set CURR_SERIES=""
+set E_FILE=E_FILE.wav
+set D_DATA=D_data.txt
 set /A COMPRESSION_LEVEL=0
-set /A TEST_NUM=0
+set /A TEST_NUM=1
 set /A TEST_PASS=0
+set /A NUM_TESTS=0
 
-:start
+set FILE_8_BIT_PCM=8_Bit_PCM.wav
+set DATA_8_BIT_PCM1=test_input-1b-8kbps-21791276.txt
+set DATA_8_BIT_PCM2=test_input-2b-8kbps-21791276.txt
+set DATA_8_BIT_PCM3=test_input-4b-8kbps-21791276.txt
+set NUM_8_BIT_PCM=3
+
+set FILE_16_BIT_PCM=16_Bit_PCM.wav
+set DATA_16_BIT_PCM1=test_input-1b-16kbps-43582508.txt
+set DATA_16_BIT_PCM2=test_input-2b-16kbps-43582508.txt
+set DATA_16_BIT_PCM3=test_input-4b-16kbps-43582508.txt
+set DATA_16_BIT_PCM4=test_input-8b-16kbps-43582508.txt
+set NUM_16_BIT_PCM=4
+
+set FILE_24_BIT_PCM=24_Bit_PCM.wav
+set DATA_24_BIT_PCM1=test_input-1b-24kbps-65373740.txt
+set DATA_24_BIT_PCM2=test_input-2b-24kbps-65373740.txt
+set DATA_24_BIT_PCM3=test_input-4b-24kbps-65373740.txt
+set DATA_24_BIT_PCM4=test_input-8b-24kbps-65373740.txt
+set DATA_24_BIT_PCM5=test_input-12b-24kbps-65373740.txt
+set NUM_24_BIT_PCM=5
+
+set FILE_32_BIT_PCM=32_Bit_PCM.wav
+set DATA_32_BIT_PCM1=test_input-1b-32kbps-87164972.txt
+set DATA_32_BIT_PCM2=test_input-2b-32kbps-87164972.txt
+set DATA_32_BIT_PCM3=test_input-4b-32kbps-87164972.txt
+set DATA_32_BIT_PCM4=test_input-8b-32kbps-87164972.txt
+set DATA_32_BIT_PCM5=test_input-12b-32kbps-87164972.txt
+set DATA_32_BIT_PCM6=test_input-16b-32kbps-87164972.txt
+set NUM_32_BIT_PCM=6
+
+set FILE_32_BIT_IEEE=32_BIT_IEEE.wav
+set DATA_32_BIT_IEEE1=test_input-1b-32kbps-87164972.txt
+set DATA_32_BIT_IEEE2=test_input-2b-32kbps-87164972.txt
+set DATA_32_BIT_IEEE3=test_input-4b-32kbps-87164972.txt
+set DATA_32_BIT_IEEE4=test_input-8b-32kbps-87164972.txt
+set DATA_32_BIT_IEEE5=test_input-12b-32kbps-87164972.txt
+set DATA_32_BIT_IEEE6=test_input-16b-32kbps-87164972.txt
+set NUM_32_BIT_IEEE=6
+
+set FILE_64_BIT_IEEE=64_BIT_IEEE.wav
+set DATA_64_BIT_IEEE1=test_input-1b-64kbps-174329944.txt
+set DATA_64_BIT_IEEE2=test_input-2b-64kbps-174329944.txt
+set DATA_64_BIT_IEEE3=test_input-4b-64kbps-174329944.txt
+set DATA_64_BIT_IEEE4=test_input-8b-64kbps-174329944.txt
+set DATA_64_BIT_IEEE5=test_input-12b-64kbps-174329944.txt
+set DATA_64_BIT_IEEE6=test_input-16b-64kbps-174329944.txt
+set DATA_64_BIT_IEEE7=test_input-32b-64kbps-174329944.txt
+set NUM_64_BIT_IEEE=7
+
+:START
 cls
 echo Select an option:
-echo 1.Run tests
-echo 2.Set compression level
-echo 3.Quit
+echo 1.Run all tests (not yet implemented)
+echo 2.Run 8  Bit PCM tests
+echo 3.Run 16 Bit PCM tests
+echo 4.Run 24 Bit PCM tests
+echo 5.Run 32 Bit PCM tests
+echo 6.Run 32 Bit IEEE tests
+echo 7.Run 64 Bit IEEE tests
+echo 8.Set compression level
+echo 9.Quit
+
+set /A AA=2
+set /A AAA=3
+set /A AA=(%AA%+%AAA%)
+echo %AA%
 echo.
-set /p choice=Enter your choice (1-3): 
-if %choice%==1 goto nexttest
-if %choice%==2 goto setcompression
-if %choice%==3 goto quit
-goto start
+set /p choice=Enter your choice (1-9): 
+if %choice%==1 goto START
+if %choice%==2 goto 8_BIT_PCM
+if %choice%==3 goto 16_BIT_PCM
+if %choice%==4 goto 24_BIT_PCM
+if %choice%==5 goto 32_BIT_PCM
+if %choice%==6 goto 32_BIT_IEEE
+if %choice%==7 goto 64_BIT_IEEE
+if %choice%==8 goto SET_COMPRESSION_LEVEL
+if %choice%==9 goto QUIT
+goto START
 
-:test1
-cls
-set PCM=%PCM8bit%
-set DATA=%DATA8bit1b%
-goto tester
-
-:test2
-set PCM=%PCM8bit%
-set DATA=%DATA8bit2b%
-goto tester
-
-:test3
-set PCM=%PCM8bit%
-set DATA=%DATA8bit4b%
-goto tester
-
-:test4
-set PCM=%PCM16bit%
-set DATA=%DATA16bit1b%
-goto tester
-
-:test5
-set PCM=%PCM16bit%
-set DATA=%DATA16bit2b%
-goto tester
-
-:test6
-set PCM=%PCM16bit%
-set DATA=%DATA16bit4b%
-goto tester
-
-:test7
-set PCM=%PCM16bit%
-set DATA=%DATA16bit8b%
-goto tester
-
-:test8
-set PCM=%PCM24bit%
-set DATA=%DATA24bit12b%
-goto tester
-
-:test9
-set /A TEST_NUM-=1
+:SHOW_RESULTS
 echo ===================================================================================
 echo Passed %TEST_PASS% / %TEST_NUM%
 echo ===================================================================================
-set /A TEST_NUM=0
+set /A TEST_NUM=1
 set /A TEST_PASS=0
 pause
-goto start
+goto START
 
-:nexttest
+:NEXT_TEST
+if %NUM_TESTS%==%TEST_NUM% goto SHOW_RESULTS
 set /A TEST_NUM+=1
-goto test%TEST_NUM%
+goto %CURR_SERIES%%TEST_NUM%
 
-:tester
+:RUN_TEST
 echo ===================================================================================
 echo Test %TEST_NUM%
 echo ===================================================================================
-echo WAV FILE:    %PCM%
-echo E_WAV FILE:  %E_PCM%
-echo DATA FILE:   %DATA%
-echo D_DATAFILE:  %D_DATA%
+echo WAV FILE:    "%FILE%"
+echo E_WAV FILE:  "%E_FILE%"
+echo DATA FILE:   "%DATA%"
+echo D_DATAFILE:  "%D_DATA%"
 echo COMPRESSION LEVEL: %COMPRESSION_LEVEL%
 echo.
-if not exist %PROGRAM% goto noprogram
+if not exist %PROGRAM% goto NO_PROGRAM
 echo Encoding and decoding files.
-%PROGRAM% -c%COMPRESSION_LEVEL% -t %PCM% %E_PCM% %DATA% %D_DATA%
-if %ERRORLEVEL% NEQ 0 goto programfail
+%PROGRAM% -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.
 echo Comparing data files.
 fc %DATA% %D_DATA% > NUL
-if %ERRORLEVEL% NEQ 0 goto comparefail
+if %ERRORLEVEL% NEQ 0 goto COMPARE_FAIL
 echo File comparison succeeded.
 echo.
 echo Passed.
 echo.
 set /A TEST_PASS+=1
-goto nexttest
+goto NEXT_TEST
 
-:programfail
+:PROGRAM_FAIL
 echo Program failed.
 echo.
-goto nexttest
+goto NEXT_TEST
 
-:comparefail
+:COMPARE_FAIL
 echo File comparison failed.
 echo.
-goto nexttest
+goto NEXT_TEST
 
-:setcompression
+:SET_COMPRESSION_LEVEL
 cls
 set /p choice=Enter file compression level (0-9): 
-if %choice% LSS 0 goto setcompression
-if %choice% GTR 9 goto setcompression
-set /A COMPRESSION_LEVEL = %choice%
-goto start
+if %choice% LSS 0 goto SET_COMPRESSION_LEVEL
+if %choice% GTR 9 goto SET_COMPRESSION_LEVEL
+set /A COMPRESSION_LEVEL=%choice%
+goto START
 
-:noprogram
+:NO_PROGRAM
 echo %PROGRAM% not found.
 pause
-goto start
+goto START
 
-:quit
+:QUIT
 cls
 set /p choice=Are you sure you wish to quit? (y/n): 
-if %choice%==n goto start
-if %choice% NEQ y goto quit
+if %choice%==n goto START
+if %choice% NEQ y goto QUIT
 exit
+
+:8_BIT_PCM
+set CURR_SERIES=T_8_BIT_PCM
+set FILE=%FILE_8_BIT_PCM%
+set /A NUM_TESTS=%NUM_8_BIT_PCM%
+cls
+goto T_8_BIT_PCM1
+
+:T_8_BIT_PCM1
+set DATA=%DATA_8_BIT_PCM1%
+goto RUN_TEST
+
+:T_8_BIT_PCM2
+set DATA=%DATA_8_BIT_PCM2%
+goto RUN_TEST
+
+:T_8_BIT_PCM3
+set DATA=%DATA_8_BIT_PCM3%
+goto RUN_TEST
+
+:16_BIT_PCM
+set CURR_SERIES=T_16_BIT_PCM
+set FILE=%FILE_16_BIT_PCM%
+set /A NUM_TESTS=%NUM_16_BIT_PCM%
+cls
+goto T_16_BIT_PCM1
+
+:T_16_BIT_PCM1
+set DATA=%DATA_16_BIT_PCM1%
+goto RUN_TEST
+
+:T_16_BIT_PCM2
+set DATA=%DATA_16_BIT_PCM2%
+goto RUN_TEST
+
+:T_16_BIT_PCM3
+set DATA=%DATA_16_BIT_PCM3%
+goto RUN_TEST
+
+:T_16_BIT_PCM4
+set DATA=%DATA_16_BIT_PCM4%
+goto RUN_TEST
+
+:24_BIT_PCM
+set CURR_SERIES=T_24_BIT_PCM
+set FILE=%FILE_24_BIT_PCM%
+set /A NUM_TESTS=%NUM_24_BIT_PCM%
+cls
+goto T_24_BIT_PCM1
+
+:T_24_BIT_PCM1
+set DATA=%DATA_24_BIT_PCM1%
+goto RUN_TEST
+
+:T_24_BIT_PCM2
+set DATA=%DATA_24_BIT_PCM2%
+goto RUN_TEST
+
+:T_24_BIT_PCM3
+set DATA=%DATA_24_BIT_PCM3%
+goto RUN_TEST
+
+:T_24_BIT_PCM4
+set DATA=%DATA_24_BIT_PCM4%
+goto RUN_TEST
+
+:T_24_BIT_PCM5
+set DATA=%DATA_24_BIT_PCM5%
+goto RUN_TEST
+
+:32_BIT_PCM
+set CURR_SERIES=T_32_BIT_PCM
+set FILE=%FILE_32_BIT_PCM%
+set /A NUM_TESTS=%NUM_32_BIT_PCM%
+cls
+goto T_32_BIT_PCM1
+
+:T_32_BIT_PCM1
+set DATA=%DATA_32_BIT_PCM1%
+goto RUN_TEST
+
+:T_32_BIT_PCM2
+set DATA=%DATA_32_BIT_PCM2%
+goto RUN_TEST
+
+:T_32_BIT_PCM3
+set DATA=%DATA_32_BIT_PCM3%
+goto RUN_TEST
+
+:T_32_BIT_PCM4
+set DATA=%DATA_32_BIT_PCM4%
+goto RUN_TEST
+
+:T_32_BIT_PCM5
+set DATA=%DATA_32_BIT_PCM5%
+goto RUN_TEST
+
+:T_32_BIT_PCM6
+set DATA=%DATA_32_BIT_PCM6%
+goto RUN_TEST
+
+:32_BIT_IEEE
+set CURR_SERIES=T_32_BIT_IEEE
+set FILE=%FILE_32_BIT_IEEE%
+set /A NUM_TESTS=%NUM_32_BIT_IEEE%
+cls
+goto T_32_BIT_IEEE1
+
+:T_32_BIT_IEEE1
+set DATA=%DATA_32_BIT_IEEE1%
+goto RUN_TEST
+
+:T_32_BIT_IEEE2
+set DATA=%DATA_32_BIT_IEEE2%
+goto RUN_TEST
+
+:T_32_BIT_IEEE3
+set DATA=%DATA_32_BIT_IEEE3%
+goto RUN_TEST
+
+:T_32_BIT_IEEE4
+set DATA=%DATA_32_BIT_IEEE4%
+goto RUN_TEST
+
+:T_32_BIT_IEEE5
+set DATA=%DATA_32_BIT_IEEE5%
+goto RUN_TEST
+
+:T_32_BIT_IEEE6
+set DATA=%DATA_32_BIT_IEEE6%
+goto RUN_TEST
+
+:64_BIT_IEEE
+set CURR_SERIES=T_64_BIT_IEEE
+set FILE=%FILE_64_BIT_IEEE%
+set /A NUM_TESTS=%NUM_64_BIT_IEEE%
+cls
+goto T_64_BIT_IEEE1
+
+:T_64_BIT_IEEE1
+set DATA=%DATA_64_BIT_IEEE1%
+goto RUN_TEST
+
+:T_64_BIT_IEEE2
+set DATA=%DATA_64_BIT_IEEE2%
+goto RUN_TEST
+
+:T_64_BIT_IEEE3
+set DATA=%DATA_64_BIT_IEEE3%
+goto RUN_TEST
+
+:T_64_BIT_IEEE4
+set DATA=%DATA_64_BIT_IEEE4%
+goto RUN_TEST
+
+:T_64_BIT_IEEE5
+set DATA=%DATA_64_BIT_IEEE5%
+goto RUN_TEST
+
+:T_64_BIT_IEEE6
+set DATA=%DATA_64_BIT_IEEE6%
+goto RUN_TEST
+
+:T_64_BIT_IEEE7
+set DATA=%DATA_64_BIT_IEEE7%
+goto RUN_TEST
