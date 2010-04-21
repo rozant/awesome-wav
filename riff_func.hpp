@@ -76,7 +76,7 @@ int RIFFread(FILE *inFile, T *input) {
 	fread(temp, sizeof(char), 4, inFile);
 	if (memcmp(temp, "fact", 4) == 0) {
 		fsetpos(inFile,&pos);
-		input->fact = (_FACT *)malloc(sizeof(_FACT));
+		input->fact = (_FACT *)calloc(1,sizeof(_FACT));
 		ret_val = RIFFreadFACT(inFile,input);
 		if(!ret_val) {
 			return ret_val;
@@ -89,7 +89,7 @@ int RIFFread(FILE *inFile, T *input) {
 	fread(temp, sizeof(char), 4, inFile);
 	if (memcmp(temp, "PEAK", 4) == 0) {
 		fsetpos(inFile,&pos);
-		input->peak = (_PEAK *)malloc(sizeof(_PEAK));
+		input->peak = (_PEAK *)calloc(1,sizeof(_PEAK));
 		ret_val = RIFFreadPEAK(inFile,input);
 		if(!ret_val) {
 			return ret_val;
