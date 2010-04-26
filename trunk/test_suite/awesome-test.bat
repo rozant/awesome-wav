@@ -88,9 +88,9 @@ if %choice%==9 goto QUIT
 goto START
 
 :SHOW_RESULTS
-echo ===================================================================================
+echo ===============================================================================
 echo Passed %TEST_PASS% / %TEST_NUM%
-echo ===================================================================================
+echo ===============================================================================
 set /A TEST_NUM=1
 set /A TEST_PASS=0
 pause
@@ -102,9 +102,9 @@ set /A TEST_NUM+=1
 goto %CURR_SERIES%%TEST_NUM%
 
 :RUN_TEST
-echo ===================================================================================
+echo ===============================================================================
 echo Test %TEST_NUM%
-echo ===================================================================================
+echo ===============================================================================
 echo WAV FILE:    "%FILE%"
 echo E_WAV FILE:  "%E_FILE%"
 echo DATA FILE:   "%DATA%"
@@ -118,7 +118,7 @@ if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.
 echo Comparing data files.
-fc %DATA% %D_DATA% > NUL
+fc "%DATA%" "%D_DATA%" > NUL
 if %ERRORLEVEL% NEQ 0 goto COMPARE_FAIL
 echo File comparison succeeded.
 echo.
