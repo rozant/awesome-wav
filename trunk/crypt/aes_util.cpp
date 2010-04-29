@@ -25,6 +25,13 @@
 #include <unistd.h>
 #endif
 
+/****************************************************************/
+/* function: encrypt_file										*/
+/* purpose: encrypt a file with AES								*/
+/* args: const char *, const char * unsigned char *				*/
+/* returns: int													*/
+/* nores: IV = SHA-256( filesize || filename )[0..15]			*/
+/****************************************************************/
 int encrypt_file(const char *filename, const char *destfile, unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16];
 	int foo = 0, keylen = sizeof(key);
@@ -122,9 +129,9 @@ int encrypt_file(const char *filename, const char *destfile, unsigned char *key)
 }
 
 /****************************************************************/
-/* function: generatIV											*/
+/* function: generateIV											*/
 /* purpose: generate the IV for AES encryption					*/
-/* args: unsigned char *[16], const char * 						*/
+/* args: unsigned char *[16], const char *, unsigned long int	*/
 /* returns: int													*/
 /* nores: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
