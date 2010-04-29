@@ -16,12 +16,19 @@
 #include "aes_util.hpp"
 #include "sha2_util.hpp"
 #include "sha2.h"
+#include "aes.h"
 #include <stdio.h>
 #include <string.h>
-int encrypt_file(const char *filename, const char *destfile, char *key) {
-	unsigned char digest[32], IV[16];
+#include <fcntl.h>
+#ifndef _WIN32
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+int encrypt_file(const char *filename, const char *destfile, unsigned char *key) {
+	unsigned char buffer[1024], digest[32], IV[16];
 	int foo = 0, keylen = sizeof(key);
-	FILE *fout = NULL, fin = NULL;
+	FILE *fout = NULL, *fin = NULL;
     aes_context aes_ctx;
     sha2_context sha_ctx;
 	#ifdef _WIN32
@@ -57,7 +64,7 @@ int encrypt_file(const char *filename, const char *destfile, char *key) {
     filesize = li_size.QuadPart;
 	#else
     if(( filesize = lseek( fileno( fin ), 0, SEEK_END )) < 0) {
-        fprintf("Filesize fails\n");
+        fprintf(stderr,"Filesize fails\n");
         fclose(fout);
 		fclose(fin);
 		return false;
@@ -65,10 +72,10 @@ int encrypt_file(const char *filename, const char *destfile, char *key) {
 	#endif
 
 	/* generate the IV */
-	generateIV(IV,filename);
+	generateIV(IV,filename,filesize);
 	/* write the IV to the begining of the encrypted file */
 	if(fwrite(IV, 1, 16, fout) != 16) {
-		fprintf( stderr, "fwrite(%d bytes) failed\n", 16 );
+		fprintf(stderr, "fwrite(%d bytes) failed\n", 16);
 		fclose(fout);
 		fclose(fin);
 		remove(destfile);
@@ -82,7 +89,7 @@ int encrypt_file(const char *filename, const char *destfile, char *key) {
 	for(foo = 0; foo < 8192; ++foo) {
 		sha2_starts(&sha_ctx, 0);
  		sha2_update(&sha_ctx, digest, 32);
-		sha2_update(&sha_ctx, key, keylen);
+		sha2_update(&sha_ctx, (const unsigned char *)key, keylen);
 		sha2_finish(&sha_ctx, digest);
 	}
 
@@ -92,30 +99,26 @@ int encrypt_file(const char *filename, const char *destfile, char *key) {
 
 	/* encrypt and write the encrypted data */
 	for( offset = 0; offset < filesize; offset += 16 ) {
-            n = ( filesize - offset > 16 ) ? 16 : (int)
-                ( filesize - offset );
+		foo = ( filesize - offset > 16 ) ? 16 : (int)( filesize - offset );
 
-            if( fread( buffer, 1, n, fin ) != (size_t) n )
-            {
-                fprintf( stderr, "fread(%d bytes) failed\n", n );
-                goto exit;
-            }
+		if( fread( buffer, 1, foo, fin ) != (size_t) foo ) {
+			fprintf( stderr, "fread(%d bytes) failed\n", foo );
+			return false;
+		}
+		for( foo = 0; foo < 16; foo++ ) {
+			buffer[foo] = (unsigned char)( buffer[foo] ^ IV[foo] );
+		}
 
-            for( i = 0; i < 16; i++ )
-                buffer[i] = (unsigned char)( buffer[i] ^ IV[i] );
+		aes_crypt_ecb( &aes_ctx, AES_ENCRYPT, buffer, buffer );
+		sha2_hmac_update( &sha_ctx, buffer, 16 );
 
-            aes_crypt_ecb( &aes_ctx, AES_ENCRYPT, buffer, buffer );
-            sha2_hmac_update( &sha_ctx, buffer, 16 );
-
-            if( fwrite( buffer, 1, 16, fout ) != 16 )
-            {
-                fprintf( stderr, "fwrite(%d bytes) failed\n", 16 );
-                goto exit;
-            }
-
-            memcpy( IV, buffer, 16 );
-        }
-
+		if( fwrite( buffer, 1, 16, fout ) != 16 ) {
+			fprintf( stderr, "fwrite(%d bytes) failed\n", 16 );
+			return false;
+		}
+		memcpy( IV, buffer, 16 );
+	}
+	return true;
 }
 
 /****************************************************************/
@@ -125,7 +128,7 @@ int encrypt_file(const char *filename, const char *destfile, char *key) {
 /* returns: int													*/
 /* nores: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
-int generateIV(unsigned char IV[16], const char *filename) {
+int generateIV(unsigned char IV[16], const char *filename, unsigned long int filesize) {
 	unsigned char buffer[1024];
 	unsigned char digest[32];
 	int foo = 0, lastn = 0;

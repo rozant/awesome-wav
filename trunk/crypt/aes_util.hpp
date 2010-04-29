@@ -17,7 +17,9 @@
 #define __aes_util_hpp__
 
 /* function prototypes */
-int generateIV(unsigned char *, const char *);
+int encrypt_file(const char *, const char *, unsigned char *);
+int generateIV(unsigned char *, const char *, unsigned long int);
+
 #endif
 /****************************************************************/
 /****************************************************************/
