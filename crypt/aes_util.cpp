@@ -18,6 +18,105 @@
 #include "sha2.h"
 #include <stdio.h>
 #include <string.h>
+int encrypt_file(const char *filename, const char *destfile, char *key) {
+	unsigned char digest[32], IV[16];
+	int foo = 0, keylen = sizeof(key);
+	FILE *fout = NULL, fin = NULL;
+    aes_context aes_ctx;
+    sha2_context sha_ctx;
+	#ifdef _WIN32
+	LARGE_INTEGER li_size;
+	__int64 filesize, offset;
+	#else
+	off_t filesize, offset;
+	#endif
+
+	fout = fopen(destfile,"w");
+	if(fout == NULL) {
+		return false;
+	}
+	fin = fopen(filename,"r");
+	if(fin == NULL) {
+		fclose(fout);
+		return false;
+	}
+
+	#ifdef _WIN32
+	/* win32 large file suport */
+	li_size.QuadPart = 0;
+	li_size.LowPart  =
+		SetFilePointer((HANDLE) _get_osfhandle( _fileno( fin ) ), li_size.LowPart, &li_size.HighPart, FILE_END);
+
+	if(li_size.LowPart == 0xFFFFFFFF && GetLastError() != NO_ERROR) {
+        fprintf(stderr, "Filesize fails\n");
+		fclose(fout);
+		fclose(fin);
+        return false;
+    }
+
+    filesize = li_size.QuadPart;
+	#else
+    if(( filesize = lseek( fileno( fin ), 0, SEEK_END )) < 0) {
+        fprintf("Filesize fails\n");
+        fclose(fout);
+		fclose(fin);
+		return false;
+    }
+	#endif
+
+	/* generate the IV */
+	generateIV(IV,filename);
+	/* write the IV to the begining of the encrypted file */
+	if(fwrite(IV, 1, 16, fout) != 16) {
+		fprintf( stderr, "fwrite(%d bytes) failed\n", 16 );
+		fclose(fout);
+		fclose(fin);
+		remove(destfile);
+		return false;
+	}
+
+	/* hash the IV and the key together for setting up the aes context + hmac */
+	memset( digest, 0,  32 );
+	memcpy( digest, IV, 16 );
+
+	for(foo = 0; foo < 8192; ++foo) {
+		sha2_starts(&sha_ctx, 0);
+ 		sha2_update(&sha_ctx, digest, 32);
+		sha2_update(&sha_ctx, key, keylen);
+		sha2_finish(&sha_ctx, digest);
+	}
+
+	memset(key, 0, keylen);
+	aes_setkey_enc( &aes_ctx, digest, 256 );
+	sha2_hmac_starts( &sha_ctx, digest, 32, 0 );
+
+	/* encrypt and write the encrypted data */
+	for( offset = 0; offset < filesize; offset += 16 ) {
+            n = ( filesize - offset > 16 ) ? 16 : (int)
+                ( filesize - offset );
+
+            if( fread( buffer, 1, n, fin ) != (size_t) n )
+            {
+                fprintf( stderr, "fread(%d bytes) failed\n", n );
+                goto exit;
+            }
+
+            for( i = 0; i < 16; i++ )
+                buffer[i] = (unsigned char)( buffer[i] ^ IV[i] );
+
+            aes_crypt_ecb( &aes_ctx, AES_ENCRYPT, buffer, buffer );
+            sha2_hmac_update( &sha_ctx, buffer, 16 );
+
+            if( fwrite( buffer, 1, 16, fout ) != 16 )
+            {
+                fprintf( stderr, "fwrite(%d bytes) failed\n", 16 );
+                goto exit;
+            }
+
+            memcpy( IV, buffer, 16 );
+        }
+
+}
 
 /****************************************************************/
 /* function: generatIV											*/
