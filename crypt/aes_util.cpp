@@ -34,7 +34,7 @@
 /****************************************************************/
 int encrypt_file(const char *filename, const char *destfile, unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16];
-	int foo = 0, keylen = sizeof(key);
+	unsigned int foo = 0, keylen = sizeof(key);
 	FILE *fout = NULL, *fin = NULL;
 	aes_context aes_ctx;
     sha2_context sha_ctx;
@@ -44,12 +44,12 @@ int encrypt_file(const char *filename, const char *destfile, unsigned char *key)
 	off_t filesize, offset;
 	#endif
 
-	fout = fopen(destfile,"w");
+	fout = fopen(destfile,"wb");
 	if(fout == NULL) {
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		return false;
 	}
-	fin = fopen(filename,"r");
+	fin = fopen(filename,"rb");
 	if(fin == NULL) {
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
@@ -300,6 +300,10 @@ int determine_filesize(FILE *fin, off_t *filesize) {
 		return 0;
     }
 #endif
+	if(fseek(fin, 0, SEEK_SET) < 0) {
+		fprintf( stderr, "fseek(0,SEEK_SET) failed\n" );
+		return 0;
+    }
 	return 1;
 }
 
