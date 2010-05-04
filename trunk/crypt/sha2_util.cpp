@@ -21,7 +21,7 @@
 /****************************************************************/
 /* function: sha2_key											*/
 /* purpose: take the input string and return its sha2 sum	 	*/
-/* args: const unsigned char *									*/
+/* args: const char *											*/
 /* returns: unsigned char *										*/
 /****************************************************************/
 unsigned char *sha2_key(const char *input_string) {
