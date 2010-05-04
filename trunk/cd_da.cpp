@@ -47,7 +47,7 @@ cd_da::~cd_da(void) {
 /* args: const char[], const char[], const char[], const char	*/
 /* returns: DWORD												*/
 /****************************************************************/
-DWORD cd_da::encode(const char inputCDDA[], const char inputDATA[], const char outputCDDA[], const char compressionLevel) {
+DWORD cd_da::encode(const char inputCDDA[], const char inputDATA[], const char outputCDDA[]) {
 	FILE *fInputCDDA, *fInputDATA, *fOutputCDDA;
 	DWORD ret_val = 0;
 
@@ -286,7 +286,7 @@ bool cd_da::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *cddaBu
 /* args: const char[], const char[], const DWORD&, const char	*/
 /* returns: bool												*/
 /****************************************************************/
-bool cd_da::decode(const char inputCDDA[], const char outputDATA[], const DWORD& fileSize, const char compress) {
+bool cd_da::decode(const char inputCDDA[], const char outputDATA[], const DWORD& fileSize) {
 	FILE *fInputCDDA, *fOutputDATA;
 	bool ret_val = 0;
 
