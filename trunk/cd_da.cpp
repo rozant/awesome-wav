@@ -14,16 +14,15 @@
 * USA.															 *
 *****************************************************************/
 /****************************************************************/
-/* cd_da.cpp														*/
+/* cd_da.cpp													*/
 /****************************************************************/
+#include "cd_da.hpp"
+#include "global.hpp"
+#include "util.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "cd_da.hpp"
-#include "file_compression.h"
-#include "global.hpp"
-#include "util.hpp"
 #ifdef _DEBUGOUTPUT
 #include <time.h>
 #endif
@@ -65,53 +64,8 @@ DWORD cd_da::encode(const char inputCDDA[], const char inputDATA[], const char o
 	fOutputCDDA = open(outputCDDA, "wb");
 	if (fOutputCDDA == NULL) { close(fInputCDDA); close(fInputDATA); return false; }
 
-	/* if we are compressing */
-	if (compressionLevel > 0) {
-		fCompDATA = open("data.z", "wb");
-
-		/* open a temp file and compress */
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not open temp data file.\n");
-			#endif
-			close(fInputCDDA); close(fInputDATA); close(fOutputCDDA);
-			return false;
-		}
-		if( def(fInputDATA, fCompDATA, compressionLevel) != 0) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not compress data file.\n");
-			#endif
-			close(fInputCDDA); close(fInputDATA); close(fOutputCDDA); close(fCompDATA);
-			return false;
-		}
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Compressed input data.\n");
-		#endif
-
-		/* clean up and reopen data.z in read mode */
-		close(fInputDATA);
-		close(fCompDATA);
-		fInputDATA = open("data.z","rb");
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not re-open temp data file.\n");
-			#endif
-			close(fInputCDDA); close(fInputDATA); close(fOutputCDDA);
-			return false;
-		}
-		
-		ret_val = encode(fInputCDDA, fInputDATA, fOutputCDDA);
-		close(fInputCDDA); close(fInputDATA); close(fOutputCDDA);
-
-		if (remove("data.z") == -1) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not remove temporary file data.z\n");
-			#endif
-		}
-	} else {
-		ret_val = encode(fInputCDDA, fInputDATA, fOutputCDDA);
-		close(fInputCDDA); close(fInputDATA); close(fOutputCDDA);
-	}
+	ret_val = encode(fInputCDDA, fInputDATA, fOutputCDDA);
+	close(fInputCDDA); close(fInputDATA); close(fOutputCDDA);
 
 	return ret_val;
 }
@@ -347,54 +301,7 @@ bool cd_da::decode(const char inputCDDA[], const char outputDATA[], const DWORD&
 	fOutputDATA = open(outputDATA, "wb");
 	if (fOutputDATA == NULL) { close(fInputCDDA); return false; }
 
-	/* if we are compressing */
-	if (compress > 0) {
-		fCompDATA = open("data.z", "wb");
-
-		/* open the temp file */
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not open temp data file.\n");
-			#endif
-			close(fInputCDDA); close(fOutputDATA);
-			return false;
-		}
-
-		ret_val = decode(fInputCDDA, fCompDATA, fileSize);
-		close(fCompDATA);
-		if (!ret_val) { close(fInputCDDA); close(fOutputDATA); return ret_val; }
-
-		/* re-open the temp file in read mode */
-		fCompDATA = open("data.z", "rb");
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not re-open temp data file.\n");
-			#endif
-			close(fInputCDDA); close(fOutputDATA);
-			return false;
-		}
-
-		/* decompress */
-		if( inf(fCompDATA, fOutputDATA) != 0) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not decompress data file.\n");
-			#endif
-			close(fInputCDDA); close(fOutputDATA); close(fCompDATA);
-			return false;
-		}
-		close(fCompDATA);
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Decompressed input data.\n");
-		#endif
-
-		if( remove("data.z") == -1) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not remove temporary file data.z\n");
-			#endif
-		}
-	} else {
-		ret_val = decode(fInputCDDA, fOutputDATA, fileSize);
-	}
+	ret_val = decode(fInputCDDA, fOutputDATA, fileSize);
 
 	/* clean up */
 	close(fInputCDDA); close(fOutputDATA);
