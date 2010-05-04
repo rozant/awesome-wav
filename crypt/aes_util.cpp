@@ -283,24 +283,15 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 /****************************************************************/
 #ifdef _WIN32
 int determine_filesize(FILE *fin, __int64 *filesize) {
-	LARGE_INTEGER li_size;
-	li_size.QuadPart = 0;
-	li_size.LowPart  =
-		SetFilePointer((HANDLE) _get_osfhandle( _fileno( fin ) ), li_size.LowPart, &li_size.HighPart, FILE_END);
-
-	if(li_size.LowPart == 0xFFFFFFFF && GetLastError() != NO_ERROR) {
-        fprintf(stderr, "Filesize fails\n");
-        return 0;
-    }
-
-    *filesize = li_size.QuadPart;
+	*filesize = _lseeki64(fileno(fin), 0, SEEK_END);
 #else
 int determine_filesize(FILE *fin, off_t *filesize) {
-    if(( *filesize = lseek( fileno( fin ), 0, SEEK_END )) < 0) {
-        fprintf(stderr,"Filesize fails\n");
-		return 0;
-    }
+	*filesize = lseek(fileno(fin), 0, SEEK_END);
 #endif
+	if(*filesize < 0) {
+        fprintf(stderr,"Filesize fails\n");
+        return 0;
+	}
 	if(fseek(fin, 0, SEEK_SET) < 0) {
 		fprintf( stderr, "fseek(0,SEEK_SET) failed\n" );
 		return 0;
