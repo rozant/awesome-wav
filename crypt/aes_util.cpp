@@ -30,7 +30,7 @@
 /* purpose: encrypt a file with AES								*/
 /* args: const char *, const char * unsigned char *				*/
 /* returns: int													*/
-/* nores: IV = SHA-256( filesize || filename )[0..15]			*/
+/* notes: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
 int encrypt_file(const char *filename, const char *destfile, unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16];
@@ -360,3 +360,4 @@ int generateIV(unsigned char IV[16], const char *filename, unsigned long int fil
 /****************************************************************/
 /****************************************************************/
 /****************************************************************/
+
