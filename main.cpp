@@ -13,13 +13,14 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "arg_processor.hpp"
 #include "global.hpp"
 #include "wav.hpp"
 #include "cd_da.hpp"
+#include "./compression/compress_util.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef _DEBUG
 char DEBUG_WAV[] = "./The Blood Of Cu Chulainn-8_Bit_PCM.wav";
@@ -51,7 +52,7 @@ void usage(const char prog_name[]) {
 /* returns: int													*/
 /****************************************************************/
 int main(int argc, char* argv[]) {
-	unsigned long int size = 0x00;
+	unsigned long int size = 0x00, temp = 0;
 	opts options;
 	/* wav file definitaion */
 	wav in_wav;
@@ -86,10 +87,22 @@ int main(int argc, char* argv[]) {
 		/* if we are encoding or decoding, do the right thing */
 		switch(options.mode) {
 			case ENCODE:
+				if(options.comp > 0) {
+					if( compress_file(options.data,"data.z",options.comp) < 0) {
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+					free(options.data);
+					options.data = (char *)calloc(7,sizeof(char));
+					memcpy(options.data,"data.z",6);
+				}
 				size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
 				if(size == 0x00) {
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
+				}
+				if(options.comp > 0) {
+					remove("data.z");
 				}
 				printf("Data was sucessfully encoded into the specified file.\n");
 				printf("The Decode key is: %u\n",(unsigned int)size);
@@ -102,14 +115,39 @@ int main(int argc, char* argv[]) {
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
 			case TEST:
+				/* encode file */
+				if(options.comp > 0) {
+					if( compress_file(options.data,"data.z",options.comp) < 0) {
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+					free(options.data);
+					options.data = (char *)calloc(7,sizeof(char));
+					memcpy(options.data,"data.z",6);
+				}
 				if( (size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp)) == 0x00) {
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
+				if(options.comp > 0) {
+					remove("data.z");
+				}
 				printf("Data was sucessfully encoded into the specified file.\n");
-				if (!in_wav.decode(options.output_file,options.test_out,size,options.comp)) {
+				/* decode file */
+				if( options.comp > 0) {
+					temp = in_wav.decode(options.output_file,"data.z",size,options.comp);
+				} else {
+					temp = in_wav.decode(options.output_file,options.test_out,size,options.comp);
+				}
+				if(temp != true) {
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
+				}
+				if(options.comp > 0) {
+					if(decompress_file("data.z",options.test_out) < 0) {
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
 				}
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
