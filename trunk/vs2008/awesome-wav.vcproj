@@ -279,14 +279,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\cd_da.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\file_compression.c"
-				>
-			</File>
-			<File
 				RelativePath="..\main.cpp"
 				>
 			</File>
@@ -298,6 +290,42 @@
 				RelativePath="..\wav.cpp"
 				>
 			</File>
+			<Filter
+				Name="crypt"
+				>
+				<File
+					RelativePath="..\crypt\aes.c"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\aes_util.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\padlock.c"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\sha2.c"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\sha2_util.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="compression"
+				>
+				<File
+					RelativePath="..\compression\compress_util.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\compression\file_compression.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -313,7 +341,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\file_compression.h"
+				RelativePath="..\cd_da.hpp"
 				>
 			</File>
 			<File
@@ -340,6 +368,46 @@
 				RelativePath="..\wav.hpp"
 				>
 			</File>
+			<Filter
+				Name="crypt"
+				>
+				<File
+					RelativePath="..\crypt\aes.h"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\aes_util.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\config.h"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\padlock.h"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\sha2.h"
+					>
+				</File>
+				<File
+					RelativePath="..\crypt\sha2_util.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="compression"
+				>
+				<File
+					RelativePath="..\compression\compress_util.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\compression\file_compression.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
