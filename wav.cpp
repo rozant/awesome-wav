@@ -13,13 +13,13 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
 #include "riff.hpp"
 #include "wav.hpp"
 #include "global.hpp"
 #include "util.hpp"
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
 #ifdef _DEBUGOUTPUT
 #include <time.h>
 #endif
@@ -215,10 +215,10 @@ bool wav::validDATA(void) const {
 /****************************************************************/
 /* function: encode												*/
 /* purpose: open the files ment for encoding				 	*/
-/* args: const char[], const char[], const char[], const char	*/
+/* args: const char[], const char[], const char[]				*/
 /* returns: DWORD												*/
 /****************************************************************/
-DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[], const char compressionLevel) {
+DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
 	FILE *fInputWAV, *fInputDATA, *fOutputWAV;
 	DWORD ret_val = 0;
 
@@ -534,10 +534,10 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 /****************************************************************/
 /* function: decode												*/
 /* purpose: open the files ment for decoding				 	*/
-/* args: const char[], const char[], const DWORD&, const char	*/
+/* args: const char[], const char[], const DWORD&				*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize, const char compress) {
+bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize) {
 	FILE *fInputWAV, *fOutputDATA;
 	bool ret_val = 0;
 
