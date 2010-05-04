@@ -283,7 +283,9 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 /****************************************************************/
 #ifdef _WIN32
 int determine_filesize(FILE *fin, __int64 *filesize) {
-	*filesize = _lseeki64(fileno(fin), 0, SEEK_END);
+	fseek(fin, 0, SEEK_END);
+	*filesize = ftell(fin);
+	fseek(fin, 0, SEEK_SET);
 #else
 int determine_filesize(FILE *fin, off_t *filesize) {
 	*filesize = lseek(fileno(fin), 0, SEEK_END);
