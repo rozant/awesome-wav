@@ -13,9 +13,6 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-/****************************************************************/
-/* cd_da.cpp													*/
-/****************************************************************/
 #include "cd_da.hpp"
 #include "global.hpp"
 #include "util.hpp"
@@ -51,7 +48,7 @@ cd_da::~cd_da(void) {
 /* returns: DWORD												*/
 /****************************************************************/
 DWORD cd_da::encode(const char inputCDDA[], const char inputDATA[], const char outputCDDA[], const char compressionLevel) {
-	FILE *fInputCDDA, *fInputDATA, *fOutputCDDA, *fCompDATA;
+	FILE *fInputCDDA, *fInputDATA, *fOutputCDDA;
 	DWORD ret_val = 0;
 
 	/* Open up our input files */
@@ -290,7 +287,7 @@ bool cd_da::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *cddaBu
 /* returns: bool												*/
 /****************************************************************/
 bool cd_da::decode(const char inputCDDA[], const char outputDATA[], const DWORD& fileSize, const char compress) {
-	FILE *fInputCDDA, *fOutputDATA, *fCompDATA;
+	FILE *fInputCDDA, *fOutputDATA;
 	bool ret_val = 0;
 
 	/* Open up our input file */
@@ -561,3 +558,4 @@ BYTE cd_da::getMinBitsEncodedPS(const DWORD fileSize, const DWORD maxSize) {
 /****************************************************************/
 /****************************************************************/
 /****************************************************************/
+
