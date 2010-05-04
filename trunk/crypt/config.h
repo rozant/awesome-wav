@@ -41,11 +41,6 @@
 #define POLARSSL_HAVE_ASM
 
 /*
- * Enable the checkup functions (*_self_test).
- */
-#define POLARSSL_SELF_TEST
-
-/*
  * Uncomment this macro to store the AES tables in ROM.
  *
 #define POLARSSL_AES_ROM_TABLES
