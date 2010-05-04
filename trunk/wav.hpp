@@ -13,12 +13,6 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-/****************************************************************/
-/* This is the .hpp file that implements the wav class.	It does	*/
-/* normal .h-ish stuff.  If you	do not know what this means,	*/
-/* please find the nearest person that does and have them 		*/
-/* escort you away from this computer immediately.				*/
-/****************************************************************/
 #ifndef __wav_hpp__
 #define __wav_hpp__
 #include "global.hpp"
@@ -90,3 +84,4 @@ class wav {
 /****************************************************************/
 /****************************************************************/
 /****************************************************************/
+

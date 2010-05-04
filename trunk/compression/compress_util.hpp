@@ -16,6 +16,7 @@
 #ifndef __compress_util_hpp__
 #define __compress_util_hpp__
 
+/* function prototypes */
 int compress_file(const char *, const char *, const char);
 int decompress_file(const char *, const char *);
 
