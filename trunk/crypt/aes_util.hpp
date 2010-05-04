@@ -15,9 +15,23 @@
 *****************************************************************/
 #ifndef __aes_util_hpp__
 #define __aes_util_hpp__
+#include "sha2.h"
+#include "aes.h"
+#include <stdio.h>
+#ifndef _WIN32
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 
 /* function prototypes */
 int encrypt_file(const char *, const char *, unsigned char *);
+int decrypt_file(const char *, const char *, unsigned char *);
+#ifdef _WIN32
+int determine_filesize(FILE *, __int64 *);
+#else
+int determine_filesize(FILE *, off_t *);
+#endif
+void secure_exit(unsigned char buffer[1024], unsigned char digest[32], unsigned char IV[16], aes_context *, sha2_context *);
 int generateIV(unsigned char *, const char *, unsigned long int);
 
 #endif
