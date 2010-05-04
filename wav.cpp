@@ -21,7 +21,6 @@
 #include <string.h>
 #include "riff.hpp"
 #include "wav.hpp"
-#include "file_compression.h"
 #include "global.hpp"
 #include "util.hpp"
 #ifdef _DEBUGOUTPUT

@@ -108,9 +108,20 @@ int main(int argc, char* argv[]) {
 				printf("The Decode key is: %u\n",(unsigned int)size);
 				break;
 			case DECODE:
-				if (!in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data),options.comp)) {
+				if( options.comp > 0) {
+					temp = in_wav.decode(options.input_file,"data.z",(DWORD)atol(options.data),options.comp);
+				} else {
+					temp = in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data),options.comp);
+				}
+				if (!temp) {
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
+				}
+				if(options.comp > 0) {
+					if(decompress_file("data.z",options.output_file) < 0) {
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
 				}
 				printf("Data was sucessfully decoded from the specified file.\n");
 				break;
