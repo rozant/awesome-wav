@@ -24,8 +24,8 @@
 #endif
 
 /* function prototypes */
-int encrypt_file(const char *, const char *, unsigned char *);
-int decrypt_file(const char *, const char *, unsigned char *);
+int encrypt_file(const char *, const char *, const unsigned char *);
+int decrypt_file(const char *, const char *, const unsigned char *);
 #ifdef _WIN32
 int determine_filesize(FILE *, __int64 *);
 #else

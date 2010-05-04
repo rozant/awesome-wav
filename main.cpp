@@ -18,6 +18,7 @@
 #include "wav.hpp"
 #include "cd_da.hpp"
 #include "./compression/compress_util.hpp"
+#include "./crypt/aes_util.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,11 +30,12 @@
 /* returns: void												*/
 /****************************************************************/
 void usage(const char prog_name[]) {
-	fprintf(stderr,"Useage: %s [-edcs] arg1 arg2 arg3\n",prog_name);
+	fprintf(stderr,"Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n",prog_name);
 	fprintf(stderr,"Encode data into a wav file, or decode data from a wav file.\n\n");
 	fprintf(stderr,"  -e\tencode arg3 into arg1 and store in arg2\n");
 	fprintf(stderr,"  -d\tdecode arg2 from arg1 using key arg3\n");
 	fprintf(stderr,"  -c\tenable data compression.  If decoding, assume retrieved data is compressed\n");
+	fprintf(stderr,"  -aes\tenable data encryption.  must be followed by the key.\n");
 	fprintf(stderr,"\tdefaults to -c6. valid options are -c1 through -c9, from low to high compression\n");
 	return;
 }
@@ -45,7 +47,8 @@ void usage(const char prog_name[]) {
 /* returns: int													*/
 /****************************************************************/
 int main(int argc, char* argv[]) {
-	unsigned long int size = 0x00, temp = 0;
+	unsigned long int size = 0x00, temp;
+	char *temp_str = NULL;
 	opts options;
 	/* wav file definitaion */
 	wav in_wav;
@@ -62,6 +65,7 @@ int main(int argc, char* argv[]) {
 	/* if we are encoding or decoding, do the right thing */
 	switch(options.mode) {
 		case ENCODE:
+			/* if compression is enabled */
 			if(options.comp > 0) {
 				if( compress_file(options.data,"data.z",options.comp) < 0) {
 					opt_clean(&options);
@@ -71,27 +75,58 @@ int main(int argc, char* argv[]) {
 				options.data = (char *)calloc(7,sizeof(char));
 				memcpy(options.data,"data.z",6);
 			}
+			/* in encryption is enabled */
+			if(options.enc_key != NULL) {
+				if(!encrypt_file(options.data,"data.aes",options.enc_key)) {	
+					if(options.comp > 0) { remove("data.z"); }
+					opt_clean(&options);
+					exit(EXIT_FAILURE);
+				}
+				free(options.data);
+				options.data = (char *)calloc(9,sizeof(char));
+				memcpy(options.data,"data.aes",8);
+			}
+			/* encode */
 			size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
+			/* cleanup */
+			if(options.comp > 0) { remove("data.z"); }
+			if(options.enc_key != NULL) { remove("data.aes"); }
+			/* if failed, cleanup */
 			if(size == 0x00) {
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
-			if(options.comp > 0) {
-				remove("data.z");
-			}
+			/* success */
 			printf("Data was sucessfully encoded into the specified file.\n");
 			printf("The Decode key is: %u\n",(unsigned int)size);
 			break;
 		case DECODE:
-			if( options.comp > 0) {
-				temp = in_wav.decode(options.input_file,"data.z",(DWORD)atol(options.data),options.comp);
-			} else {
-				temp = in_wav.decode(options.input_file,options.output_file,(DWORD)atol(options.data),options.comp);
-			}
+			/* if compression is enabled */
+			if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6); }
+			/* if encryption is enabled */
+			if(options.enc_key != NULL) { free(temp_str); temp_str = (char *)calloc(9,sizeof(char)); memcpy(temp_str,"data.aes",8); }
+			/* if neither is enabled */
+			if(options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
+			/* decode */
+			temp = in_wav.decode(options.input_file,temp_str,(DWORD)atol(options.data),options.comp);
 			if (!temp) {
+				remove(temp_str);
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
+			/* if encryption is enabled */
+			if(options.enc_key != NULL) {
+				if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6);
+				} else { free(temp_str); temp_str = options.output_file; }
+				if(!decrypt_file("data.aes",temp_str,options.enc_key)) {
+					remove("data.aes");
+					remove(temp_str);
+					opt_clean(&options);
+					exit(EXIT_FAILURE);
+				}
+				remove("data.aes");
+			}
+			/* if compression is enabled */
 			if(options.comp > 0) {
 				if(decompress_file("data.z",options.output_file) < 0) {
 					opt_clean(&options);
@@ -102,6 +137,7 @@ int main(int argc, char* argv[]) {
 			break;
 		case TEST:
 			/* encode file */
+			/* if compression is enabled */
 			if(options.comp > 0) {
 				if( compress_file(options.data,"data.z",options.comp) < 0) {
 					opt_clean(&options);
@@ -111,24 +147,57 @@ int main(int argc, char* argv[]) {
 				options.data = (char *)calloc(7,sizeof(char));
 				memcpy(options.data,"data.z",6);
 			}
-			if( (size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp)) == 0x00) {
+			/* in encryption is enabled */
+			if(options.enc_key != NULL) {
+				if(!encrypt_file(options.data,"data.aes",options.enc_key)) {	
+					if(options.comp > 0) { remove("data.z"); }
+					opt_clean(&options);
+					exit(EXIT_FAILURE);
+				}
+				free(options.data);
+				options.data = (char *)calloc(9,sizeof(char));
+				memcpy(options.data,"data.aes",8);
+			}
+			/* encode */
+			size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
+			/* cleanup */
+			if(options.comp > 0) { remove("data.z"); }
+			if(options.enc_key != NULL) { remove("data.aes"); }
+			/* if failed, cleanup */
+			if(size == 0x00) {
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
-			if(options.comp > 0) {
-				remove("data.z");
-			}
+			if(options.comp > 0) { remove("data.z"); }
+			if(options.enc_key != NULL) { remove("data.aes"); }
 			printf("Data was sucessfully encoded into the specified file.\n");
 			/* decode file */
-			if( options.comp > 0) {
-				temp = in_wav.decode(options.output_file,"data.z",size,options.comp);
-			} else {
-				temp = in_wav.decode(options.output_file,options.test_out,size,options.comp);
-			}
-			if(temp != true) {
+			/* if compression is enabled */
+			if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6); }
+			/* if encryption is enabled */
+			if(options.enc_key != NULL) { free(temp_str); temp_str = (char *)calloc(9,sizeof(char)); memcpy(temp_str,"data.aes",8); }
+			/* if neither is enabled */
+			if(options.comp == 0 && options.enc_key == NULL) { temp_str = options.test_out; }
+			/* decode */
+			temp = in_wav.decode(options.output_file,temp_str,size,options.comp);
+			if (!temp) {
+				remove(temp_str);
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
+			/* if encryption is enabled */
+			if(options.enc_key != NULL) {
+				if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6);
+				} else { free(temp_str); temp_str = options.test_out; }
+				if(!decrypt_file("data.aes",temp_str,options.enc_key)) {
+					remove("data.aes");
+					remove(temp_str);
+					opt_clean(&options);
+					exit(EXIT_FAILURE);
+				}
+				remove("data.aes");
+			}
+			/* if compression is enabled */
 			if(options.comp > 0) {
 				if(decompress_file("data.z",options.test_out) < 0) {
 					opt_clean(&options);
@@ -146,6 +215,7 @@ int main(int argc, char* argv[]) {
 
 	/* cleanup */
 	opt_clean(&options);
+	free(temp_str);
 	/* its over! */
 	exit(EXIT_SUCCESS);
 }

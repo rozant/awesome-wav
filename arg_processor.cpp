@@ -14,6 +14,7 @@
 * USA.															 *
 *****************************************************************/
 #include "arg_processor.hpp"
+#include "./crypt/sha2_util.hpp"
 #ifdef _DEBUGOUTPUT
 #include <stdio.h>
 #endif
@@ -35,7 +36,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 	for (foo = 1; foo < argc; ++foo) {
 		/* if it is an option do stuff */
 		if (argv[foo][0] == '-') {
-			if(strlen(argv[foo]) == 2 || (argv[foo][1] == 'c' && strlen(argv[foo]) == 3) ) {
+			if(strlen(argv[foo]) == 2 || (argv[foo][1] == 'c' && strlen(argv[foo]) == 3) || (argv[foo][1] == 'a' && strlen(argv[foo]) == 4) ) {
 				switch(argv[foo][1]) {
 					case 'e':				/* encode (default) */
 						options->mode = ENCODE;
@@ -55,6 +56,12 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 							}
 						} else {
 							options->comp = 6;
+						}
+						break;
+					case 'a':			 	/* data encryption */
+						if(strcmp(argv[foo],"-aes") == 0) {
+							if(++foo >= argc) { return EXIT_FAILURE; }
+							options->enc_key = sha2_key(argv[foo]);
 						}
 						break;
 					default:				/* invalid option */
@@ -116,6 +123,9 @@ void opt_clean(opts *foo) {
 	free(foo->output_file);
 	free(foo->data);
 	free(foo->test_out);
+	memset(foo->enc_key,0,sizeof(foo->enc_key));
+	free(foo->enc_key);
+	foo->enc_key = NULL;
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
 }
@@ -129,6 +139,7 @@ void opt_clean(opts *foo) {
 void opt_init(opts *foo) { 
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
+	foo->enc_key = NULL;
 	foo->mode = ENCODE; 
 	foo->comp = 0; 
 	return;
