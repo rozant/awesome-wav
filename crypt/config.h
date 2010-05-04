@@ -30,41 +30,15 @@
 #endif
 
 /*
- * Uncomment if native integers are 8-bit wide.
- *
-#define POLARSSL_HAVE_INT8
- */
-
-/*
- * Uncomment if native integers are 16-bit wide.
- *
-#define POLARSSL_HAVE_INT16
- */
-
-/*
- * Uncomment if the compiler supports long long.
- *
-#define POLARSSL_HAVE_LONGLONG
- */
-
-/*
  * Uncomment to enable the use of assembly code.
  *
  * Requires support for asm() in compiler.
  *
  * Used in:
- *      library/timing.c
- *      library/padlock.c
- *      include/polarssl/bn_mul.h
+ *      padlock.c
  *
  */
 #define POLARSSL_HAVE_ASM
-
-/*
- * Uncomment if the CPU supports SSE2 (IA-32 specific).
- *
-#define POLARSSL_HAVE_SSE2
- */
 
 /*
  * Enable the checkup functions (*_self_test).
@@ -72,41 +46,14 @@
 #define POLARSSL_SELF_TEST
 
 /*
- * Enable the prime-number generation code.
- */
-#define POLARSSL_GENPRIME
-
-/*
  * Uncomment this macro to store the AES tables in ROM.
  *
 #define POLARSSL_AES_ROM_TABLES
  */
 
-/*
- * Module:  library/aes.c
- * Caller:  library/ssl_tls.c
- *
- * This module enables the following ciphersuites:
- *      SSL_RSA_AES_128_SHA
- *      SSL_RSA_AES_256_SHA
- *      SSL_EDH_RSA_AES_256_SHA
- */
+/* these defines are required to compile AES support for awesome wav */
 #define POLARSSL_AES_C
-
-/*
- * Module:  library/padlock.c
- * Caller:  library/aes.c
- *
- * This modules adds support for the VIA PadLock on x86.
- */
 #define POLARSSL_PADLOCK_C
-
-/*
- * Module:  library/sha2.c
- * Caller:
- *
- * This module adds support for SHA-224 and SHA-256.
- */
 #define POLARSSL_SHA2_C
 
 #endif /* config.h */
