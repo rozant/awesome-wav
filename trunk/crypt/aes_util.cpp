@@ -28,11 +28,11 @@
 /****************************************************************/
 /* function: encrypt_file										*/
 /* purpose: encrypt a file with AES								*/
-/* args: const char *, const char * unsigned char *				*/
+/* args: const char *, const char * const unsigned char *		*/
 /* returns: int													*/
 /* notes: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
-int encrypt_file(const char *filename, const char *destfile, unsigned char *key) {
+int encrypt_file(const char *filename, const char *destfile, const unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16];
 	unsigned int foo = 0, keylen = sizeof(key);
 	FILE *fout = NULL, *fin = NULL;
@@ -84,11 +84,10 @@ int encrypt_file(const char *filename, const char *destfile, unsigned char *key)
 	for(foo = 0; foo < 8192; ++foo) {
 		sha2_starts(&sha_ctx, 0);
  		sha2_update(&sha_ctx, digest, 32);
-		sha2_update(&sha_ctx, (const unsigned char *)key, keylen);
+		sha2_update(&sha_ctx, key, keylen);
 		sha2_finish(&sha_ctx, digest);
 	}
 
-	memset(key, 0, keylen);
 	aes_setkey_enc( &aes_ctx, digest, 256 );
 	sha2_hmac_starts( &sha_ctx, digest, 32, 0 );
 
@@ -145,7 +144,7 @@ int encrypt_file(const char *filename, const char *destfile, unsigned char *key)
 /* args: const char *, const char *, unsigned char *			*/
 /* returns: int													*/
 /****************************************************************/
-int decrypt_file(const char *filename, const char *destfile, unsigned char *key) {
+int decrypt_file(const char *filename, const char *destfile, const unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16], tmp[16];
 	int foo = 0, keylen = sizeof(key), n = 0, lastn = 0;
 	FILE *fout = NULL, *fin = NULL;
@@ -214,11 +213,10 @@ int decrypt_file(const char *filename, const char *destfile, unsigned char *key)
 	for(foo = 0; foo < 8192; ++foo) {
 		sha2_starts(&sha_ctx, 0);
  		sha2_update(&sha_ctx, digest, 32);
-		sha2_update(&sha_ctx, (const unsigned char *)key, keylen);
+		sha2_update(&sha_ctx, key, keylen);
 		sha2_finish(&sha_ctx, digest);
 	}
 
-	memset(key, 0, keylen);
 	aes_setkey_dec( &aes_ctx, digest, 256 );
 	sha2_hmac_starts( &sha_ctx, digest, 32, 0 );
 

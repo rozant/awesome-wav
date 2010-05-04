@@ -16,7 +16,7 @@ INSTLOC=/usr/bin
 CFLAGS= -Wall -O2 -lz
 DBGFLAGS = -Wall -lz -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
-FILES = main.cpp wav.cpp cd_da.cpp arg_processor.cpp util.cpp ./compression/file_compression.c ./compression/compress_util.cpp
+FILES = main.cpp wav.cpp cd_da.cpp arg_processor.cpp util.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c .//crypt/aes_util.cpp ./crypt/aes.c ./crypt/padlock.c
 
 all:
 	g++ $(CFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)

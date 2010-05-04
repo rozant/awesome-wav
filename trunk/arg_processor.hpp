@@ -33,6 +33,7 @@ struct opts {
 	char *output_file;						/* output wav name */
 	char *data;								/* data file name */
 	char *test_out;							/* test data output */
+	unsigned char *enc_key;					/* encryption key */
 	char mode;								/* encode or decode */
 	char comp;								/* should data be/is data compressed */
 };
