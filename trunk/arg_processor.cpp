@@ -28,7 +28,7 @@
 /* returns: int													*/
 /****************************************************************/
 int arg_processor(const int argc, const char **argv, opts *options) {
-	unsigned int foo = 0;
+	int foo = 0;
 	unsigned char arg_count = 0;
 
 	/* for all of the argumets */
