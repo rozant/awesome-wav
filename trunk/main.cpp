@@ -214,8 +214,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* cleanup */
+	if(options.comp != 0 || options.enc_key != NULL) {
+		free(temp_str);
+	}
 	opt_clean(&options);
-	free(temp_str);
 	/* its over! */
 	exit(EXIT_SUCCESS);
 }

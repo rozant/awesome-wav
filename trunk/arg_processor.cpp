@@ -123,8 +123,10 @@ void opt_clean(opts *foo) {
 	free(foo->output_file);
 	free(foo->data);
 	free(foo->test_out);
-	memset(foo->enc_key,0,sizeof(foo->enc_key));
-	free(foo->enc_key);
+	if(foo->enc_key != NULL) {
+		memset(foo->enc_key,0,sizeof(foo->enc_key));
+		free(foo->enc_key);
+	}
 	foo->enc_key = NULL;
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
