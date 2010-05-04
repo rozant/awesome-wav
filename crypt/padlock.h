@@ -66,25 +66,6 @@ int padlock_xcryptecb( aes_context *ctx,
                        const unsigned char input[16],
                        unsigned char output[16] );
 
-/**
- * \brief          PadLock AES-CBC buffer en(de)cryption
- *
- * \param ctx      AES context
- * \param mode     AES_ENCRYPT or AES_DECRYPT
- * \param length   length of the input data
- * \param iv       initialization vector (updated after use)
- * \param input    buffer holding the input data
- * \param output   buffer holding the output data
- *
- * \return         0 if success, 1 if operation failed
- */
-int padlock_xcryptcbc( aes_context *ctx,
-                       int mode,
-                       int length,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output );
-
 #ifdef __cplusplus
 }
 #endif
