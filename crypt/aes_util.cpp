@@ -44,6 +44,7 @@ int encrypt_file(const char *filename, const char *destfile, unsigned char *key)
 	off_t filesize, offset;
 	#endif
 
+	/* open our files */
 	fout = fopen(destfile,"wb");
 	if(fout == NULL) {
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
@@ -131,6 +132,7 @@ int encrypt_file(const char *filename, const char *destfile, unsigned char *key)
 		return false;
 	}
 
+	/* return sucessfully */
 	secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 	fclose(fout);
 	fclose(fin);
@@ -156,12 +158,12 @@ int decrypt_file(const char *filename, const char *destfile, unsigned char *key)
 	#endif
 
 	/* open our files */
-	fout = fopen(destfile,"w");
+	fout = fopen(destfile,"wb");
 	if(fout == NULL) {
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		return false;
 	}
-	fin = fopen(filename,"r");
+	fin = fopen(filename,"rb");
 	if(fin == NULL) {
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
@@ -268,6 +270,7 @@ int decrypt_file(const char *filename, const char *destfile, unsigned char *key)
 		return false;
 	}
 
+	/* return sucessfully */
 	secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 	fclose(fout);
 	fclose(fin);
@@ -331,8 +334,8 @@ void secure_exit(unsigned char buffer[1024], unsigned char digest[32], unsigned 
 /* nores: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
 int generateIV(unsigned char IV[16], const char *filename, unsigned long int filesize) {
-	unsigned char buffer[1024], digest[32];
-	int foo = 0, lastn = 0;
+	unsigned char digest[32], buffer[8];
+	int foo = 0;
 	sha2_context sha_ctx;
 
 	for( foo = 0; foo < 8; foo++ ) {
@@ -346,9 +349,11 @@ int generateIV(unsigned char IV[16], const char *filename, unsigned long int fil
 
 	memcpy(IV, digest, 16);
 
-	lastn = (int)(filesize & 0x0F);
+	foo = (int)(filesize & 0x0F);
 
-	IV[15] = (unsigned char)((IV[15] & 0xF0) | lastn);
+	IV[15] = (unsigned char)((IV[15] & 0xF0) | foo);
+    memset(digest,0,32);
+	memset(buffer,0,8);
 	return true;
 }
 
