@@ -39,8 +39,8 @@ class cd_da {
 		/* destructor */
 		~cd_da(void);
 		/* manipulation */
-		DWORD encode(const char[], const char[], const char[], const char);
-		bool decode(const char[], const char[], const DWORD&, const char);
+		DWORD encode(const char[], const char[], const char[]);
+		bool decode(const char[], const char[], const DWORD&);
 };
 
 #endif
