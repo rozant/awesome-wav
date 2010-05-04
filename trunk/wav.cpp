@@ -223,7 +223,7 @@ bool wav::validDATA(void) const {
 /* returns: DWORD												*/
 /****************************************************************/
 DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[], const char compressionLevel) {
-	FILE *fInputWAV, *fInputDATA, *fOutputWAV, *fCompDATA;
+	FILE *fInputWAV, *fInputDATA, *fOutputWAV;
 	DWORD ret_val = 0;
 
 	/* Open up our input files */
@@ -239,53 +239,8 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 	fOutputWAV = open(outputWAV, "wb");
 	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
-	/* if we are compressing */
-	if (compressionLevel > 0) {
-		fCompDATA = open("data.z", "wb");
-
-		/* open a temp file and compress */
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not open temp data file.\n");
-			#endif
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-			return false;
-		}
-		if( def(fInputDATA, fCompDATA, compressionLevel) != 0) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not compress data file.\n");
-			#endif
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV); close(fCompDATA);
-			return false;
-		}
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Compressed input data.\n");
-		#endif
-
-		/* clean up and reopen data.z in read mode */
-		close(fInputDATA);
-		close(fCompDATA);
-		fInputDATA = open("data.z","rb");
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not re-open temp data file.\n");
-			#endif
-			close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-			return false;
-		}
-		
-		ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-
-		if (remove("data.z") == -1) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not remove temporary file data.z\n");
-			#endif
-		}
-	} else {
-		ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
-		close(fInputWAV); close(fInputDATA); close(fOutputWAV);
-	}
+	ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
+	close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 
 	/* clean up */
 	clean();
@@ -587,7 +542,7 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 /* returns: bool												*/
 /****************************************************************/
 bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize, const char compress) {
-	FILE *fInputWAV, *fOutputDATA, *fCompDATA;
+	FILE *fInputWAV, *fOutputDATA;
 	bool ret_val = 0;
 
 	/* Open up our input file */
@@ -601,54 +556,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	fOutputDATA = open(outputDATA, "wb");
 	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
 
-	/* if we are compressing */
-	if (compress > 0) {
-		fCompDATA = open("data.z", "wb");
-
-		/* open the temp file */
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not open temp data file.\n");
-			#endif
-			close(fInputWAV); close(fOutputDATA);
-			return false;
-		}
-
-		ret_val = decode(fInputWAV, fCompDATA, fileSize);
-		close(fCompDATA);
-		if (!ret_val) { close(fInputWAV); close(fOutputDATA); return ret_val; }
-
-		/* re-open the temp file in read mode */
-		fCompDATA = open("data.z", "rb");
-		if( fCompDATA == NULL ) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not re-open temp data file.\n");
-			#endif
-			close(fInputWAV); close(fOutputDATA);
-			return false;
-		}
-
-		/* decompress */
-		if( inf(fCompDATA, fOutputDATA) != 0) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not decompress data file.\n");
-			#endif
-			close(fInputWAV); close(fOutputDATA); close(fCompDATA);
-			return false;
-		}
-		close(fCompDATA);
-		#ifdef _DEBUGOUTPUT
-		fprintf(stderr,"S: Decompressed input data.\n");
-		#endif
-
-		if( remove("data.z") == -1) {
-			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Could not remove temporary file data.z\n");
-			#endif
-		}
-	} else {
-		ret_val = decode(fInputWAV, fOutputDATA, fileSize);
-	}
+	ret_val = decode(fInputWAV, fOutputDATA, fileSize);
 
 	/* clean up */
 	close(fInputWAV); close(fOutputDATA);

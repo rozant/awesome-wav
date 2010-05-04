@@ -1,18 +1,18 @@
 /****************************************************************/
 /* The following File is mostly code acquired from the zlib		*/
-/* examples of use. zlib licence can be fund in					*/
+/* examples of use. zlib licence can be found in				*/
 /* ./docs/zlib-license.txt										*/
 /****************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #ifdef _WIN32
-#include "./win32/include/zlib.h"
+#include "../win32/include/zlib.h"
 #else
 #include <zlib.h>
 #endif
 #include "file_compression.h"
-#include "global.hpp"
+#include "../global.hpp"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
