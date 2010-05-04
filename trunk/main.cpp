@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 				memcpy(options.data,"data.aes",8);
 			}
 			/* encode */
-			size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
+			size = in_wav.encode(options.input_file,options.data,options.output_file);
 			/* cleanup */
 			if(options.comp > 0) { remove("data.z"); }
 			if(options.enc_key != NULL) { remove("data.aes"); }
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 			/* if neither is enabled */
 			if(options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
 			/* decode */
-			temp = in_wav.decode(options.input_file,temp_str,(DWORD)atol(options.data),options.comp);
+			temp = in_wav.decode(options.input_file,temp_str,(DWORD)atol(options.data));
 			if (!temp) {
 				remove(temp_str);
 				opt_clean(&options);
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 				memcpy(options.data,"data.aes",8);
 			}
 			/* encode */
-			size = in_wav.encode(options.input_file,options.data,options.output_file,options.comp);
+			size = in_wav.encode(options.input_file,options.data,options.output_file);
 			/* cleanup */
 			if(options.comp > 0) { remove("data.z"); }
 			if(options.enc_key != NULL) { remove("data.aes"); }
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 			/* if neither is enabled */
 			if(options.comp == 0 && options.enc_key == NULL) { temp_str = options.test_out; }
 			/* decode */
-			temp = in_wav.decode(options.output_file,temp_str,size,options.comp);
+			temp = in_wav.decode(options.output_file,temp_str,size);
 			if (!temp) {
 				remove(temp_str);
 				opt_clean(&options);
