@@ -106,55 +106,6 @@ int padlock_xcryptecb( aes_context *ctx,
     return( 0 );
 }
 
-/*
- * PadLock AES-CBC buffer en(de)cryption
- */
-int padlock_xcryptcbc( aes_context *ctx,
-                       int mode,
-                       int length,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output )
-{
-    int ebx, count;
-    unsigned long *rk;
-    unsigned long *iw;
-    unsigned long *ctrl;
-    unsigned char buf[256];
-
-    if( ( (long) input  & 15 ) != 0 ||
-        ( (long) output & 15 ) != 0 )
-        return( POLARSSL_ERR_PADLOCK_DATA_MISALIGNED );
-
-    rk = ctx->rk;
-    iw = PADLOCK_ALIGN16( buf );
-    memcpy( iw, iv, 16 );
-
-     ctrl = iw + 4;
-    *ctrl = 0x80 | ctx->nr | ( ( ctx->nr + (mode^1) - 10 ) << 9 );
-
-    count = (length + 15) >> 4;
-
-    asm( "pushfl; popfl         \n"     \
-         "movl    %%ebx, %0     \n"     \
-         "movl    %2, %%ecx     \n"     \
-         "movl    %3, %%edx     \n"     \
-         "movl    %4, %%ebx     \n"     \
-         "movl    %5, %%esi     \n"     \
-         "movl    %6, %%edi     \n"     \
-         "movl    %7, %%eax     \n"     \
-         ".byte  0xf3,0x0f,0xa7,0xd0\n" \
-         "movl    %1, %%ebx     \n"
-         : "=m" (ebx)
-         :  "m" (ebx), "m" (count), "m" (ctrl),
-            "m"  (rk), "m" (input), "m" (output), "m" (iw)
-         : "eax", "ecx", "edx", "esi", "edi" );
-
-    memcpy( iv, iw, 16 );
-
-    return( 0 );
-}
-
 #endif
 
 #endif
