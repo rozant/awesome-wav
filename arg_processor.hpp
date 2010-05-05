@@ -16,9 +16,6 @@
 #ifndef __arg_processor_hpp__
 #define __arg_processor_hpp__
 
-#include <stdlib.h>
-#include <string.h>
-
 /* defines for all of the modes the program supports */
 enum opt_modes {
 	NONE = 0,	

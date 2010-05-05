@@ -374,7 +374,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"S: AES - decrypted data passed\n");
+	fprintf(stderr,"S: AES - Decrypted data passed\n");
 	#endif
 
 	/* return sucessfully */
@@ -417,14 +417,9 @@ int determine_filesize(FILE *fin, __int64 *filesize) {
 int determine_filesize(FILE *fin, off_t *filesize) {
 	*filesize = lseek(fileno(fin), 0, SEEK_END);
 #endif
-	if(*filesize < 0) {
-        fprintf(stderr,"Filesize fails\n");
+	if(*filesize < 0 || fseek(fin, 0, SEEK_SET) < 0) {
         return 0;
 	}
-	if(fseek(fin, 0, SEEK_SET) < 0) {
-		fprintf( stderr, "fseek(0,SEEK_SET) failed\n" );
-		return 0;
-    }
 	return 1;
 }
 

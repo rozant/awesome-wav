@@ -15,8 +15,8 @@
 *****************************************************************/
 #ifndef __riff_struct_hpp__
 #define __riff_struct_hpp__
-#include <stdlib.h>
 #include "global.hpp"
+#include <stdlib.h>
 
 /****************************************************************/
 /* struct: _RIFF												*/

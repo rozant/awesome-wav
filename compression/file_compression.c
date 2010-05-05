@@ -3,6 +3,8 @@
 /* examples of use. zlib licence can be found in				*/
 /* ./docs/zlib-license.txt										*/
 /****************************************************************/
+#include "file_compression.h"
+#include "../global.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -11,8 +13,6 @@
 #else
 #include <zlib.h>
 #endif
-#include "file_compression.h"
-#include "../global.hpp"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
