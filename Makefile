@@ -13,16 +13,17 @@
 
 PROGNAME=awesome-wav
 INSTLOC=/usr/bin
-CFLAGS= -Wall -O2 -lz -D_FILE_OFFSET_BITS=64
+OFLAGS= -O2
+CFLAGS= -Wall -lz -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -Wall -lz -D _DEBUG -D _DEBUGOUTPUT -D_FILE_OFFSET_BITS=64
 LDFLAGS = -lm
 FILES = main.cpp wav.cpp cd_da.cpp arg_processor.cpp util.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c .//crypt/aes_util.cpp ./crypt/aes.c ./crypt/padlock.c
 
 all:
-	g++ $(CFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
+	g++ $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
 
 test:
-	g++ $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	g++ $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test
 
 debug:
