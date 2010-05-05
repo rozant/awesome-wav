@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
 			if(options.enc_key != NULL) { remove("data.aes"); }
 			/* if failed, cleanup */
 			if(size == 0x00) {
+				printf("Failed to encode data.\n");
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
@@ -110,6 +111,7 @@ int main(int argc, char* argv[]) {
 			/* decode */
 			temp = in_wav.decode(options.input_file,temp_str,(DWORD)atol(options.data));
 			if (!temp) {
+				printf("Failed to decode data.\n");
 				remove(temp_str);
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
@@ -165,6 +167,7 @@ int main(int argc, char* argv[]) {
 			if(options.enc_key != NULL) { remove("data.aes"); }
 			/* if failed, cleanup */
 			if(size == 0x00) {
+				printf("Failed to encode data.\n");
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
@@ -181,6 +184,7 @@ int main(int argc, char* argv[]) {
 			/* decode */
 			temp = in_wav.decode(options.output_file,temp_str,size);
 			if (!temp) {
+				printf("Failed to decode data.\n");
 				remove(temp_str);
 				opt_clean(&options);
 				exit(EXIT_FAILURE);

@@ -29,8 +29,7 @@
 /* returns: int													*/
 /****************************************************************/
 int arg_processor(const int argc, const char **argv, opts *options) {
-	int foo = 0;
-	unsigned char arg_count = 0;
+	int foo = 0, arg_count = 0;
 
 	/* for all of the argumets */
 	for (foo = 1; foo < argc; ++foo) {
@@ -130,6 +129,7 @@ void opt_clean(opts *foo) {
 	foo->enc_key = NULL;
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
+	return;
 }
 
 /****************************************************************/
