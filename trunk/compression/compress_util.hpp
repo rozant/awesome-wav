@@ -16,6 +16,13 @@
 #ifndef __compress_util_hpp__
 #define __compress_util_hpp__
 
+/* compress_util return codes */
+enum compress_util_ret_code {
+	COMU_FILE_FAIL = -2,
+	COMU_FAIL = -1,
+	COMU_SUCCESS = 0
+};
+
 /* function prototypes */
 int compress_file(const char *, const char *, const char);
 int decompress_file(const char *, const char *);

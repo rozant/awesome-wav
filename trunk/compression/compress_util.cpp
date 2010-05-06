@@ -13,6 +13,7 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
+#include "compress_util.hpp"
 #include "file_compression.h"
 #include <stdio.h>
 
@@ -32,7 +33,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 		fprintf(stderr,"E: ZLIB - Failed to open %s with mode rb\n",filename);
 		#endif
 		printf("Failed to compress file %s\n",filename);
-		return -2;
+		return COMU_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode rb\n",filename);
@@ -44,7 +45,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 		#endif
 		printf("Failed to compress file %s\n",filename);
 		fclose(fin);
-		return -2;
+		return COMU_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode wb\n",destfile);
@@ -59,7 +60,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 		fclose(fin);
 		fclose(fout);
 		remove(destfile);
-		return -1;
+		return COMU_FAIL;
 	}
 
 	/* close files and exit */
@@ -83,7 +84,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 	fprintf(stderr,"S: ZLIB - Compressed input data.\n");
 	#endif
 	printf("File %s was compressed sucessfully.\n",filename);
-	return 0;
+	return COMU_SUCCESS;
 }
 
 /****************************************************************/
@@ -102,7 +103,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		fprintf(stderr,"E: ZLIB - Failed to open %s with mode rb\n",filename);
 		#endif
 		printf("Failed to decompress file %s\n",filename);
-		return -1;
+		return COMU_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode rb\n",filename);
@@ -114,7 +115,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		#endif
 		printf("Failed to decompress file %s\n",filename);
 		fclose(fin);
-		return -1;
+		return COMU_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode wb\n",destfile);
@@ -129,7 +130,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		fclose(fin);
 		fclose(fout);
 		remove(destfile);
-		return -1;
+		return COMU_FAIL;
 	}
 
 	/* close files and exit */
@@ -158,7 +159,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		#endif
 	}
 	printf("File %s was decompressed sucessfully.\n",filename);
-	return 0;
+	return COMU_SUCCESS;
 }
 
 /****************************************************************/
