@@ -49,6 +49,7 @@ void usage(const char prog_name[]) {
 int main(int argc, char* argv[]) {
 	unsigned long int size = 0x00, temp;
 	char *temp_str = NULL;
+	char *file_name = NULL;
 	opts options;
 	/* wav file definitaion */
 	wav in_wav;
@@ -67,30 +68,36 @@ int main(int argc, char* argv[]) {
 		case ENCODE:
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				if( compress_file(options.data,"data.z",options.comp) < 0) {
+				file_name = (char *)malloc((strlen(options.data)+2)*sizeof(char));
+				memcpy(file_name,options.data,strlen(options.data));
+				strcat(file_name,".z");
+				if( compress_file(options.data,file_name,options.comp) < 0) {
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 				free(options.data);
-				options.data = (char *)calloc(7,sizeof(char));
-				memcpy(options.data,"data.z",6);
+				options.data = file_name;
+				file_name = NULL;
 			}
 			/* in encryption is enabled */
 			if(options.enc_key != NULL) {
-				if(!encrypt_file(options.data,"data.aes",options.enc_key)) {	
-					if(options.comp > 0) { remove("data.z"); }
+				file_name = (char *)malloc((strlen(options.data)+4)*sizeof(char));
+				memcpy(file_name,options.data,strlen(options.data));
+				strcat(file_name,".aes");
+				if(!encrypt_file(options.data,file_name,options.enc_key)) {	
+					if(options.comp > 0) { remove(options.data); }
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
+				if(options.comp > 0) { remove(options.data); }
 				free(options.data);
-				options.data = (char *)calloc(9,sizeof(char));
-				memcpy(options.data,"data.aes",8);
+				options.data = file_name;
+				file_name = NULL;
 			}
 			/* encode */
 			size = in_wav.encode(options.input_file,options.data,options.output_file);
 			/* cleanup */
-			if(options.comp > 0) { remove("data.z"); }
-			if(options.enc_key != NULL) { remove("data.aes"); }
+			if(options.enc_key != NULL) { remove(options.data); }
 			/* if failed, cleanup */
 			if(size == 0x00) {
 				printf("Failed to encode data.\n");
@@ -141,38 +148,42 @@ int main(int argc, char* argv[]) {
 			/* encode file */
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				if( compress_file(options.data,"data.z",options.comp) < 0) {
+				file_name = (char *)malloc((strlen(options.data)+2)*sizeof(char));
+				memcpy(file_name,options.data,strlen(options.data));
+				strcat(file_name,".z");
+				if( compress_file(options.data,file_name,options.comp) < 0) {
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 				free(options.data);
-				options.data = (char *)calloc(7,sizeof(char));
-				memcpy(options.data,"data.z",6);
+				options.data = file_name;
+				file_name = NULL;
 			}
 			/* in encryption is enabled */
 			if(options.enc_key != NULL) {
-				if(!encrypt_file(options.data,"data.aes",options.enc_key)) {	
-					if(options.comp > 0) { remove("data.z"); }
+				file_name = (char *)malloc((strlen(options.data)+4)*sizeof(char));
+				memcpy(file_name,options.data,strlen(options.data));
+				strcat(file_name,".aes");
+				if(!encrypt_file(options.data,file_name,options.enc_key)) {	
+					if(options.comp > 0) { remove(options.data); }
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
+				if(options.comp > 0) { remove(options.data); }
 				free(options.data);
-				options.data = (char *)calloc(9,sizeof(char));
-				memcpy(options.data,"data.aes",8);
+				options.data = file_name;
+				file_name = NULL;
 			}
 			/* encode */
 			size = in_wav.encode(options.input_file,options.data,options.output_file);
 			/* cleanup */
-			if(options.comp > 0) { remove("data.z"); }
-			if(options.enc_key != NULL) { remove("data.aes"); }
+			if(options.enc_key != NULL) { remove(options.data); }
 			/* if failed, cleanup */
 			if(size == 0x00) {
 				printf("Failed to encode data.\n");
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
-			if(options.comp > 0) { remove("data.z"); }
-			if(options.enc_key != NULL) { remove("data.aes"); }
 			printf("Data was sucessfully encoded into the specified file.\n");
 			/* decode file */
 			/* if compression is enabled */
