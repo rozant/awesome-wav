@@ -52,7 +52,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		#endif
 		printf("Failed to encrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
-		return false;
+		return AES_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode rb\n",filename);
@@ -65,7 +65,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		printf("Failed to encrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fin);
-		return false;
+		return AES_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode wb\n",destfile);
@@ -80,7 +80,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-        return false;
+        return AES_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Filesize is %ld\n",filesize);
@@ -98,7 +98,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		fclose(fout);
 		fclose(fin);
 		remove(destfile);
-		return false;
+		return AES_WRITE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Wrote IV\n");
@@ -131,7 +131,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 			fclose(fout);
 			fclose(fin);
 			remove(destfile);
-			return false;
+			return AES_READ_FAIL;
 		}
 		for( foo = 0; foo < 16; foo++ ) {
 			buffer[foo] = (unsigned char)( buffer[foo] ^ IV[foo] );
@@ -149,7 +149,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 			fclose(fout);
 			fclose(fin);
 			remove(destfile);
-			return false;
+			return AES_WRITE_FAIL;
 		}
 		memcpy( IV, buffer, 16 );
 	}
@@ -167,7 +167,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		fclose(fout);
 		fclose(fin);
 		remove(destfile);
-		return false;
+		return AES_WRITE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Wrote end of file\n");
@@ -195,7 +195,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	fprintf(stderr,"S: AES - Data encrypted sucessfully\n");
 	#endif
 	printf("File %s was encrypted sucessfully.\n",filename);
-	return true;
+	return AES_SUCCESS;
 }
 
 /****************************************************************/
@@ -224,7 +224,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		#endif
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
-		return false;
+		return AES_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode rb\n",filename);
@@ -237,7 +237,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fin);
-		return false;
+		return AES_FILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode wb\n",destfile);
@@ -252,7 +252,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-        return false;
+        return AES_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Filesize is %ld\n",filesize);
@@ -268,7 +268,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-        return false;
+        return AES_FAIL;
 	}
 	if((filesize & 0x0F) != 0) {
 		#ifdef _DEBUGOUTPUT
@@ -278,7 +278,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-        return false;
+        return AES_FAIL;
 	}
 	/* subtract IV and HMAC sizes */
 	filesize -= 48;
@@ -292,7 +292,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-        return false;
+        return AES_READ_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr, "S: AES - Read the IV\n");
@@ -323,7 +323,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 			secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 			fclose(fout);
 			fclose(fin);
-		    return false;
+		    return AES_READ_FAIL;
 		}
 		memcpy(tmp, buffer, 16);
 
@@ -346,7 +346,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 			secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 			fclose(fout);
 			fclose(fin);
-		    return false;
+		    return AES_WRITE_FAIL;
 		}
 	}
 	/* finish up */
@@ -361,7 +361,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-		return false;
+		return AES_READ_FAIL;
 	}
 	if(memcmp(digest, buffer, 32) != 0) {
 		#ifdef _DEBUGOUTPUT
@@ -371,7 +371,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fout);
 		fclose(fin);
-		return false;
+		return AES_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Decrypted data passed\n");
@@ -399,7 +399,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	fprintf(stderr,"S: AES - Data decrypted sucessfully\n");
 	#endif
 	printf("File %s was decrypted sucessfully.\n",filename);
-	return true;
+	return AES_SUCCESS;
 }
 
 /****************************************************************/
