@@ -30,7 +30,6 @@
 #if defined(POLARSSL_AES_C)
 
 #include "./aes.h"
-#include "./padlock.h"
 
 #include <string.h>
 
@@ -458,11 +457,7 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key, int keysize )
         default : return( POLARSSL_ERR_AES_INVALID_KEY_LENGTH );
     }
 
-#if defined(PADLOCK_ALIGN16)
-    ctx->rk = RK = PADLOCK_ALIGN16( ctx->buf );
-#else
     ctx->rk = RK = ctx->buf;
-#endif
 
     for( i = 0; i < (keysize >> 5); i++ )
     {
@@ -558,11 +553,7 @@ int aes_setkey_dec( aes_context *ctx, const unsigned char *key, int keysize )
         default : return( POLARSSL_ERR_AES_INVALID_KEY_LENGTH );
     }
 
-#if defined(PADLOCK_ALIGN16)
-    ctx->rk = RK = PADLOCK_ALIGN16( ctx->buf );
-#else
     ctx->rk = RK = ctx->buf;
-#endif
 
     ret = aes_setkey_enc( &cty, key, keysize );
     if( ret != 0 )
@@ -652,18 +643,6 @@ int aes_crypt_ecb( aes_context *ctx,
 {
     int i;
     unsigned long *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
-
-#if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
-    if( padlock_supports( PADLOCK_ACE ) )
-    {
-        if( padlock_xcryptecb( ctx, mode, input, output ) == 0 )
-            return( 0 );
-
-        // If padlock data misaligned, we just fall back to
-        // unaccelerated mode
-        //
-    }
-#endif
 
     RK = ctx->rk;
 
