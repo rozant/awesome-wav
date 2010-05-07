@@ -16,7 +16,9 @@
 #ifndef __global_hpp__
 #define __global_hpp__
 
+#ifndef gettext
 #define gettext(Msgid) ((const char *) (Msgid))
+#endif
 #define BUFFER_MULT 16
 #define Z_MULT 2
 

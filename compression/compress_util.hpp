@@ -16,9 +16,14 @@
 #ifndef __compress_util_hpp__
 #define __compress_util_hpp__
 
+#ifndef gettext
+#define gettext(Msgid) ((const char *) (Msgid))
+#endif
+
 /* compress_util return codes */
 enum compress_util_ret_code {
-	COMU_FILE_FAIL = -2,
+	COMU_OFILE_FAIL = -3,
+	COMU_IFILE_FAIL = -2,
 	COMU_FAIL = -1,
 	COMU_SUCCESS = 0
 };
@@ -26,6 +31,7 @@ enum compress_util_ret_code {
 /* function prototypes */
 int compress_file(const char *, const char *, const char);
 int decompress_file(const char *, const char *);
+const char *comp_err(const int);
 
 #endif
 

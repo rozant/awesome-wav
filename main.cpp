@@ -48,6 +48,7 @@ void usage(const char prog_name[]) {
 /****************************************************************/
 int main(int argc, char* argv[]) {
 	unsigned long int size = 0x00, temp;
+	int ret = 0;
 	char *temp_str = NULL;
 	char *file_name = NULL;
 	opts options;
@@ -71,7 +72,9 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)malloc((strlen(options.data)+3)*sizeof(char));
 				memcpy(file_name,options.data,strlen(options.data));
 				strcat(file_name,".z");
-				if( compress_file(options.data,file_name,options.comp) != COMU_SUCCESS) {
+				ret = compress_file(options.data,file_name,options.comp);
+				if( ret != COMU_SUCCESS) {
+					printf("%s\n",comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -137,7 +140,9 @@ int main(int argc, char* argv[]) {
 			}
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				if(decompress_file("data.z",options.output_file) != COMU_SUCCESS) {
+				ret = decompress_file("data.z",options.output_file);
+				if(ret != COMU_SUCCESS) {
+					printf("%s\n",comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -151,7 +156,9 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)malloc((strlen(options.data)+3)*sizeof(char));
 				memcpy(file_name,options.data,strlen(options.data));
 				strcat(file_name,".z");
-				if( compress_file(options.data,file_name,options.comp) != COMU_SUCCESS) {
+				ret = compress_file(options.data,file_name,options.comp);
+				if( ret != COMU_SUCCESS) {
+					printf("%s\n",comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -214,7 +221,9 @@ int main(int argc, char* argv[]) {
 			}
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				if(decompress_file("data.z",options.test_out) != COMU_SUCCESS) {
+				ret = decompress_file("data.z",options.test_out);
+				if(ret != COMU_SUCCESS) {
+					printf("%s\n",comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
