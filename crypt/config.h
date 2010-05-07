@@ -30,17 +30,6 @@
 #endif
 
 /*
- * Uncomment to enable the use of assembly code.
- *
- * Requires support for asm() in compiler.
- *
- * Used in:
- *      padlock.c
- *
- */
-#define POLARSSL_HAVE_ASM
-
-/*
  * Uncomment this macro to store the AES tables in ROM.
  *
 #define POLARSSL_AES_ROM_TABLES
@@ -48,7 +37,6 @@
 
 /* these defines are required to compile AES support for awesome wav */
 #define POLARSSL_AES_C
-#define POLARSSL_PADLOCK_C
 #define POLARSSL_SHA2_C
 
 #endif /* config.h */
