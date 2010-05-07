@@ -23,11 +23,16 @@
 #include <unistd.h>
 #endif
 
+#ifndef gettext
+#define gettext(Msgid) ((const char *) (Msgid))
+#endif
+
 /* compress_util return codes */
 enum aes_util_ret_code {
-	AES_WRITE_FAIL = -4,
-	AES_READ_FAIL = -3,
-	AES_FILE_FAIL = -2,
+	AES_WRITE_FAIL = -5,
+	AES_READ_FAIL = -4,
+	AES_IFILE_FAIL = -3,
+	AES_OFILE_FAIL = -2,
 	AES_FAIL = -1,
 	AES_SUCCESS = 0
 };
