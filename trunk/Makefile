@@ -28,7 +28,7 @@ test:
 
 debug:
 	g++ -g $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
-
+	cp ./bin/$(PROGNAME)-debug ./test_suite/$(PROGNAME)-debug
 build-test: all test debug clean-all
 
 install: all
