@@ -52,7 +52,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		#endif
 		printf("Failed to encrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
-		return AES_FILE_FAIL;
+		return AES_IFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode rb\n",filename);
@@ -65,7 +65,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		printf("Failed to encrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fin);
-		return AES_FILE_FAIL;
+		return AES_OFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode wb\n",destfile);
@@ -224,7 +224,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		#endif
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
-		return AES_FILE_FAIL;
+		return AES_IFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode rb\n",filename);
@@ -237,7 +237,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
 		fclose(fin);
-		return AES_FILE_FAIL;
+		return AES_OFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: AES - Opened %s with mode wb\n",destfile);
