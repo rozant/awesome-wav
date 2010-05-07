@@ -33,7 +33,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 		fprintf(stderr,"E: ZLIB - Failed to open %s with mode rb\n",filename);
 		#endif
 		printf("Failed to compress file %s\n",filename);
-		return COMU_FILE_FAIL;
+		return COMU_IFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode rb\n",filename);
@@ -45,7 +45,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 		#endif
 		printf("Failed to compress file %s\n",filename);
 		fclose(fin);
-		return COMU_FILE_FAIL;
+		return COMU_OFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode wb\n",destfile);
@@ -103,7 +103,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		fprintf(stderr,"E: ZLIB - Failed to open %s with mode rb\n",filename);
 		#endif
 		printf("Failed to decompress file %s\n",filename);
-		return COMU_FILE_FAIL;
+		return COMU_IFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode rb\n",filename);
@@ -115,7 +115,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		#endif
 		printf("Failed to decompress file %s\n",filename);
 		fclose(fin);
-		return COMU_FILE_FAIL;
+		return COMU_OFILE_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
 	fprintf(stderr,"S: ZLIB - Opened %s with mode wb\n",destfile);
@@ -160,6 +160,28 @@ int decompress_file(const char *filename, const char *destfile) {
 	}
 	printf("File %s was decompressed sucessfully.\n",filename);
 	return COMU_SUCCESS;
+}
+
+/****************************************************************/
+/* function: comp_err											*/
+/* purpose: report a compress_util error					 	*/
+/* args: const int												*/
+/* returns: const char *										*/
+/****************************************************************/
+const char *comp_err(const int ret) {
+	switch (ret) {
+		case COMU_SUCCESS:
+			return gettext("compress util did not fail");
+		case COMU_FAIL:
+			return gettext("zlib could not compress/decompress file");
+		case COMU_IFILE_FAIL:
+			return gettext("compress util could not open input file");
+		case COMU_OFILE_FAIL:
+			return gettext("compress util could not open output file");
+		default:
+			break;
+	}
+	return gettext("unknown compress util error");
 }
 
 /****************************************************************/
