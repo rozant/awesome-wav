@@ -15,7 +15,7 @@ PROGNAME=awesome-wav
 INSTLOC=/usr/bin
 OFLAGS= -O2
 CFLAGS= -Wall -lz -D_FILE_OFFSET_BITS=64
-DBGFLAGS = -Wall -lz -D _DEBUG -D _DEBUGOUTPUT -D_FILE_OFFSET_BITS=64
+DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
 FILES = main.cpp wav.cpp cd_da.cpp arg_processor.cpp util.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c ./crypt/aes_util.cpp ./crypt/aes.c
 
@@ -23,11 +23,11 @@ all:
 	g++ $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
 
 test:
-	g++ $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	g++ $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test
 
 debug:
-	g++ -g $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+	g++ -g $(CFLAGS) $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-debug ./test_suite/$(PROGNAME)-debug
 build-test: all test debug clean-all
 
