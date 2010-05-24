@@ -446,7 +446,11 @@ void secure_exit(unsigned char buffer[1024], unsigned char digest[32], unsigned 
 /* returns: int													*/
 /* nores: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
+#ifdef _WIN32
+int generateIV(unsigned char IV[16], const char *filename, __int64 filesize) {
+#else
 int generateIV(unsigned char IV[16], const char *filename, unsigned long int filesize) {
+#endif
 	unsigned char digest[32], buffer[8];
 	int foo = 0;
 	sha2_context sha_ctx;

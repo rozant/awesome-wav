@@ -302,10 +302,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\padlock.c"
-					>
-				</File>
-				<File
 					RelativePath="..\crypt\sha2.c"
 					>
 				</File>
@@ -381,10 +377,6 @@
 				</File>
 				<File
 					RelativePath="..\crypt\config.h"
-					>
-				</File>
-				<File
-					RelativePath="..\crypt\padlock.h"
 					>
 				</File>
 				<File

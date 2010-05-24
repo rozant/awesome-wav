@@ -42,11 +42,12 @@ int encrypt_file(const char *, const char *, const unsigned char *);
 int decrypt_file(const char *, const char *, const unsigned char *);
 #ifdef _WIN32
 int determine_filesize(FILE *, __int64 *);
+int generateIV(unsigned char *, const char *, __int64);
 #else
 int determine_filesize(FILE *, off_t *);
+int generateIV(unsigned char *, const char *, unsigned long int);
 #endif
 void secure_exit(unsigned char buffer[1024], unsigned char digest[32], unsigned char IV[16], aes_context *, sha2_context *);
-int generateIV(unsigned char *, const char *, unsigned long int);
 
 #endif
 /****************************************************************/
