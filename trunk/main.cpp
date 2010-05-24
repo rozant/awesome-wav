@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
 			}
 			/* success */
 			printf("Data was sucessfully encoded into the specified file.\n");
-			printf("The Decode key is: %u\n",(unsigned int)size);
+			printf("The Decode key is: %lu\n",size);
 			break;
 		case DECODE:
 			/* if compression is enabled */

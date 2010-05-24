@@ -216,11 +216,11 @@ bool wav::validDATA(void) const {
 /* function: encode												*/
 /* purpose: open the files ment for encoding				 	*/
 /* args: const char[], const char[], const char[]				*/
-/* returns: DWORD												*/
+/* returns: unsigned long int									*/
 /****************************************************************/
-DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
+unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
+	unsigned long int ret_val = 0;
 	FILE *fInputWAV, *fInputDATA, *fOutputWAV;
-	DWORD ret_val = 0;
 
 	/* Open up our input files */
 	fInputWAV = open(inputWAV, "rb");
@@ -248,11 +248,12 @@ DWORD wav::encode(const char inputWAV[], const char inputDATA[], const char outp
 /* purpose: do all necessary calculations and handle buffering 	*/
 /* prerequisites: files are open; header data has been read		*/
 /* args: FILE* FILE* FILE*										*/
-/* returns: DWORD												*/
+/* returns: unsigned long int									*/
 /****************************************************************/
-DWORD wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
+unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
+	unsigned long int dataSize = 0, maxSize = 0;
+	DWORD bytesPerSample = (fmt.BitsPerSample/8);
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD dataSize = 0, maxSize = 0, bytesPerSample = (fmt.BitsPerSample/8);
 	BYTE bitsUsed = 0;
 	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
