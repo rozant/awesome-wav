@@ -63,7 +63,7 @@ class wav {
 		/* data operations */
 		DWORD getMaxBytesEncoded(const SHORT, const DWORD);
 		BYTE getMinBitsEncodedPS(const SHORT, const DWORD, const DWORD);
-		DWORD encode(FILE*, FILE*, FILE*);
+		unsigned long int encode(FILE*, FILE*, FILE*);
 		bool encode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
 		bool decode(FILE*, FILE*, const DWORD&);
 		bool decode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
@@ -75,7 +75,7 @@ class wav {
 		/* destructor */
 		~wav(void);
 		/* manipulation */
-		DWORD encode(const char[], const char[], const char[]);
+		unsigned long int encode(const char[], const char[], const char[]);
 		bool decode(const char[], const char[], const DWORD&);
 };
 
