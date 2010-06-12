@@ -456,7 +456,7 @@ int generateIV(unsigned char IV[16], const char *filename, unsigned long int fil
 	sha2_context sha_ctx;
 
 	for( foo = 0; foo < 8; foo++ ) {
-		buffer[foo] = (unsigned char)(filesize >> (foo << 3));
+		buffer[foo] = (unsigned char)((filesize >> (foo << 3)) & 0xFF);
 	}
 
 	sha2_starts(&sha_ctx, 0);
