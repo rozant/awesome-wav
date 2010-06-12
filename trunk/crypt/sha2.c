@@ -49,10 +49,10 @@
 #ifndef PUT_ULONG_BE
 #define PUT_ULONG_BE(n,b,i)                             \
 {                                                       \
-    (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
-    (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
-    (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
-    (b)[(i) + 3] = (unsigned char) ( (n)       );       \
+    (b)[(i)    ] = (unsigned char) ( ( (n) >> 24 ) & 0xFF );       \
+    (b)[(i) + 1] = (unsigned char) ( ( (n) >> 16 ) & 0xFF );       \
+    (b)[(i) + 2] = (unsigned char) ( ( (n) >>  8 ) & 0xFF );       \
+    (b)[(i) + 3] = (unsigned char) ( ( (n)       ) & 0xFF );       \
 }
 #endif
 
