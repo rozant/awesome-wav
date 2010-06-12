@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 		case ENCODE:
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				file_name = (char *)malloc((strlen(options.data)+3)*sizeof(char));
+				file_name = (char *)calloc((strlen(options.data)+3),sizeof(char));
 				memcpy(file_name,options.data,strlen(options.data));
 				strcat(file_name,".z");
 				ret = compress_file(options.data,file_name,options.comp);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 			}
 			/* in encryption is enabled */
 			if(options.enc_key != NULL) {
-				file_name = (char *)malloc((strlen(options.data)+5)*sizeof(char));
+				file_name = (char *)calloc((strlen(options.data)+5),sizeof(char));
 				memcpy(file_name,options.data,strlen(options.data));
 				strcat(file_name,".aes");
 				if(encrypt_file(options.data,file_name,options.enc_key) != AES_SUCCESS) {	
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
 			/* encode file */
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				file_name = (char *)malloc((strlen(options.data)+3)*sizeof(char));
+				file_name = (char *)calloc((strlen(options.data)+3),sizeof(char));
 				memcpy(file_name,options.data,strlen(options.data));
 				strcat(file_name,".z");
 				ret = compress_file(options.data,file_name,options.comp);
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 			}
 			/* in encryption is enabled */
 			if(options.enc_key != NULL) {
-				file_name = (char *)malloc((strlen(options.data)+5)*sizeof(char));
+				file_name = (char *)calloc((strlen(options.data)+5),sizeof(char));
 				memcpy(file_name,options.data,strlen(options.data));
 				strcat(file_name,".aes");
 				if(encrypt_file(options.data,file_name,options.enc_key) != AES_SUCCESS) {	
