@@ -94,6 +94,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				case 3:						/* arg 4 */
 					options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->test_out,argv[foo],strlen(argv[foo]));
+					break;
 				default:					/* others */;
 					break;
 			}
@@ -118,10 +119,14 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 /* returns: void												*/
 /****************************************************************/
 void opt_clean(opts *foo) {
-	free(foo->input_file);
-	free(foo->output_file);
-	free(foo->data);
-	free(foo->test_out);
+	if(foo->input_file != NULL)
+		free(foo->input_file);
+	if(foo->output_file != NULL)
+		free(foo->output_file);
+	if(foo->data != NULL)
+		free(foo->data);
+	if(foo->test_out != NULL)
+		free(foo->test_out);
 	if(foo->enc_key != NULL) {
 		memset(foo->enc_key,0,sizeof(foo->enc_key));
 		free(foo->enc_key);

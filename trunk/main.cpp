@@ -51,6 +51,8 @@ int main(int argc, char* argv[]) {
 	int ret = 0;
 	char *temp_str = NULL;
 	char *file_name = NULL;
+	char *data_z = "data.z";
+	char *data_aes = "data.aes";
 	opts options;
 	/* wav file definitaion */
 	wav in_wav;
@@ -113,9 +115,9 @@ int main(int argc, char* argv[]) {
 			break;
 		case DECODE:
 			/* if compression is enabled */
-			if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6); }
+			if(options.comp > 0) { temp_str = data_z; }
 			/* if encryption is enabled */
-			if(options.enc_key != NULL) { free(temp_str); temp_str = (char *)calloc(9,sizeof(char)); memcpy(temp_str,"data.aes",8); }
+			if(options.enc_key != NULL) { temp_str = data_aes; }
 			/* if neither is enabled */
 			if(options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
 			/* decode */
@@ -128,10 +130,10 @@ int main(int argc, char* argv[]) {
 			}
 			/* if encryption is enabled */
 			if(options.enc_key != NULL) {
-				if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6);
-				} else { free(temp_str); temp_str = options.output_file; }
-				if(decrypt_file("data.aes",temp_str,options.enc_key) != AES_SUCCESS) {
-					remove("data.aes");
+				if(options.comp > 0) { temp_str = data_z;
+				} else { temp_str = options.output_file; }
+				if(decrypt_file(data_aes,temp_str,options.enc_key) != AES_SUCCESS) {
+					remove(data_aes);
 					remove(temp_str);
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
@@ -140,7 +142,7 @@ int main(int argc, char* argv[]) {
 			}
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				ret = decompress_file("data.z",options.output_file);
+				ret = decompress_file(data_z,options.output_file);
 				if(ret != COMU_SUCCESS) {
 					printf("%s\n",comp_err(ret));
 					opt_clean(&options);
@@ -194,9 +196,9 @@ int main(int argc, char* argv[]) {
 			printf("Data was sucessfully encoded into the specified file.\n");
 			/* decode file */
 			/* if compression is enabled */
-			if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6); }
+			if(options.comp > 0) { temp_str = data_z; }
 			/* if encryption is enabled */
-			if(options.enc_key != NULL) { free(temp_str); temp_str = (char *)calloc(9,sizeof(char)); memcpy(temp_str,"data.aes",8); }
+			if(options.enc_key != NULL) { temp_str = data_aes; }
 			/* if neither is enabled */
 			if(options.comp == 0 && options.enc_key == NULL) { temp_str = options.test_out; }
 			/* decode */
@@ -207,21 +209,22 @@ int main(int argc, char* argv[]) {
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
+
 			/* if encryption is enabled */
 			if(options.enc_key != NULL) {
-				if(options.comp > 0) { free(temp_str); temp_str = (char *) calloc(7,sizeof(char)); memcpy(temp_str,"data.z",6);
-				} else { free(temp_str); temp_str = options.test_out; }
-				if(decrypt_file("data.aes",temp_str,options.enc_key) != AES_SUCCESS) {
-					remove("data.aes");
+				if(options.comp > 0) { temp_str = data_z;
+				} else { temp_str = options.test_out; }
+				if(decrypt_file(data_aes,temp_str,options.enc_key) != AES_SUCCESS) {
+					remove(data_aes);
 					remove(temp_str);
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
-				remove("data.aes");
+				remove(data_aes);
 			}
 			/* if compression is enabled */
 			if(options.comp > 0) {
-				ret = decompress_file("data.z",options.test_out);
+				ret = decompress_file(data_z,options.test_out);
 				if(ret != COMU_SUCCESS) {
 					printf("%s\n",comp_err(ret));
 					opt_clean(&options);
@@ -238,9 +241,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* cleanup */
-	if(options.comp != 0 || options.enc_key != NULL) {
-		free(temp_str);
-	}
 	opt_clean(&options);
 	/* its over! */
 	exit(EXIT_SUCCESS);
