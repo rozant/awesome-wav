@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
 	int ret = 0;
 	char *temp_str = NULL;
 	char *file_name = NULL;
-	char *data_z = "data.z";
-	char *data_aes = "data.aes";
+	char *data_z = (char *)"data.z";
+	char *data_aes = (char *)"data.aes";
 	opts options;
 	/* wav file definitaion */
 	wav in_wav;
