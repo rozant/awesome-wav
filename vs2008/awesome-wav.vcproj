@@ -275,10 +275,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\cd_da.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\main.cpp"
 				>
 			</File>
@@ -330,14 +326,6 @@
 			>
 			<File
 				RelativePath="..\arg_processor.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\buffer.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\cd_da.hpp"
 				>
 			</File>
 			<File

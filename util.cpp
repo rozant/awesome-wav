@@ -16,19 +16,6 @@
 #include "util.hpp"
 
 /****************************************************************/
-/* function: bytencmp											*/
-/* purpose: compares two bytes									*/
-/* args: const BYTE *, const BYTE *, size_t						*/
-/* returns: int													*/
-/****************************************************************/
-int bytencmp(const BYTE* b1, const BYTE* b2, size_t n) {
-	while(n--)
-		if(*b1++!=*b2++)
-			return *(BYTE*)(b1 - 1) - *(BYTE*)(b2 - 1);
-	return 0;
-}
-
-/****************************************************************/
 /* function: open												*/
 /* purpose: open a file.										*/
 /* args: const char *, const char * 							*/
@@ -42,9 +29,9 @@ FILE* open(const char *filename, const char *mode) {
 
 	#ifdef _DEBUGOUTPUT
 	if (aFile == NULL)
-		fprintf(stderr,"E: Failed to open %s with mode %s\n",filename,mode);
+		fprintf(stderr, "E: Failed to open %s with mode %s\n", filename, mode);
 	else
-		fprintf(stderr,"S: Opened %s with mode %s\n",filename,mode);
+		fprintf(stderr, "S: Opened %s with mode %s\n", filename, mode);
 	#endif
 
 	return aFile;
@@ -59,21 +46,21 @@ FILE* open(const char *filename, const char *mode) {
 /*		0 = closed incorrectly, or already closed				*/
 /****************************************************************/
 bool close(FILE *aFile) {
-	if( aFile) {
+	if ( aFile) {
 		if ( fclose( aFile ) ) {
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"E: Failed to close file\n");
+			fprintf(stderr, "E: Failed to close file\n");
 			#endif
 			return false;
 		} else {
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr,"S: Closed file\n");
+			fprintf(stderr, "S: Closed file\n");
 			#endif
 			return true;
 		}
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr,"E: File already closed\n");
+	fprintf(stderr, "E: File already closed\n");
 	#endif
 	return false;
 }
