@@ -19,16 +19,15 @@
 #include <stdio.h>
 
 /* non inline functions */
-int bytencmp(const BYTE* b1, const BYTE* b2, size_t n);
 FILE* open(const char *filename, const char *mode);
 bool close(FILE *aFile);
 
 /****************************************************************/
 /* function: setBit												*/
 /* purpose: sets the bit at a specific position					*/
-/* args: BYTE&, const char, const bool							*/
+/* args: BYTE&, const BYTE, const bool							*/
 /****************************************************************/
-inline void setBit(BYTE &b, const char index, const bool torf) {
+inline void setBit(BYTE &b, const BYTE index, const bool torf) {
 	if (torf) // Set bit to 1
 		b |= (1 << index); 
 	else // Set bit to 0
@@ -38,12 +37,12 @@ inline void setBit(BYTE &b, const char index, const bool torf) {
 /****************************************************************/
 /* function: getBit												*/
 /* purpose: gets the bit at a specific position					*/
-/* args: const BYTE, const char									*/
+/* args: const BYTE, const BYTE									*/
 /* returns: bool												*/
 /*		1 = bit is a 1											*/
 /*		0 = bit is a 0											*/
 /****************************************************************/
-inline bool getBit(const BYTE b, const char index) {
+inline bool getBit(const BYTE b, const BYTE index) {
 	return (bool)((1 << index) & b);
 }
 
