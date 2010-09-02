@@ -275,6 +275,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\logger.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\main.cpp"
 				>
 			</File>
@@ -330,6 +334,10 @@
 			</File>
 			<File
 				RelativePath="..\global.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\logger.hpp"
 				>
 			</File>
 			<File

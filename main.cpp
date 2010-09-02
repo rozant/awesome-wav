@@ -16,6 +16,7 @@
 #include "arg_processor.hpp"
 #include "global.hpp"
 #include "wav.hpp"
+#include "logger.hpp"
 #include "./compression/compress_util.hpp"
 #include "./crypt/aes_util.hpp"
 #include <stdio.h>
@@ -29,13 +30,13 @@
 /* returns: void												*/
 /****************************************************************/
 void usage(const char prog_name[]) {
-	fprintf(stderr, "Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n",prog_name);
-	fprintf(stderr, "Encode data into a wav file, or decode data from a wav file.\n\n");
-	fprintf(stderr, "  -e\tencode arg3 into arg1 and store in arg2\n");
-	fprintf(stderr, "  -d\tdecode arg2 from arg1 using key arg3\n");
-	fprintf(stderr, "  -c\tenable data compression.  If decoding, assume retrieved data is compressed\n");
-	fprintf(stderr, "  -aes\tenable data encryption.  must be followed by the key.\n");
-	fprintf(stderr, "\tdefaults to -c6. valid options are -c1 through -c9, from low to high compression\n");
+	LOG("Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n",prog_name);
+	LOG("Encode data into a wav file, or decode data from a wav file.\n\n");
+	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
+	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");
+	LOG("  -c\tenable data compression.  If decoding, assume retrieved data is compressed\n");
+	LOG("  -aes\tenable data encryption.  must be followed by the key.\n");
+	LOG("\tdefaults to -c6. valid options are -c1 through -c9, from low to high compression\n");
 	return;
 }
 
@@ -231,15 +232,16 @@ int main(int argc, char* argv[]) {
 			printf("Data was sucessfully decoded from the specified file.\n");
 			break;
 		default:
-			fprintf(stderr, "E: mode was not set.\n");
+			LOG("E: mode was not set.\n");
 			opt_clean(&options);
 			exit(EXIT_FAILURE);
 			break;
 	}
-
+	printf("AAAA.\n");		
 	// cleanup
 	opt_clean(&options);
 	// its over!
+	getLogger().print();
 	exit(EXIT_SUCCESS);
 }
 

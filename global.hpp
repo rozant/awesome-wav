@@ -21,6 +21,7 @@
 #endif
 #define BUFFER_MULT 16
 #define Z_MULT 2
+#define LOGGER_RESIZE_AMOUNT 128
 
 /* typedefs to make things look nice */
 #ifdef _WIN32
@@ -32,6 +33,14 @@
 	typedef uint32_t DWORD; 
 	typedef uint16_t SHORT;
 	typedef uint8_t BYTE;
+#endif
+
+#ifndef FREE
+#define FREE(p)	{ if (p != NULL) { free(p); (p) = NULL; } }
+#endif
+
+#ifndef LOG
+#define LOG(...) { char c[1024]; fprintf(c, __VA_ARGS__); getLogger().record(c);  }
 #endif
 
 #endif

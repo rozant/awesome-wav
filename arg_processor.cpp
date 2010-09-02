@@ -14,6 +14,7 @@
 * USA.															 *
 *****************************************************************/
 #include "arg_processor.hpp"
+#include "logger.hpp"
 #include "./crypt/sha2_util.hpp"
 #ifdef _DEBUGOUTPUT
 #include <stdio.h>
@@ -65,14 +66,15 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 						break;
 					default:				// invalid option
 						#ifdef _DEBUGOUTPUT
-						fprintf(stderr, "E: Invalid option '%s'.\n",argv[foo]);
+						//LOG( DOSTUFF("E: Invalid option '%s'.\n", argv[foo]) );
+						LOG("E: Invalid option '%s'.\n", argv[foo]);
 						#endif
 						return EXIT_FAILURE;
 						break;
 				}
 			} else {						// more invalid option
 				#ifdef _DEBUGOUTPUT
-				fprintf(stderr, "E: Invalid option '%s'.\n",argv[foo]);
+				LOG("E: Invalid option '%s'.\n", argv[foo]);
 				#endif
 				return EXIT_FAILURE;
 			}
@@ -81,19 +83,19 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 			switch(arg_count) {
 				case 0:						// arg 1
 					options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-					memcpy(options->input_file,argv[foo],strlen(argv[foo]));
+					memcpy(options->input_file, argv[foo], strlen(argv[foo]));
 					break;
 				case 1:						// arg 2
 					options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-					memcpy(options->output_file,argv[foo],strlen(argv[foo]));
+					memcpy(options->output_file, argv[foo], strlen(argv[foo]));
 					break;
 				case 2:						// arg 3
 					options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-					memcpy(options->data,argv[foo],strlen(argv[foo]));
+					memcpy(options->data, argv[foo], strlen(argv[foo]));
 					break;
 				case 3:						// arg 4
 					options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
-					memcpy(options->test_out,argv[foo],strlen(argv[foo]));
+					memcpy(options->test_out, argv[foo], strlen(argv[foo]));
 					break;
 				default:					// others
 					break;
@@ -104,7 +106,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 	// check for arguemnt errors that have not been caught yet
 	if ( (options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4) ) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Incorrect number of arguments.\n");
+		LOG("E: Incorrect number of arguments.\n");
 		#endif
 		return EXIT_FAILURE;
 	}
