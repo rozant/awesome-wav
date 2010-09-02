@@ -124,24 +124,24 @@ int RIFFreadRIFF(FILE *inFile, T *input) {
 		fread(&input->riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
 		fread(input->riff.Format, sizeof(BYTE), 4, inFile)) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Read RIFF header\n");
+		LOG("S: Read RIFF header\n");
 		#endif
 	} else {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to read RIFF header: Could not read bytes\n");
+		LOG("E: Failed to read RIFF header: Could not read bytes\n");
 		#endif
 		return RIFF_READ_FAIL;
 	}
 	// basic validation
 	if (memcmp(input->riff.ChunkID, "RIFF", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid RIFF header: ChunkID != 'RIFF'\n");
-		fprintf(stderr, "\tChunkID == %s\n", (char*)input->riff.ChunkID);
+		LOG("E: Invalid RIFF header: ChunkID != 'RIFF'\n");
+		LOG("\tChunkID == %s\n", (char*)input->riff.ChunkID);
 		#endif
 		return RIFF_VALID_FAIL;
 	} else if (input->riff.ChunkSize == 0) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid RIFF header: Chunk Size canot be 0\n");
+		LOG("E: Invalid RIFF header: Chunk Size canot be 0\n");
 		#endif
 		return RIFF_VALID_FAIL;
 	}
@@ -175,40 +175,40 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 					fread(&input->fmt.ChannelMask, sizeof(DWORD), 1, inFile) &&
 					fread(input->fmt.SubFormat, sizeof(BYTE), 16, inFile))) {
 					#ifdef _DEBUGOUTPUT
-					fprintf(stderr, "E: Failed to read FMT header: Could not read bytes\n");
+					LOG("E: Failed to read FMT header: Could not read bytes\n");
 					#endif
 					return RIFF_READ_FAIL;
 				}
 			} else if (input->fmt.ExtraFormatBytes != 0) {
 				#ifdef _DEBUGOUTPUT
-				fprintf(stderr, "E: Invalid FMT header. Incorrect number of extra format bits.\n");
-				fprintf(stderr, "\tExtra format bytes == %u\n", (unsigned int)input->fmt.ExtraFormatBytes);
+				LOG("E: Invalid FMT header. Incorrect number of extra format bits.\n");
+				LOG("\tExtra format bytes == %u\n", (unsigned int)input->fmt.ExtraFormatBytes);
 				#endif
 				return RIFF_VALID_FAIL;
 			}
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr, "S: Read Extended FMT header\n");
+			LOG("S: Read Extended FMT header\n");
 			#endif
 		} else {
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr, "S: Read FMT header\n");
+			LOG("S: Read FMT header\n");
 			#endif
 		}
 	} else {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to read FMT header: Could not read bytes\n");
+		LOG("E: Failed to read FMT header: Could not read bytes\n");
 		#endif
 		return RIFF_READ_FAIL;
 	}
 	if (memcmp(input->fmt.SubchunkID, "fmt ", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid FMT header: SubchunkID != 'fmt '\n");
-		fprintf(stderr, "\tSubchunkID == %s\n", (char*)input->fmt.SubchunkID);
+		LOG("E: Invalid FMT header: SubchunkID != 'fmt '\n");
+		LOG("\tSubchunkID == %s\n", (char*)input->fmt.SubchunkID);
 		#endif
 		return RIFF_VALID_FAIL;
 	} else if (input->fmt.SubchunkSize != 16 && input->fmt.SubchunkSize != 18 && input->fmt.SubchunkSize != 40) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid FMT header: invalid SubchunkSize\n");
+		LOG("E: Invalid FMT header: invalid SubchunkSize\n");
 		#endif
 		return RIFF_VALID_FAIL;
 	}
@@ -230,17 +230,17 @@ int RIFFreadFACT(FILE *inFile, T *input) {
 		fread(&input->fact->SampleLength, sizeof(DWORD), 1, inFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Read FACT header\n");
+		LOG("S: Read FACT header\n");
 		#endif
 	} else {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to read FACT header: Could not read bytes\n");
+		LOG("E: Failed to read FACT header: Could not read bytes\n");
 		#endif
 		return RIFF_READ_FAIL;
 	}
 	if (input->fact->SubchunkSize != 4) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid FACT chunk size\n");
+		LOG("E: Invalid FACT chunk size\n");
 		#endif
 		return RIFF_VALID_FAIL;
 	}
@@ -266,7 +266,7 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 		input->peak->peak = (_PPEAK *)malloc(input->fmt.NumChannels * sizeof(_PPEAK));
 		if (input->peak->peak == NULL) {
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr, "E: Failed to read PEAK header: Could not allocate memory\n");
+			LOG("E: Failed to read PEAK header: Could not allocate memory\n");
 			#endif
 			return RIFF_READ_FAIL;
 		}
@@ -274,7 +274,7 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 			if (!(fread(&input->peak->peak[foo].Value, sizeof(float), 1, inFile) &&
 				fread(&input->peak->peak[foo].Position, sizeof(DWORD), 1, inFile))) {
 				#ifdef _DEBUGOUTPUT
-				fprintf(stderr, "E: Failed to read PEAK header: Could not read bytes\n");
+				LOG("E: Failed to read PEAK header: Could not read bytes\n");
 				#endif
 				return RIFF_READ_FAIL;
 			}
@@ -283,24 +283,24 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 			input->peak->bit_align = (SHORT *)malloc(sizeof(SHORT));
 			if (!fread(input->peak->bit_align, sizeof(SHORT), 1, inFile)) {
 				#ifdef _DEBUGOUTPUT
-				fprintf(stderr, "E: Failed to read PEAK header: Could not read bytes\n");
+				LOG("E: Failed to read PEAK header: Could not read bytes\n");
 				#endif
 				return RIFF_READ_FAIL;
 			}
 		}
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Read PEAK header\n");
+		LOG("S: Read PEAK header\n");
 		#endif
 	} else {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to read PEAK header: Could not read bytes\n");
+		LOG("E: Failed to read PEAK header: Could not read bytes\n");
 		#endif
 		return RIFF_READ_FAIL;
 	}
 	if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
 		input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid PEAK chunk size\n");
+		LOG("E: Invalid PEAK chunk size\n");
 		#endif
 		return RIFF_VALID_FAIL;
 	}
@@ -321,18 +321,18 @@ int RIFFreadDATA(FILE *inFile, T *input) {
 		fread(&input->data.SubchunkSize, sizeof(DWORD), 1, inFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Read DATA header\n");
+		LOG("S: Read DATA header\n");
 		#endif
 	} else {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to read DATA header: Could not read bytes\n");
+		LOG("E: Failed to read DATA header: Could not read bytes\n");
 		#endif
 		return RIFF_READ_FAIL;
 	}
 	if (memcmp(input->data.SubchunkID, (BYTE*)"data", 4) != 0) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Invalid DATA header: SubchunkID != 'data'\n");
-		fprintf(stderr, "\tSubchunkID == %s\n", (char*)input->data.SubchunkID);
+		LOG("E: Invalid DATA header: SubchunkID != 'data'\n");
+		LOG("\tSubchunkID == %s\n", (char*)input->data.SubchunkID);
 		#endif
 		return RIFF_VALID_FAIL;
 	}
@@ -352,7 +352,7 @@ int RIFFwrite(FILE *outFile, const T *input) {
 	int ret_val = 0;
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to write RIFF header: FILE not open\n");
+		LOG("E: Failed to write RIFF header: FILE not open\n");
 		#endif
 		return RIFF_FILE_CLOSED;
 	}
@@ -400,7 +400,7 @@ template <class T>
 int RIFFwriteRIFF(FILE *outFile, const T *input) {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to write RIFF header: FILE not open\n");
+		LOG("E: Failed to write RIFF header: FILE not open\n");
 		#endif
 		return RIFF_FILE_CLOSED;
 	}
@@ -410,12 +410,12 @@ int RIFFwriteRIFF(FILE *outFile, const T *input) {
 		fwrite(input->riff.Format, sizeof(BYTE), 4, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Wrote RIFF header\n");
+		LOG("S: Wrote RIFF header\n");
 		#endif
 		return RIFF_SUCCESS;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "E: Failed to write RIFF header: Could not write bytesn\n");
+	LOG("E: Failed to write RIFF header: Could not write bytesn\n");
 	#endif
 	return RIFF_WRITE_FAIL;
 }
@@ -432,7 +432,7 @@ template <class T>
 int RIFFwriteFMT(FILE *outFile, const T *input) {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to write FMT header: FILE not open\n");
+		LOG("E: Failed to write FMT header: FILE not open\n");
 		#endif
 		return RIFF_FILE_CLOSED;
 	}
@@ -456,12 +456,12 @@ int RIFFwriteFMT(FILE *outFile, const T *input) {
 			}
 		}
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Wrote FMT header\n");
+		LOG("S: Wrote FMT header\n");
 		#endif
 		return RIFF_SUCCESS;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "E: Failed to write FMT header: Could not write bytes\n");
+	LOG("E: Failed to write FMT header: Could not write bytes\n");
 	#endif
 	return RIFF_WRITE_FAIL;
 }
@@ -478,7 +478,7 @@ template <class T>
 int RIFFwriteFACT(FILE *outFile, const T *input) {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to write FACT header: FILE not open\n");
+		LOG("E: Failed to write FACT header: FILE not open\n");
 		#endif
 		return RIFF_FILE_CLOSED;
 	}
@@ -488,12 +488,12 @@ int RIFFwriteFACT(FILE *outFile, const T *input) {
 		fwrite(&input->fact->SampleLength, sizeof(DWORD), 1, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Wrote FACT header\n");
+		LOG("S: Wrote FACT header\n");
 		#endif
 		return RIFF_SUCCESS;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "E: Failed to write FACT header: Could not write bytes\n");
+	LOG("E: Failed to write FACT header: Could not write bytes\n");
 	#endif
 	return RIFF_WRITE_FAIL;
 }
@@ -510,7 +510,7 @@ template <class T>
 int RIFFwritePEAK(FILE *outFile, const T *input) {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to write PEAK header: FILE not open\n");
+		LOG("E: Failed to write PEAK header: FILE not open\n");
 		#endif
 		return RIFF_FILE_CLOSED;
 	}
@@ -522,12 +522,12 @@ int RIFFwritePEAK(FILE *outFile, const T *input) {
 		fwrite(input->peak->peak, sizeof(_PPEAK), input->fmt.NumChannels,outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Wrote PEAK header\n");
+		LOG("S: Wrote PEAK header\n");
 		#endif
 		return RIFF_SUCCESS;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "E: Failed to write PEAK header: Could not write bytes\n");
+	LOG("E: Failed to write PEAK header: Could not write bytes\n");
 	#endif
 	return RIFF_WRITE_FAIL;
 }
@@ -544,7 +544,7 @@ template <class T>
 int RIFFwriteDATA(FILE *outFile, const T *input) {
 	if (outFile == NULL) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: Failed to write DATA header: FILE not open\n");
+		LOG("E: Failed to write DATA header: FILE not open\n");
 		#endif
 		return RIFF_FILE_CLOSED;
 	}
@@ -553,12 +553,12 @@ int RIFFwriteDATA(FILE *outFile, const T *input) {
 		fwrite(&input->data.SubchunkSize, sizeof(DWORD), 1, outFile))
 	{
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "S: Wrote DATA header\n");
+		LOG("S: Wrote DATA header\n");
 		#endif
 		return RIFF_SUCCESS;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "E: Failed to write DATA header: Could not write bytes\n");
+	LOG("E: Failed to write DATA header: Could not write bytes\n");
 	#endif
 	return RIFF_WRITE_FAIL;
 }

@@ -13,6 +13,7 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
+#include "../logger.hpp"
 #include "aes_util.hpp"
 #include "sha2_util.hpp"
 #include "sha2.h"
@@ -262,7 +263,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	/* make sure that the file could possibly be what it is supposed to be */
 	if(filesize < 48) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: AES - File too short to be encrypted\n");
+		LOG("E: AES - File too short to be encrypted\n");
 		#endif
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
@@ -272,7 +273,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	}
 	if((filesize & 0x0F) != 0) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: AES - File size not a multiple of 16\n");
+		LOG("E: AES - File size not a multiple of 16\n");
 		#endif
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
@@ -286,7 +287,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	/* read the IV in */
 	if( fread( buffer, 1, 16, fin ) != 16 ) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: AES - Failed to read the IV\n");
+		LOG("E: AES - Failed to read the IV\n");
 		#endif
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);
@@ -295,7 +296,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
         return AES_READ_FAIL;
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "S: AES - Read the IV\n");
+	LOG("S: AES - Read the IV\n");
 	#endif
 	memcpy( IV, buffer, 16 );
 	lastn = IV[15] & 0x0F;
@@ -365,7 +366,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	}
 	if(memcmp(digest, buffer, 32) != 0) {
 		#ifdef _DEBUGOUTPUT
-		fprintf(stderr, "E: AES - HMAC check failed: wrong key or file corrupted\n");
+		LOG("E: AES - HMAC check failed: wrong key or file corrupted\n");
 		#endif
 		printf("Failed to decrypt file %s\n",filename);
 		secure_exit(buffer,digest,IV,&aes_ctx,&sha_ctx);

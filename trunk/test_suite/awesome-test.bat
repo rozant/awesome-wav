@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 title Awesome-WAV Batch Checker
 
-set PROGRAM=awesome-wav.exe
+set PROGRAM=..\bin\awesome-wav.exe
 set FILE=""
 set DATA=""
 set CURR_SERIES=""

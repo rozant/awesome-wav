@@ -14,6 +14,7 @@
 * USA.															 *
 *****************************************************************/
 #include "util.hpp"
+#include "logger.hpp"
 
 /****************************************************************/
 /* function: open												*/
@@ -28,10 +29,11 @@ FILE* open(const char *filename, const char *mode) {
 	aFile = fopen(filename, mode);
 
 	#ifdef _DEBUGOUTPUT
-	if (aFile == NULL)
-		fprintf(stderr, "E: Failed to open %s with mode %s\n", filename, mode);
-	else
-		fprintf(stderr, "S: Opened %s with mode %s\n", filename, mode);
+	if (aFile == NULL) {
+		LOG("E: Failed to open %s with mode %s\n", filename, mode);
+	} else {
+		LOG("S: Opened %s with mode %s\n", filename, mode);
+	}
 	#endif
 
 	return aFile;
@@ -49,18 +51,18 @@ bool close(FILE *aFile) {
 	if ( aFile) {
 		if ( fclose( aFile ) ) {
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr, "E: Failed to close file\n");
+			LOG("E: Failed to close file\n");
 			#endif
 			return false;
 		} else {
 			#ifdef _DEBUGOUTPUT
-			fprintf(stderr, "S: Closed file\n");
+			LOG("S: Closed file\n");
 			#endif
 			return true;
 		}
 	}
 	#ifdef _DEBUGOUTPUT
-	fprintf(stderr, "E: File already closed\n");
+	LOG("E: File already closed\n");
 	#endif
 	return false;
 }
