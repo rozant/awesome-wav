@@ -40,7 +40,7 @@
 #endif
 
 #ifndef LOG
-#define LOG(...) { char c[1024]; fprintf(c, __VA_ARGS__); getLogger().record(c);  }
+#define LOG(...) { char c[1024]; sprintf(c, __VA_ARGS__); getLogger().record(c);  }
 #endif
 
 #endif
