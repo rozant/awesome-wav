@@ -17,6 +17,7 @@
 #define __riff_func_hpp__
 #include "global.hpp"
 #include "riff.hpp"
+#include "logger.hpp"
 #include <stdio.h>
 #include <string.h>
 

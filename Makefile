@@ -17,7 +17,7 @@ OFLAGS= -O2
 CFLAGS= -Wall -lz -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS = -lm
-FILES = main.cpp wav.cpp cd_da.cpp arg_processor.cpp util.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c ./crypt/aes_util.cpp ./crypt/aes.c
+FILES = main.cpp wav.cpp arg_processor.cpp util.cpp logger.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c ./crypt/aes_util.cpp ./crypt/aes.c
 
 all:
 	g++ $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
@@ -42,3 +42,4 @@ clean:
 
 clean-all: clean
 	rm -f ./bin/$(PROGNAME)*
+	rm -f ./test_suite/$(PROGNAME)*
