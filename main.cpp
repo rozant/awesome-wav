@@ -48,7 +48,7 @@ void usage(const char prog_name[]) {
 /****************************************************************/
 int main(int argc, char* argv[]) {
 	unsigned long int size = 0x00, temp;
-	int ret = 0;
+	int ret = EXIT_SUCCESS;
 	char *temp_str = NULL;
 	char *file_name = NULL;
 	char *data_z = (char *)"data.z";
