@@ -28,6 +28,8 @@
 int compress_file(const char *filename, const char *destfile, const char level) {
 	FILE *fin = NULL, *fout = NULL;
 
+	printf("Compressing file %s\n",filename);
+
 	/* open our files */
 	fin = fopen(filename,"rb");
 	if(fin == NULL) {
@@ -97,6 +99,8 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 /****************************************************************/
 int decompress_file(const char *filename, const char *destfile) {
 	FILE *fin = NULL, *fout = NULL;
+
+	printf("Decompressing file %s\n",filename);
 
 	/* open our files */
 	fin = fopen(filename,"rb");

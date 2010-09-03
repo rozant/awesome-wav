@@ -46,6 +46,8 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	off_t filesize, offset;
 	#endif
 
+	printf("Encrypting file %s\n",filename);
+
 	/* open our files */
 	fin = fopen(filename,"rb");
 	if(fin == NULL) {
@@ -217,6 +219,8 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	#else
 	off_t filesize, offset;
 	#endif
+
+	printf("Decrypting file %s\n",filename);
 
 	/* open our files */
 	fin = fopen(filename,"rb");
