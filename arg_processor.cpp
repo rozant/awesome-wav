@@ -65,17 +65,12 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 						}
 						break;
 					default:				// invalid option
-						#ifdef _DEBUGOUTPUT
-						//LOG( DOSTUFF("E: Invalid option '%s'.\n", argv[foo]) );
-						LOG("E: Invalid option '%s'.\n", argv[foo]);
-						#endif
+						LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 						return EXIT_FAILURE;
 						break;
 				}
 			} else {						// more invalid option
-				#ifdef _DEBUGOUTPUT
-				LOG("E: Invalid option '%s'.\n", argv[foo]);
-				#endif
+				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 				return EXIT_FAILURE;
 			}
 		} else {
@@ -105,9 +100,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 	}
 	// check for arguemnt errors that have not been caught yet
 	if ( (options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4) ) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Incorrect number of arguments.\n");
-		#endif
+		LOG_DEBUG("E: Incorrect number of arguments.\n");
 		return EXIT_FAILURE;
 	}
 	// its over
