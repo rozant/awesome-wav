@@ -30,9 +30,9 @@ FILE* open(const char *filename, const char *mode) {
 
 	#ifdef _DEBUGOUTPUT
 	if (aFile == NULL) {
-		LOG("E: Failed to open %s with mode %s\n", filename, mode);
+		LOG_DEBUG("E: Failed to open %s with mode %s\n", filename, mode);
 	} else {
-		LOG("S: Opened %s with mode %s\n", filename, mode);
+		LOG_DEBUG("S: Opened %s with mode %s\n", filename, mode);
 	}
 	#endif
 
@@ -48,22 +48,16 @@ FILE* open(const char *filename, const char *mode) {
 /*		0 = closed incorrectly, or already closed				*/
 /****************************************************************/
 bool close(FILE *aFile) {
-	if ( aFile) {
-		if ( fclose( aFile ) ) {
-			#ifdef _DEBUGOUTPUT
-			LOG("E: Failed to close file\n");
-			#endif
+	if (aFile) {
+		if (fclose(aFile)) {
+			LOG_DEBUG("E: Failed to close file\n");
 			return false;
 		} else {
-			#ifdef _DEBUGOUTPUT
-			LOG("S: Closed file\n");
-			#endif
+			LOG_DEBUG("S: Closed file\n");
 			return true;
 		}
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("E: File already closed\n");
-	#endif
+	LOG_DEBUG("E: File already closed\n");
 	return false;
 }
 

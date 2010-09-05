@@ -30,7 +30,7 @@
 /* returns: void												*/
 /****************************************************************/
 void usage(const char prog_name[]) {
-	LOG("Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n",prog_name);
+	LOG("Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n", prog_name);
 	LOG("Encode data into a wav file, or decode data from a wav file.\n\n");
 	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
 	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");

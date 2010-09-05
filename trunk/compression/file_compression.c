@@ -35,7 +35,7 @@ int def(FILE *source, FILE *dest, const int level) {
 	unsigned char in[Z_CHUNK];
 	unsigned char out[Z_CHUNK];
 
-	/* allocate deflate state */
+	// allocate deflate state
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
 	strm.opaque = Z_NULL;
@@ -44,7 +44,7 @@ int def(FILE *source, FILE *dest, const int level) {
 		return ret;
 	}
 
-	/* compress until end of file */
+	// compress until end of file
 	do {
 		strm.avail_in = fread(in, 1, Z_CHUNK, source);
 		if (ferror(source)) {
@@ -54,14 +54,14 @@ int def(FILE *source, FILE *dest, const int level) {
 		flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
 		strm.next_in = in;
 
-		/* run deflate() on input until output buffer not full, finish
-		   compression if all of source has been read in */
+		// run deflate() on input until output buffer not full, finish
+		// compression if all of source has been read in
 		do {
 			strm.avail_out = Z_CHUNK;
 			strm.next_out = out;
-								 /* no bad return value */
+								 // no bad return value
 			ret = deflate(&strm, flush);
-								 /* state not clobbered */
+								 // state not clobbered
 			assert(ret != Z_STREAM_ERROR);
 			have = Z_CHUNK - strm.avail_out;
 			if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
@@ -69,13 +69,13 @@ int def(FILE *source, FILE *dest, const int level) {
 				return Z_ERRNO;
 			}
 		} while (strm.avail_out == 0);
-								 /* all input will be used */
+								 // all input will be used
 		assert(strm.avail_in == 0);
-		/* done when last data in file processed */
+		// done when last data in file processed
 	} while (flush != Z_FINISH);
-	assert(ret == Z_STREAM_END); /* stream will be complete */
+	assert(ret == Z_STREAM_END); // stream will be complete
 
-	/* clean up and return */
+	// clean up and return
 	(void)deflateEnd(&strm);
 	return Z_OK;
 }
@@ -93,7 +93,7 @@ int inf(FILE *source, FILE *dest) {
 	unsigned char in[Z_CHUNK];
 	unsigned char out[Z_CHUNK];
 
-	/* allocate inflate state */
+	// allocate inflate state
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
 	strm.opaque = Z_NULL;
@@ -104,7 +104,7 @@ int inf(FILE *source, FILE *dest) {
 		return ret;
 	}
 
-	/* decompress until deflate stream ends or end of file */
+	// decompress until deflate stream ends or end of file
 	do {
 		strm.avail_in = fread(in, 1, Z_CHUNK, source);
 		if (ferror(source)) {
@@ -115,16 +115,16 @@ int inf(FILE *source, FILE *dest) {
 			break;
 		strm.next_in = in;
 
-		/* run inflate() on input until output buffer not full */
+		// run inflate() on input until output buffer not full
 		do {
 			strm.avail_out = Z_CHUNK;
 			strm.next_out = out;
 			ret = inflate(&strm, Z_NO_FLUSH);
-								 /* state not clobbered */
+								 // state not clobbered
 			assert(ret != Z_STREAM_ERROR);
 			switch (ret) {
 				case Z_NEED_DICT:
-								 /* and fall through */
+								 // and fall through
 					ret = Z_DATA_ERROR;
 				case Z_DATA_ERROR:
 				case Z_MEM_ERROR:
@@ -137,10 +137,10 @@ int inf(FILE *source, FILE *dest) {
 				return Z_ERRNO;
 			}
 		} while (strm.avail_out == 0);
-		/* done when inflate() says it's done */
+		// done when inflate() says it's done
 	} while (ret != Z_STREAM_END);
 
-	/* clean up and return */
+	// clean up and return
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }

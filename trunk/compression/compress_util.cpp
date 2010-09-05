@@ -28,66 +28,46 @@
 int compress_file(const char *filename, const char *destfile, const char level) {
 	FILE *fin = NULL, *fout = NULL;
 
-	printf("Compressing file %s\n",filename);
+	printf("Compressing file %s\n", filename);
 
 	/* open our files */
-	fin = fopen(filename,"rb");
-	if(fin == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to open %s with mode rb\n",filename);
-		#endif
-		printf("Failed to compress file %s\n",filename);
+	fin = fopen(filename, "rb");
+	if (fin == NULL) {
+		LOG_DEBUG("E: ZLIB - Failed to open %s with mode rb\n", filename);
+		printf("Failed to compress file %s\n", filename);
 		return COMU_IFILE_FAIL;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Opened %s with mode rb\n",filename);
-	#endif
-	fout = fopen(destfile,"wb");
-	if(fout == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to open %s with mode wb\n",destfile);
-		#endif
-		printf("Failed to compress file %s\n",filename);
+	LOG_DEBUG("S: ZLIB - Opened %s with mode rb\n", filename);
+	fout = fopen(destfile, "wb");
+	if (fout == NULL) {
+		LOG_DEBUG("E: ZLIB - Failed to open %s with mode wb\n", destfile);
+		printf("Failed to compress file %s\n", filename);
 		fclose(fin);
 		return COMU_OFILE_FAIL;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Opened %s with mode wb\n",destfile);
-	#endif
+	LOG_DEBUG("S: ZLIB - Opened %s with mode wb\n",destfile);
 
-	/* compress the file */
-	if( def(fin, fout, level) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Could not compress data file.\n");
-		#endif
-		printf("Failed to compress file %s\n",filename);
+	// compress the file
+	if (def(fin, fout, level) != 0) {
+		LOG_DEBUG("E: ZLIB - Could not compress data file.\n");
+		printf("Failed to compress file %s\n", filename);
 		fclose(fin);
 		fclose(fout);
 		remove(destfile);
 		return COMU_FAIL;
 	}
 
-	/* close files and exit */
-	if(fclose(fout)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to close encrypted file\n");
-		#endif
+	// close files and exit
+	if (fclose(fout)) {
+		LOG_DEBUG("E: ZLIB - Failed to close encrypted file\n");
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Closed output file\n");
-	#endif
-	if(fclose(fin)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to close input file\n");
-		#endif
+	LOG_DEBUG("S: ZLIB - Closed output file\n");
+	if (fclose(fin)) {
+		LOG_DEBUG("E: ZLIB - Failed to close input file\n");
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Closed input file\n");
-	#endif
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Compressed input data.\n");
-	#endif
-	printf("File %s was compressed sucessfully.\n",filename);
+	LOG_DEBUG("S: ZLIB - Closed input file\n");
+	LOG_DEBUG("S: ZLIB - Compressed input data.\n");
+	printf("File %s was compressed sucessfully.\n", filename);
 	return COMU_SUCCESS;
 }
 
@@ -100,71 +80,49 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 int decompress_file(const char *filename, const char *destfile) {
 	FILE *fin = NULL, *fout = NULL;
 
-	printf("Decompressing file %s\n",filename);
+	printf("Decompressing file %s\n", filename);
 
-	/* open our files */
-	fin = fopen(filename,"rb");
-	if(fin == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to open %s with mode rb\n",filename);
-		#endif
-		printf("Failed to decompress file %s\n",filename);
+	// open our files
+	fin = fopen(filename, "rb");
+	if (fin == NULL) {
+		LOG_DEBUG("E: ZLIB - Failed to open %s with mode rb\n", filename);
+		printf("Failed to decompress file %s\n", filename);
 		return COMU_IFILE_FAIL;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Opened %s with mode rb\n",filename);
-	#endif
-	fout = fopen(destfile,"wb");
-	if(fout == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to open %s with mode wb\n",destfile);
-		#endif
-		printf("Failed to decompress file %s\n",filename);
+	LOG_DEBUG("S: ZLIB - Opened %s with mode rb\n", filename);
+	fout = fopen(destfile, "wb");
+	if (fout == NULL) {
+		LOG_DEBUG("E: ZLIB - Failed to open %s with mode wb\n",destfile);
+		printf("Failed to decompress file %s\n", filename);
 		fclose(fin);
 		return COMU_OFILE_FAIL;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Opened %s with mode wb\n",destfile);
-	#endif
+	LOG_DEBUG("S: ZLIB - Opened %s with mode wb\n", destfile);
 
-	/* decompress the file */
-	if( inf(fin, fout) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Could not decompress data file.\n");
-		#endif
-		printf("Failed to decompress file %s\n",filename);
+	// decompress the file
+	if (inf(fin, fout) != 0) {
+		LOG_DEBUG("E: ZLIB - Could not decompress data file.\n");
+		printf("Failed to decompress file %s\n", filename);
 		fclose(fin);
 		fclose(fout);
 		remove(destfile);
 		return COMU_FAIL;
 	}
 
-	/* close files and exit */
-	if(fclose(fout)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to close encrypted file\n");
-		#endif
+	// close files and exit
+	if (fclose(fout)) {
+		LOG_DEBUG("E: ZLIB - Failed to close encrypted file\n");
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Closed output file\n");
-	#endif
-	if(fclose(fin)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Failed to close input file\n");
-		#endif
+	LOG_DEBUG("S: ZLIB - Closed output file\n");
+	if (fclose(fin)) {
+		LOG_DEBUG("E: ZLIB - Failed to close input file\n");
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Closed input file\n");
-	#endif
-	#ifdef _DEBUGOUTPUT
-	LOG("S: ZLIB - Decompressed input data.\n");
-	#endif
-	if( remove("data.z") == -1) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: ZLIB - Could not remove temporary file data.z\n");
-		#endif
+	LOG_DEBUG("S: ZLIB - Closed input file\n");
+	LOG_DEBUG("S: ZLIB - Decompressed input data.\n");
+	if (remove("data.z") == -1) {
+		LOG_DEBUG("E: ZLIB - Could not remove temporary file data.z\n");
 	}
-	printf("File %s was decompressed sucessfully.\n",filename);
+	printf("File %s was decompressed sucessfully.\n", filename);
 	return COMU_SUCCESS;
 }
 

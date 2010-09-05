@@ -25,11 +25,11 @@
 /* returns: unsigned char *										*/
 /****************************************************************/
 unsigned char *sha2_key(const char *input_string) {
-	unsigned char *hash = (unsigned char *)malloc(32*sizeof(unsigned char));
-	if(hash == NULL) {
+	unsigned char *hash = (unsigned char *)malloc(32 * sizeof(unsigned char));
+	if (hash == NULL) {
 		return NULL;
 	}
-	sha2((const unsigned char *)input_string,strlen(input_string),hash,0);
+	sha2((const unsigned char *)input_string, strlen(input_string), hash, 0);
 	return hash;
 }
 
@@ -40,11 +40,11 @@ unsigned char *sha2_key(const char *input_string) {
 /* returns: unsigned char *										*/
 /****************************************************************/
 unsigned char *sha2_sum(const char *path) {
-	unsigned char *hash = (unsigned char *)malloc(32*sizeof(unsigned char));
-	if(hash == NULL) {
+	unsigned char *hash = (unsigned char *)malloc(32 * sizeof(unsigned char));
+	if (hash == NULL) {
 		return NULL;
 	}
-	sha2_file(path,hash,0);
+	sha2_file(path, hash, 0);
 	return hash;
 }
 

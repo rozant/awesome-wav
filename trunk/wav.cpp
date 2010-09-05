@@ -97,23 +97,16 @@ bool wav::validWAV(void) const {
 /****************************************************************/
 bool wav::validRIFF(void) const {
 	if (memcmp(riff.ChunkID, "RIFF", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid RIFF header: Format != 'RIFF'\n");
-		LOG("\tFormat == %s\n", (char *)riff.ChunkID);
-		#endif
+		LOG_DEBUG("E: Invalid RIFF header: Format != 'RIFF'\n");
+		LOG_DEBUG("\tFormat == %s\n", (char *)riff.ChunkID);
 		return false;
 	}
 	if (memcmp(riff.Format, "WAVE", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid RIFF header: Format != 'WAVE'\n");
-		LOG("\tFormat == %s\n", (char *)riff.Format);
-		#endif
+		LOG_DEBUG("E: Invalid RIFF header: Format != 'WAVE'\n");
+		LOG_DEBUG("\tFormat == %s\n", (char *)riff.Format);
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Valid RIFF header\n");
-	//LOG("S: Valid RIFF header\n");
-	#endif
+	LOG_DEBUG("S: Valid RIFF header\n");
 	return true;
 }
 
@@ -127,62 +120,52 @@ bool wav::validRIFF(void) const {
 /****************************************************************/
 bool wav::validFMT(void) const {
 	if (memcmp(fmt.SubchunkID, "fmt ", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid FMT header: Format != 'fmt '\n");
-		LOG("\tFormat == %s\n", (char *)fmt.SubchunkID);
-		#endif
+		LOG_DEBUG("E: Invalid FMT header: Format != 'fmt '\n");
+		LOG_DEBUG("\tFormat == %s\n", (char *)fmt.SubchunkID);
 		return false;
 	}
 	// check encoding method
 	if (fmt.AudioFormat != WAVE_FORMAT_PCM && fmt.AudioFormat != WAVE_FORMAT_IEEE_FLOAT) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid FMT header: AudioFormat != '%d' (PCM) or '%d' (IEEE FLOAT)\n", WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT);
-		LOG("\tAudioFormat == %u\n", (unsigned int)fmt.AudioFormat);
-		#endif
+		LOG_DEBUG("E: Invalid FMT header: AudioFormat != '%d' (PCM) or '%d' (IEEE FLOAT)\n", WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT);
+		LOG_DEBUG("\tAudioFormat == %u\n", (unsigned int)fmt.AudioFormat);
 		return false;
 	}
 	// check bits per sample
 	if (fmt.AudioFormat == WAVE_FORMAT_PCM) {
 		if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32) {
-			#ifdef _DEBUGOUTPUT
-			LOG("E: Invalid FMT header: Bits per sample = %u\n", (unsigned int)fmt.BitsPerSample);
-			LOG("\tBits per sample == %u\n", (unsigned int)fmt.BitsPerSample);
-			LOG("\tExpected Bits per sample to be '8', '16', '24', or 32\n");
-			#endif
+			LOG_DEBUG("E: Invalid FMT header: Bits per sample = %u\n", (unsigned int)fmt.BitsPerSample);
+			LOG_DEBUG("\tBits per sample == %u\n", (unsigned int)fmt.BitsPerSample);
+			LOG_DEBUG("\tExpected Bits per sample to be '8', '16', '24', or 32\n");
 			return false;
 		}
 	} else if (fmt.AudioFormat == WAVE_FORMAT_IEEE_FLOAT) {
 		if (fmt.BitsPerSample != 32 && fmt.BitsPerSample != 64) {
-			#ifdef _DEBUGOUTPUT
-			LOG("E: Invalid FMT header: Bits per sample = %u\n", (unsigned int)fmt.BitsPerSample);
-			LOG("\tBits per sample == %u\n", (unsigned int)fmt.BitsPerSample);
-			LOG("\tExpected Bits per sample to be '8', '16', '24', or 32\n");
-			#endif
+			LOG_DEBUG("E: Invalid FMT header: Bits per sample = %u\n", (unsigned int)fmt.BitsPerSample);
+			LOG_DEBUG("\tBits per sample == %u\n", (unsigned int)fmt.BitsPerSample);
+			LOG_DEBUG("\tExpected Bits per sample to be '8', '16', '24', or 32\n");
 			return false;
 		}
 	}
 	// check channel count
 	if (fmt.NumChannels > 2) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid FMT header: Num channels > 2\n");
-		LOG("\tNumChannels == %u\n", (unsigned int)fmt.NumChannels);
-		#endif
+		LOG_DEBUG("E: Invalid FMT header: Num channels > 2\n");
+		LOG_DEBUG("\tNumChannels == %u\n", (unsigned int)fmt.NumChannels);
 		return false;
 	}
 
 	#ifdef _DEBUGOUTPUT
-	LOG("S: Valid FMT header\n");
-	LOG("\tS: Bits per sample: %u\n", (unsigned int)fmt.BitsPerSample);
-	LOG("\tS: Block align: %u\n", (unsigned int)fmt.BlockAlign);
-	LOG("\tS: Byte rate: %u\n", (unsigned int)fmt.ByteRate);
-	LOG("\tS: Num channels: %u\n", (unsigned int)fmt.NumChannels);
-	LOG("\tS: Sample rate: %u\n", (unsigned int)fmt.SampleRate);
+	LOG_DEBUG("S: Valid FMT header\n");
+	LOG_DEBUG("\tS: Bits per sample: %u\n", (unsigned int)fmt.BitsPerSample);
+	LOG_DEBUG("\tS: Block align: %u\n", (unsigned int)fmt.BlockAlign);
+	LOG_DEBUG("\tS: Byte rate: %u\n", (unsigned int)fmt.ByteRate);
+	LOG_DEBUG("\tS: Num channels: %u\n", (unsigned int)fmt.NumChannels);
+	LOG_DEBUG("\tS: Sample rate: %u\n", (unsigned int)fmt.SampleRate);
 	if (fmt.SubchunkSize-16 != 0) {
-		LOG("\tS: Extra format bytes: %u\n", (unsigned int)fmt.ExtraFormatBytes);
+		LOG_DEBUG("\tS: Extra format bytes: %u\n", (unsigned int)fmt.ExtraFormatBytes);
 		if (fmt.ExtraFormatBytes == 22) {
-			LOG("\tS: Valid bits per sample: %u\n", (unsigned int)fmt.ValidBitsPerSample);
-			LOG("\tS: Channel mask: %u\n", (unsigned int)fmt.ChannelMask);
-			LOG("\tS: Sub format: %s\n", (char *)fmt.SubFormat);
+			LOG_DEBUG("\tS: Valid bits per sample: %u\n", (unsigned int)fmt.ValidBitsPerSample);
+			LOG_DEBUG("\tS: Channel mask: %u\n", (unsigned int)fmt.ChannelMask);
+			LOG_DEBUG("\tS: Sub format: %s\n", (char *)fmt.SubFormat);
 		}
 	}
 	#endif
@@ -202,15 +185,11 @@ bool wav::validFACT(void) const {
 		return true;
 	}
 	if (memcmp(fact->SubchunkID, "fact", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid FACT header: Format != 'fact'\n");
-		LOG("\tFormat == %s\n", (char *)fact->SubchunkID);
-		#endif
+		LOG_DEBUG("E: Invalid FACT header: Format != 'fact'\n");
+		LOG_DEBUG("\tFormat == %s\n", (char *)fact->SubchunkID);
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Valid FACT header\n");
-	#endif
+	LOG_DEBUG("S: Valid FACT header\n");
 	return true;
 }
 
@@ -224,21 +203,15 @@ bool wav::validFACT(void) const {
 /****************************************************************/
 bool wav::validDATA(void) const {
 	if (memcmp(data.SubchunkID, "data", 4) != 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid DATA header: Format != 'data'\n");
-		LOG("\tFormat == %s\n", (char *)data.SubchunkID);
-		#endif
+		LOG_DEBUG("E: Invalid DATA header: Format != 'data'\n");
+		LOG_DEBUG("\tFormat == %s\n", (char *)data.SubchunkID);
 		return false;
 	}
 	if (data.SubchunkSize == 0) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid DATA header: No DATA\n");
-		#endif
+		LOG_DEBUG("E: Invalid DATA header: No DATA\n");
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Valid DATA header\n");
-	#endif
+	LOG_DEBUG("S: Valid DATA header\n");
 	return true;
 }
 
@@ -291,33 +264,23 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	fseek(fInputDATA, 0, SEEK_END);
 	dataSize = ftell(fInputDATA);
 	fseek(fInputDATA, 0, SEEK_SET);
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Determined input data file size (%.*f MB)\n", 3, byteToMB(dataSize));
-	#endif
+	LOG_DEBUG("S: Determined input data file size (%.*f MB)\n", 3, byteToMB(dataSize));
 
 	// get the maximum number of bytes the wav file could hold
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
 	if (dataSize > maxSize) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Data file is too large (Want to store %.*f MB - Can fit %.*f MB)\n", 3, byteToMB(dataSize), 3, byteToMB(maxSize));
-		#endif
+		LOG_DEBUG("E: Data file is too large (Want to store %.*f MB - Can fit %.*f MB)\n", 3, byteToMB(dataSize), 3, byteToMB(maxSize));
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Data fits (Storing %.*f MB - Can Fit %.*f MB)\n", 3, byteToMB(dataSize), 3, byteToMB(maxSize));
-	#endif
+	LOG_DEBUG("S: Data fits (Storing %.*f MB - Can Fit %.*f MB)\n", 3, byteToMB(dataSize), 3, byteToMB(maxSize));
 
 	// get the minimum number of bits the wav file could encode per sample
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, dataSize, maxSize);
 	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: This should never happen %d\n", (int)bitsUsed);
-		#endif
+		LOG_DEBUG("E: This should never happen %d\n", (int)bitsUsed);
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
-	#endif
+	LOG_DEBUG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
 
 	// Write our headers and how many bits used
 	if (!RIFFwrite(fOutputWAV,this)) {
@@ -330,24 +293,18 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 
 	// Get memory for our buffers
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Failed to get memory for WAV buffer\n");
-		#endif
+		LOG_DEBUG("E: Failed to get memory for WAV buffer\n");
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
-	#endif
+	LOG_DEBUG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
 
 	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize, sizeof(BYTE))) == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Failed to get memory for DATA buffer\n");
-		#endif
+		LOG_DEBUG("E: Failed to get memory for DATA buffer\n");
 		free(wavBuffer);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	LOG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
+	LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
 	clock_t start = clock();
 	#endif
 
@@ -369,10 +326,8 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 		dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
 	}
 
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
-	LOG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
-	#endif
+	LOG_DEBUG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
+	LOG_DEBUG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
 	free(wavBuffer); free(dataBuffer);
 	return dataSize;
 }
@@ -392,15 +347,11 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 	BYTE* currPos_DataBuffer = dataBuffer;
 
 	if ((wavBufferSize == 0)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid WAV buffer size\n");
-		#endif
+		LOG_DEBUG("E: Invalid WAV buffer size\n");
 		return false;
 	}
 	if ((dataBufferSize == 0)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid DATA buffer size\n");
-		#endif
+		LOG_DEBUG("E: Invalid DATA buffer size\n");
 		return false;
 	}
 
@@ -597,9 +548,7 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 			}
 			break;
 		default:
-			#ifdef _DEBUGOUTPUT
-			LOG("E: Invalid number of bits used (%hu)\n", (unsigned short)bitsUsed);
-			#endif
+			LOG_DEBUG("E: Invalid number of bits used (%hu)\n", (unsigned short)bitsUsed);
 			return false;
 	}
 	return true;
@@ -651,26 +600,18 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	// get the maximum number of bytes the wav file could hold
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
 	if (fileSize > maxSize) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Data file is too large (Want to retrieve %.*f MB - Can retrieve %.*f MB)\n", 3, byteToMB(fileSize), 3, byteToMB(maxSize));
-		#endif
+		LOG_DEBUG("E: Data file is too large (Want to retrieve %.*f MB - Can retrieve %.*f MB)\n", 3, byteToMB(fileSize), 3, byteToMB(maxSize));
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Data fits (Retrieving %.*f MB - Can retrieve %.*f MB)\n", 3, byteToMB(fileSize), 3, byteToMB(maxSize));
-	#endif
+	LOG_DEBUG("S: Data fits (Retrieving %.*f MB - Can retrieve %.*f MB)\n", 3, byteToMB(fileSize), 3, byteToMB(maxSize));
 
 	// get the minimum number of bits the wav file could encode per sample
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, fileSize, maxSize);
 	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: This should never happen %d\n", (int)bitsUsed);
-		#endif
+		LOG_DEBUG("E: This should never happen %d\n", (int)bitsUsed);
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
-	#endif
+	LOG_DEBUG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
 
 	// Calculate the size of our buffers
 	maxWavBufferSize = BUFFER_MULT * (1024 * bytesPerSample);
@@ -678,24 +619,18 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 
 	// Get memory for our buffers
 	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Failed to get memory for WAV buffer\n");
-		#endif
+		LOG_DEBUG("E: Failed to get memory for WAV buffer\n");
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
-	#endif
+	LOG_DEBUG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
 
 	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize, sizeof(BYTE))) == NULL) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Failed to get memory for DATA buffer\n");
-		#endif
+		LOG_DEBUG("E: Failed to get memory for DATA buffer\n");
 		free(wavBuffer);
 		return false;
 	}
 	#ifdef _DEBUGOUTPUT
-	LOG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
+	LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
 	clock_t start = clock();
 	#endif
 
@@ -725,10 +660,8 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 		}
 	}
 
-	#ifdef _DEBUGOUTPUT
-	LOG("S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
-	LOG("S: Number of bytes retrieved: %u\n", (unsigned int)count);
-	#endif
+	LOG_DEBUG("S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
+	LOG_DEBUG("S: Number of bytes retrieved: %u\n", (unsigned int)count);
 	free(wavBuffer); free(dataBuffer);
 	return true;
 }
@@ -747,15 +680,11 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 	BYTE* currPos_DataBuffer = dataBuffer;
 
 	if ((wavBufferSize == 0)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid WAV buffer size\n");
-		#endif
+		LOG_DEBUG("E: Invalid WAV buffer size\n");
 		return false;
 	}
 	if ((dataBufferSize == 0)) {
-		#ifdef _DEBUGOUTPUT
-		LOG("E: Invalid DATA buffer size\n");
-		#endif
+		LOG_DEBUG("E: Invalid DATA buffer size\n");
 		return false;
 	}
 
@@ -950,9 +879,7 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 			}
 			break;
 		default:
-			#ifdef _DEBUGOUTPUT
-			LOG("E: Invalid number of bits used (%hu)\n", (unsigned short)bitsUsed);
-			#endif
+			LOG_DEBUG("E: Invalid number of bits used (%hu)\n", (unsigned short)bitsUsed);
 			return false;
 	}
 	return true;

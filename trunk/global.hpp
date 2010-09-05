@@ -43,6 +43,17 @@
 #define LOG(...) { char c[1024]; sprintf(c, __VA_ARGS__); getLogger().record(c);  }
 #endif
 
+#ifdef _DEBUGOUTPUT
+	#ifndef LOG_DEBUG
+	#define LOG_DEBUG(...)  { char c[1024]; sprintf(c, __VA_ARGS__); getLogger().record(c);  }
+	#endif
+#endif
+#ifndef _DEBUGOUTPUT
+	#ifndef LOG_DEBUG
+	#define LOG_DEBUG(...)  
+	#endif
+#endif
+
 #endif
 
 /****************************************************************/
