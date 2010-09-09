@@ -1,7 +1,11 @@
 /*
  *  FIPS-197 compliant AES implementation
  *
- *  Copyright (C) 2006-2010, Paul Bakker <polarssl_maintainer at polarssl.org>
+ *  Copyright (C) 2006-2010, Brainspark B.V.
+ *
+ *  This file is part of PolarSSL (http://www.polarssl.org)
+ *  Lead Maintainer: Paul Bakker <polarssl_maintainer at polarssl.org>
+ *
  *  All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,11 +29,11 @@
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
 
-#include "./config.h"
+#include "config.h"
 
 #if defined(POLARSSL_AES_C)
 
-#include "./aes.h"
+#include "aes.h"
 
 #include <string.h>
 
@@ -49,10 +53,10 @@
 #ifndef PUT_ULONG_LE
 #define PUT_ULONG_LE(n,b,i)                             \
 {                                                       \
-    (b)[(i)    ] = (unsigned char) ( ( (n)       ) & 0xFF );       \
-    (b)[(i) + 1] = (unsigned char) ( ( (n) >>  8 ) & 0xFF );       \
-    (b)[(i) + 2] = (unsigned char) ( ( (n) >> 16 ) & 0xFF );       \
-    (b)[(i) + 3] = (unsigned char) ( ( (n) >> 24 ) & 0xFF );       \
+    (b)[(i)    ] = (unsigned char) ( (n)       );       \
+    (b)[(i) + 1] = (unsigned char) ( (n) >>  8 );       \
+    (b)[(i) + 2] = (unsigned char) ( (n) >> 16 );       \
+    (b)[(i) + 3] = (unsigned char) ( (n) >> 24 );       \
 }
 #endif
 
