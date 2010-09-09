@@ -1,7 +1,5 @@
 aes.c
 aes.h
-padlock.c
-padlock.h
 sha2.c
 sha2.h
 config.h
