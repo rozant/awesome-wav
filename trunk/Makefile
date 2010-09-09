@@ -14,9 +14,9 @@
 PROGNAME=awesome-wav
 INSTLOC=/usr/bin
 OFLAGS= -O2
-CFLAGS= -Wall -lz -D_FILE_OFFSET_BITS=64
+CFLAGS= -Wall -Wextra -lz -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
-LDFLAGS = -lm
+LDFLAGS =
 FILES = main.cpp wav.cpp arg_processor.cpp util.cpp logger.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c ./crypt/aes_util.cpp ./crypt/aes.c
 
 all:
