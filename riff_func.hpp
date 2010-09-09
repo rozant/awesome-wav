@@ -234,8 +234,16 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 	if (fread(input->peak->SubchunkID, sizeof(BYTE), 4, inFile) &&
 		fread(&input->peak->SubchunkSize, sizeof(DWORD), 1, inFile) &&
 		fread(&input->peak->Version, sizeof(DWORD), 1, inFile) &&
-		fread(&input->peak->timestamp, sizeof(DWORD), 1, inFile))
+		fread(&input->peak->timestamp, sizeof(DWORD), 1, inFile)) 
 	{
+		// make sure peak size is valid
+		if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
+			input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
+			LOG_DEBUG("E: Invalid PEAK chunk size\n");
+			return RIFF_VALID_FAIL;
+		}
+
+		// allocate and read in the peak data for each channel
 		input->peak->peak = (_PPEAK *)malloc(input->fmt.NumChannels * sizeof(_PPEAK));
 		if (input->peak->peak == NULL) {
 			LOG_DEBUG("E: Failed to read PEAK header: Could not allocate memory\n");
@@ -248,6 +256,8 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 				return RIFF_READ_FAIL;
 			}
 		}
+
+		// read the 64-bit align if it exists
 		if (input->peak->SubchunkSize == (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
 			input->peak->bit_align = (SHORT *)malloc(sizeof(SHORT));
 			if (input->peak->bit_align == NULL) {
@@ -264,11 +274,7 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 		LOG_DEBUG("E: Failed to read PEAK header: Could not read bytes\n");
 		return RIFF_READ_FAIL;
 	}
-	if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
-		input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
-		LOG_DEBUG("E: Invalid PEAK chunk size\n");
-		return RIFF_VALID_FAIL;
-	}
+
 	return RIFF_SUCCESS;
 }
 
@@ -452,12 +458,23 @@ int RIFFwritePEAK(FILE *outFile, const T *input) {
 		return RIFF_FILE_CLOSED;
 	}
 
+	// write the peak chunk
 	if (fwrite(input->peak->SubchunkID, sizeof(BYTE), 4, outFile) &&
 		fwrite(&input->peak->SubchunkSize, sizeof(DWORD), 1, outFile) &&
 		fwrite(&input->peak->Version, sizeof(DWORD), 1, outFile) &&
 		fwrite(&input->peak->timestamp, sizeof(DWORD), 1, outFile) &&
 		fwrite(input->peak->peak, sizeof(_PPEAK), input->fmt.NumChannels,outFile))
 	{
+		// if 64-bit align was used, write it
+		if(input->peak->bit_align != NULL) {
+			if(fwrite(&input->peak->bit_align, sizeof(SHORT), 1, outFile)) {
+				LOG_DEBUG("S: Wrote PEAK header\n");
+				return RIFF_SUCCESS;
+			} else {
+				LOG_DEBUG("E: Failed to write PEAK header: Could not write bytes\n");
+				return RIFF_WRITE_FAIL;
+			}
+		}
 		LOG_DEBUG("S: Wrote PEAK header\n");
 		return RIFF_SUCCESS;
 	}
