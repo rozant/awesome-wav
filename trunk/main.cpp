@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 			// encode
 			size = in_wav.encode(options.input_file, options.data, options.output_file);
 			// cleanup
-			if (options.enc_key != NULL) { remove(options.data); }
+			if (options.enc_key != NULL || options.comp > 0) { remove(options.data); }
 			// if failed, cleanup
 			if (size == 0x00) {
 				printf("Failed to encode data.\n");
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
 			// encode
 			size = in_wav.encode(options.input_file, options.data, options.output_file);
 			// cleanup
-			if (options.enc_key != NULL) { remove(options.data); }
+			if (options.enc_key != NULL || options.comp > 0) { remove(options.data); }
 			// if failed, cleanup
 			if (size == 0x00) {
 				printf("Failed to encode data.\n");
