@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
 			printf("Data was sucessfully decoded from the specified file.\n");
 			break;
 		default:
-			LOG("E: mode was not set.\n");
+			LOG_DEBUG("E: mode was not set.\n");
 			opt_clean(&options);
 			getLogger().print();
 			exit(EXIT_FAILURE);

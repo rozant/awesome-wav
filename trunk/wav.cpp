@@ -225,19 +225,23 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 	unsigned long int ret_val = 0;
 	FILE *fInputWAV, *fInputDATA, *fOutputWAV;
 
+	printf("Opening wave files...\n");
 	// Open up our input files
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
 	fInputDATA = open(inputDATA, "rb");
 	if (fInputDATA == NULL) { close(fInputWAV); return false; }
 
+	printf("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
 	if (!(RIFFread(fInputWAV,this) && validWAV())) { close(fInputWAV); close(fInputDATA); return false; }
 
+	printf("Opening input data...\n");
 	// open up output file
 	fOutputWAV = open(outputWAV, "wb");
 	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
+	printf("Encoding data...\n");
 	ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
 	close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 
@@ -565,17 +569,21 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	FILE *fInputWAV, *fOutputDATA;
 	bool ret_val = 0;
 
+	printf("Opening input wave file...\n");
 	// Open up our input file
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
 
+	printf("Validating input file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
 	if (!(RIFFread(fInputWAV,this) && validWAV())) { close(fInputWAV);  return false; }
 
+	printf("Opening output file...\n");
 	// open up our output file
 	fOutputDATA = open(outputDATA, "wb");
 	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
 
+	printf("Decoding data...\n");
 	ret_val = decode(fInputWAV, fOutputDATA, fileSize);
 
 	// clean up
