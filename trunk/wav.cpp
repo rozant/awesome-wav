@@ -52,6 +52,7 @@ wav::~wav(void) {
 /* function: wav::clean											*/
 /* purpose: eddective destructor for the wav class				*/
 /* args: void													*/
+/* returns: void												*/
 /****************************************************************/
 void wav::clean(void) {
 	if (fact != NULL) {

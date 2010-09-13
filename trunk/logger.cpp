@@ -18,29 +18,58 @@
 #include <stdlib.h>
 #include <string.h>
 
-logger& getLogger() {
+/****************************************************************/
+/* function: getLogger											*/
+/* purpose: get a new logger									*/
+/* args: void													*/
+/* returns: logger&												*/
+/****************************************************************/
+logger& getLogger(void) {
 	static logger l;
 	return l;
 }
 
-
+/****************************************************************/
+/* function: logger::logger										*/
+/* purpose: constructor for the logger class					*/
+/* args: void													*/
+/****************************************************************/
 logger::logger(void) {
 	maxEntries = 0;
 	numEntries = 0;
 	entries = NULL;
 }
 
+/****************************************************************/
+/* function: logger::~logger									*/
+/* purpose: constructor for the logger class					*/
+/* args: void													*/
+/****************************************************************/
 logger::~logger(void) {
 	clean();
 }
 
+/****************************************************************/
+/* function: logger::clean										*/
+/* purpose: clean out the logger construct properly				*/
+/* args: void													*/
+/* returns: void												*/
+/****************************************************************/
 void logger::clean(void) {
 	for (DWORD i = 0; i < numEntries; i++)
 		FREE(entries[i].message);
 	FREE(entries);
 }
 
-bool logger::record(char* msg) {
+/****************************************************************/
+/* function: logger::record										*/
+/* purpose: record a message into the log						*/
+/* args: const char*											*/
+/* returns: bool												*/
+/*		1 = added message sucessfuly							*/
+/*		0 = message log at max size								*/
+/****************************************************************/
+bool logger::record(const char* msg) {
 	int length = strlen(msg);
 
 	if (numEntries == maxEntries && !resize())
@@ -54,11 +83,25 @@ bool logger::record(char* msg) {
 	return true;
 }
 
+/****************************************************************/
+/* function: logger::print										*/
+/* purpose: print out the contents of the logger				*/
+/* args: void													*/
+/* returns: void												*/
+/****************************************************************/
 void logger::print() {
 	for (DWORD i = 0; i < numEntries; i++)
 		printf(entries[i].message);
 }
 
+/****************************************************************/
+/* function: logger::resize										*/
+/* purpose: resize the active log								*/
+/* args: void													*/
+/* returns: bool												*/
+/*		1 = resized sucessfuly									*/
+/*		0 = failed to resize log (out of memory)				*/
+/****************************************************************/
 bool logger::resize(void) {
 	_ENTRY *newEntries = NULL;
 
@@ -79,3 +122,8 @@ bool logger::resize(void) {
 
 	return true;
 }
+
+/****************************************************************/
+/****************************************************************/
+/****************************************************************/
+

@@ -36,11 +36,16 @@ class logger
 	public:
 		friend logger& getLogger();
 
-		bool record(char *);
+		bool record(const char *);
 		void print();
 		void clean();
 };
 
-logger& getLogger();
+logger& getLogger(void);
 
 #endif
+
+/****************************************************************/
+/****************************************************************/
+/****************************************************************/
+
