@@ -16,7 +16,7 @@
 #ifndef __sha2_util_hpp__
 #define __sha2_util_hpp__
 
-/* function prototypes */
+// function prototypes
 unsigned char *sha2_key(const char *);
 unsigned char *sha2_sum(const char *);
 

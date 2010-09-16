@@ -23,7 +23,7 @@
 
 /**********************Function Prototypes***********************/
 
-/* read */
+// read
 template <class T>
 int RIFFread(FILE *, T *);
 template <class T>
@@ -37,7 +37,7 @@ int RIFFreadPEAK(FILE *, T *);
 template <class T>
 int RIFFreadDATA(FILE *, T *);
 
-/* write */
+// write
 template <class T>
 int RIFFwrite(FILE *, const T *);
 template <class T>
@@ -183,6 +183,7 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 		LOG_DEBUG("E: Failed to read FMT header: Could not read bytes\n");
 		return RIFF_READ_FAIL;
 	}
+	// basic validation
 	if (memcmp(input->fmt.SubchunkID, "fmt ", 4) != 0) {
 		LOG_DEBUG("E: Invalid FMT header: SubchunkID != 'fmt '\n");
 		LOG_DEBUG("\tSubchunkID == %s\n", (char*)input->fmt.SubchunkID);
@@ -213,7 +214,12 @@ int RIFFreadFACT(FILE *inFile, T *input) {
 		LOG_DEBUG("E: Failed to read FACT header: Could not read bytes\n");
 		return RIFF_READ_FAIL;
 	}
-	if (input->fact->SubchunkSize != 4) {
+	// basic validation
+	if (memcmp(input->fact->SubchunkID, "fact", 4) != 0) {
+		LOG_DEBUG("E: Invalid FACT header: SubchunkID != 'fact'\n");
+		LOG_DEBUG("\tSubchunkID == %s\n", (char*)input->fact->SubchunkID);
+		return RIFF_VALID_FAIL;
+	} else if (input->fact->SubchunkSize != 4) {
 		LOG_DEBUG("E: Invalid FACT chunk size\n");
 		return RIFF_VALID_FAIL;
 	}
@@ -296,6 +302,7 @@ int RIFFreadDATA(FILE *inFile, T *input) {
 		LOG_DEBUG("E: Failed to read DATA header: Could not read bytes\n");
 		return RIFF_READ_FAIL;
 	}
+	// basic validation
 	if (memcmp(input->data.SubchunkID, (BYTE*)"data", 4) != 0) {
 		LOG_DEBUG("E: Invalid DATA header: SubchunkID != 'data'\n");
 		LOG_DEBUG("\tSubchunkID == %s\n", (char*)input->data.SubchunkID);
@@ -508,6 +515,7 @@ int RIFFwriteDATA(FILE *outFile, const T *input) {
 }
 
 #endif
+
 /****************************************************************/
 /****************************************************************/
 /****************************************************************/

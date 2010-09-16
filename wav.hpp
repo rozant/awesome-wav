@@ -29,7 +29,7 @@ class wav {
 		_FACT *fact;
 		_PEAK *peak;
 		_DATA data;
-		/* file operations */
+		// file operations
 		template <class T>
 		friend int RIFFread(FILE*,T *);
 		template <class T>
@@ -54,27 +54,27 @@ class wav {
 		friend int RIFFwritePEAK(FILE *, const T *);
 		template <class T>
 		friend int RIFFwriteDATA(FILE *, const T *);
-		/* data integrity checks */
+		// data integrity checks
 		bool validWAV(void) const;
 		bool validRIFF(void) const;
 		bool validFMT(void) const;
 		bool validFACT(void) const;
 		bool validDATA(void) const;
-		/* data operations */
+		// data operations
 		DWORD getMaxBytesEncoded(const SHORT, const DWORD);
 		BYTE getMinBitsEncodedPS(const SHORT, const DWORD, const DWORD);
 		unsigned long int encode(FILE*, FILE*, FILE*);
 		bool encode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
 		bool decode(FILE*, FILE*, const DWORD&);
 		bool decode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
-		/* other things */
+		// other things
 		void clean(void);
 	public:
-		/* constructors */
+		// constructors
 		wav(void);
-		/* destructor */
+		// destructor
 		~wav(void);
-		/* manipulation */
+		// manipulation
 		unsigned long int encode(const char[], const char[], const char[]);
 		bool decode(const char[], const char[], const DWORD&);
 };

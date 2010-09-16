@@ -337,7 +337,6 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	return dataSize;
 }
 
-
 /****************************************************************/
 /* function: encode												*/
 /* purpose: encode data into the audio file using a buffer	 	*/
@@ -918,7 +917,7 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 		case 32:
 			maxSize = (subchunkSize / bytesPerSample) << 1;
 			break;
-		case 64:
+		case 64: // allows use of bottom 48 bits because 16 bits is enough audio data
 			maxSize = (subchunkSize / bytesPerSample) << 2;
 			maxSize += (subchunkSize / bytesPerSample) << 1;
 			break;

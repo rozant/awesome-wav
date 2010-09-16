@@ -30,7 +30,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 
 	printf("Compressing file %s\n", filename);
 
-	/* open our files */
+	// open our files
 	fin = fopen(filename, "rb");
 	if (fin == NULL) {
 		LOG_DEBUG("E: ZLIB - Failed to open %s with mode rb\n", filename);
