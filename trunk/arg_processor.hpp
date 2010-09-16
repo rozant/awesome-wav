@@ -16,7 +16,7 @@
 #ifndef __arg_processor_hpp__
 #define __arg_processor_hpp__
 
-/* defines for all of the modes the program supports */
+// defines for all of the modes the program supports
 enum opt_modes {
 	NONE = 0,	
 	ENCODE = 1,
@@ -24,7 +24,7 @@ enum opt_modes {
 	TEST = 3
 };
 
-/* structure for holding options */
+// structure for holding options
 struct opts {
 	char *input_file;						// input wav name
 	char *output_file;						// output wav name
@@ -35,7 +35,7 @@ struct opts {
 	char comp;								// should data be/is data compressed
 };
 
-/* function prototypes */
+// function prototypes
 int arg_processor(const int argc, const char **argv, opts *options);
 void opt_init(opts *);
 void opt_clean(opts *);

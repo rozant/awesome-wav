@@ -20,7 +20,7 @@
 #define gettext(Msgid) ((const char *) (Msgid))
 #endif
 
-/* compress_util return codes */
+// compress_util return codes
 enum compress_util_ret_code {
 	COMU_OFILE_FAIL = -3,
 	COMU_IFILE_FAIL = -2,
@@ -28,7 +28,7 @@ enum compress_util_ret_code {
 	COMU_SUCCESS = 0
 };
 
-/* function prototypes */
+// function prototypes
 int compress_file(const char *, const char *, const char);
 int decompress_file(const char *, const char *);
 const char *comp_err(const int);

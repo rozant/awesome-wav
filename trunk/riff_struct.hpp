@@ -27,7 +27,7 @@
 struct _RIFF {
 	BYTE ChunkID[5]; // "RIFF"
 	DWORD ChunkSize; // file size - 8
-	BYTE Format[5]; // "WAVE"
+	BYTE Format[5];
 	_RIFF(void) { ChunkID[4] = 0; Format[4] = 0; return; }
 	~_RIFF(void) { return; }
 };
@@ -87,7 +87,7 @@ struct _PPEAK {
 /****************************************************************/
 struct _PEAK {
 	BYTE SubchunkID[5]; // "PEAK"
-	DWORD SubchunkSize; 
+	DWORD SubchunkSize;
 	DWORD Version;		// peak chunk version
 	DWORD timestamp;	// UNIX timestamp of creation
 	_PPEAK *peak;		// one for each channel
@@ -102,8 +102,8 @@ struct _PEAK {
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _DATA {
-	BYTE SubchunkID[5];
-	DWORD SubchunkSize;
+	BYTE SubchunkID[5];	// "data"
+	DWORD SubchunkSize;	// size of the byte array
 	BYTE *Data;
 	_DATA(void) { Data = NULL; SubchunkID[4] = 0; return; }
 	~_DATA(void) { free(Data); return; }

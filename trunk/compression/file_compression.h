@@ -21,10 +21,10 @@ extern "C" {
 #endif
 #include <stdio.h>
 
-/* chunk size for compression */
+// chunk size for compression
 #define Z_CHUNK (Z_MULT*16384)
 
-/* function prototypes */
+// function prototypes
 int def(FILE *source, FILE *dest, const int level);
 int inf(FILE *source, FILE *dest);
 const char * zerr(const int ret);

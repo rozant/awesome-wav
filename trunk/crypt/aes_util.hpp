@@ -27,7 +27,7 @@
 #define gettext(Msgid) ((const char *) (Msgid))
 #endif
 
-/* compress_util return codes */
+// compress_util return codes
 enum aes_util_ret_code {
 	AES_WRITE_FAIL = -5,
 	AES_READ_FAIL = -4,
@@ -37,7 +37,7 @@ enum aes_util_ret_code {
 	AES_SUCCESS = 0
 };
 
-/* function prototypes */
+// function prototypes
 int encrypt_file(const char *, const char *, const unsigned char *);
 int decrypt_file(const char *, const char *, const unsigned char *);
 #ifdef _WIN32

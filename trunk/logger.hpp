@@ -17,10 +17,18 @@
 #define __logger_hpp__
 #include "global.hpp"
 
+/****************************************************************/
+/* class: _ENTRY												*/
+/* purpose: store a single log message						 	*/
+/****************************************************************/
 struct _ENTRY {
 	char *message;
 };
 
+/****************************************************************/
+/* class: logger												*/
+/* purpose: store and manage log messages					 	*/
+/****************************************************************/
 class logger
 {
 	private:
