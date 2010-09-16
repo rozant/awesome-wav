@@ -260,7 +260,7 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /****************************************************************/
 unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	unsigned long int dataSize = 0, maxSize = 0;
-	DWORD bytesPerSample = (fmt.BitsPerSample/8);
+	DWORD bytesPerSample = (fmt.BitsPerSample >> 3);
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
 	BYTE bitsUsed = 0;
 	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
@@ -601,7 +601,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 /****************************************************************/
 bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD maxSize = 0, bytesPerSample = (fmt.BitsPerSample/8);
+	DWORD maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3);
 	BYTE bitsUsed = 0x00;
 	size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
@@ -900,7 +900,7 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 /* returns: DWORD												*/
 /****************************************************************/
 DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSize) {
-	DWORD maxSize, bytesPerSample = (bitsPerSample/8);
+	DWORD maxSize, bytesPerSample = (bitsPerSample >> 3);
 
 	// allows the use of only the bottom half of the bits per sample
 	switch (bitsPerSample) {
