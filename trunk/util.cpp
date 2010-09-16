@@ -25,8 +25,7 @@
 /*		NULL = opened incorrectly								*/
 /****************************************************************/
 FILE* open(const char *filename, const char *mode) {
-	FILE* aFile = NULL;
-	aFile = fopen(filename, mode);
+	FILE* aFile = fopen(filename, mode);
 
 	#ifdef _DEBUGOUTPUT
 	if (aFile == NULL) {
