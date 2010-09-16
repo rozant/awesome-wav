@@ -83,10 +83,7 @@ void wav::clean(void) {
 /*		0 = invalid header										*/
 /****************************************************************/
 bool wav::validWAV(void) const {
-	if (!(validRIFF() && validFMT() && validFACT() && validDATA())) {
-		return false;
-	}
-	return true;
+	return (validRIFF() && validFMT() && validFACT() && validDATA());
 }
 /****************************************************************/
 /* function: wav::validRIFF										*/
@@ -350,11 +347,11 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 	BYTE* currPos_WavBuffer = wavBuffer;
 	BYTE* currPos_DataBuffer = dataBuffer;
 
-	if ((wavBufferSize == 0)) {
+	if (wavBufferSize == 0) {
 		LOG_DEBUG("E: Invalid WAV buffer size\n");
 		return false;
 	}
-	if ((dataBufferSize == 0)) {
+	if (dataBufferSize == 0) {
 		LOG_DEBUG("E: Invalid DATA buffer size\n");
 		return false;
 	}
@@ -687,11 +684,11 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 	BYTE* currPos_WavBuffer = wavBuffer;
 	BYTE* currPos_DataBuffer = dataBuffer;
 
-	if ((wavBufferSize == 0)) {
+	if (wavBufferSize == 0) {
 		LOG_DEBUG("E: Invalid WAV buffer size\n");
 		return false;
 	}
-	if ((dataBufferSize == 0)) {
+	if (dataBufferSize == 0) {
 		LOG_DEBUG("E: Invalid DATA buffer size\n");
 		return false;
 	}
