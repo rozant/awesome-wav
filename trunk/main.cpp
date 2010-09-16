@@ -61,7 +61,6 @@ int main(int argc, char* argv[]) {
 	if (arg_processor(argc, (const char **)argv, &options) == EXIT_FAILURE) {
 		usage(argv[0]);
 		opt_clean(&options);
-		getLogger().print();
 		exit(EXIT_FAILURE);
 	}
 
@@ -235,14 +234,12 @@ int main(int argc, char* argv[]) {
 		default:
 			LOG_DEBUG("E: mode was not set.\n");
 			opt_clean(&options);
-			getLogger().print();
 			exit(EXIT_FAILURE);
 			break;
 	}	
 	// cleanup
 	opt_clean(&options);
 	// its over!
-	getLogger().print();
 	exit(EXIT_SUCCESS);
 }
 
