@@ -46,6 +46,7 @@ logger::logger(void) {
 /* args: void													*/
 /****************************************************************/
 logger::~logger(void) {
+	print();
 	clean();
 }
 

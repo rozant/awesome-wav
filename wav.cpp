@@ -919,7 +919,7 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 			break;
 		case 64: // allows use of bottom 48 bits because 16 bits is enough audio data
 			maxSize = (subchunkSize / bytesPerSample) << 2;
-			maxSize += (subchunkSize / bytesPerSample) << 1;
+			maxSize += ((subchunkSize / bytesPerSample) << 1);
 			break;
 		default:
 			maxSize = 0;
@@ -936,11 +936,18 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 /* returns: BYTE												*/
 /****************************************************************/
 BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, const DWORD maxSize) {
+	double d_MinBPS = 0.0;
+	int i_MinBPS = 0;
+
 	if (fileSize == 0 || maxSize == 0)
 		return 0;
-
-	double d_MinBPS = ((double)(bitsPerSample >> 1) / ((double)maxSize / (double)fileSize));
-	int i_MinBPS = (int)d_MinBPS;
+	// 64 bits is allowed 3/4 of the bits for encoding. we need to account for that
+	if(bitsPerSample != 64) {
+		d_MinBPS = ((double)(bitsPerSample >> 1) / ((double)maxSize / (double)fileSize));
+	} else {
+		d_MinBPS = ((double)((bitsPerSample >> 2)*3) / ((double)maxSize / (double)fileSize));
+	}
+	i_MinBPS = (int)d_MinBPS;
 	if (d_MinBPS > i_MinBPS)
 		i_MinBPS++;
 
