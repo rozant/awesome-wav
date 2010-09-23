@@ -113,7 +113,7 @@ echo COMPRESSION LEVEL: %COMPRESSION_LEVEL%
 echo.
 if not exist %PROGRAM% goto NO_PROGRAM
 echo Encoding and decoding files.
-%PROGRAM% -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+%PROGRAM% -aes 4444 -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
 if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.

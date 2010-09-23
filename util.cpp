@@ -61,6 +61,53 @@ bool close(FILE *aFile) {
 }
 
 /****************************************************************/
+/* function: safeRemove											*/
+/* purpose: overwrites a file with 0s before removing it		*/
+/* args: const char *											*/
+/* returns: int													*/
+/*		0 = overwrote and removed file successfully				*/
+/****************************************************************/
+int safeRemove(const char *filename) {
+	long int fileSize = 0, bufferSize = 128 * BUFFER_MULT;
+	BYTE buffer[128 * BUFFER_MULT];
+	int result = 1;
+	FILE *aFile;
+
+	aFile = fopen(filename, "rb+");
+	
+	if (aFile) {
+		fseek(aFile, 0, SEEK_END);
+		fileSize = ftell(aFile);
+		fseek(aFile, 0, SEEK_SET);
+
+		memset(buffer, 0, bufferSize);
+
+		while (fileSize > 0) {
+			if (fileSize - bufferSize > 0) {
+				fileSize -= bufferSize;
+			} else {
+				bufferSize = fileSize;
+				fileSize = 0;
+			}
+
+			fwrite(buffer, sizeof(BYTE), bufferSize, aFile);
+		}
+
+		fclose(aFile);
+
+		result = remove(filename);
+	}
+
+	if (result == 0) {
+		LOG_DEBUG("S: Successfully overwrote and removed %s\n", filename);
+	} else {
+		LOG_DEBUG("E: Failed to overwrite and remove %s\n", filename);
+	}
+
+	return result;
+}
+
+/****************************************************************/
 /****************************************************************/
 /****************************************************************/
 
