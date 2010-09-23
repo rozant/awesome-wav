@@ -230,7 +230,7 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 
 	printf("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
-	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV); close(fInputDATA); return false; }
+	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV); return false; }
 
 	printf("Opening input data file...\n");
 	// Open up our input data file
