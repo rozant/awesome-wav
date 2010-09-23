@@ -223,19 +223,22 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 	unsigned long int ret_val = 0;
 	FILE *fInputWAV, *fInputDATA, *fOutputWAV;
 
-	printf("Opening wave files...\n");
-	// Open up our input files
+	printf("Opening input wave file...\n");
+	// Open up our input wav file
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
-	fInputDATA = open(inputDATA, "rb");
-	if (fInputDATA == NULL) { close(fInputWAV); return false; }
 
 	printf("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
-	if (!(RIFFread(fInputWAV,this) && validWAV())) { close(fInputWAV); close(fInputDATA); return false; }
+	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV); close(fInputDATA); return false; }
 
-	printf("Opening input data...\n");
-	// open up output file
+	printf("Opening input data file...\n");
+	// Open up our input data file
+	fInputDATA = open(inputDATA, "rb");
+	if (fInputDATA == NULL) { close(fInputWAV); return false; }
+
+	printf("Opening output wav file...\n");
+	// open up output wav file
 	fOutputWAV = open(outputWAV, "wb");
 	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
@@ -571,11 +574,11 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
 
-	printf("Validating input file...\n");
+	printf("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
-	if (!(RIFFread(fInputWAV,this) && validWAV())) { close(fInputWAV);  return false; }
+	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV);  return false; }
 
-	printf("Opening output file...\n");
+	printf("Opening output data file...\n");
 	// open up our output file
 	fOutputDATA = open(outputDATA, "wb");
 	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
@@ -938,12 +941,14 @@ BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, c
 
 	if (fileSize == 0 || maxSize == 0)
 		return 0;
+
 	// 64 bits is allowed 3/4 of the bits for encoding. we need to account for that
 	if(bitsPerSample != 64) {
 		d_MinBPS = ((double)(bitsPerSample >> 1) / ((double)maxSize / (double)fileSize));
 	} else {
 		d_MinBPS = ((double)((bitsPerSample >> 2)*3) / ((double)maxSize / (double)fileSize));
 	}
+
 	i_MinBPS = (int)d_MinBPS;
 	if (d_MinBPS > i_MinBPS)
 		i_MinBPS++;

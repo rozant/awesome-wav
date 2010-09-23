@@ -19,6 +19,7 @@
 #include "aes.h"
 #include "../logger.hpp"
 #include "../global.hpp"
+#include "../util.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -87,7 +88,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
-		remove(destfile);
+		safeRemove(destfile);
 		return AES_WRITE_FAIL;
 	}
 	LOG_DEBUG("S: AES - Wrote IV\n");
@@ -110,13 +111,13 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	for (offset = 0; offset < filesize; offset += 16) {
 		foo = (filesize - offset > 16) ? 16 : (int)(filesize - offset);
 
-		if ( fread(buffer, 1, foo, fin) != (size_t) foo) {
+		if (fread(buffer, 1, foo, fin) != (size_t) foo) {
 			LOG_DEBUG("E: AES - Failed to read data for encryption\n");
 			printf("Failed to encrypt file %s\n", filename);
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
-			remove(destfile);
+			safeRemove(destfile);
 			return AES_READ_FAIL;
 		}
 		for (foo = 0; foo < 16; foo++) {
@@ -132,7 +133,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
-			remove(destfile);
+			safeRemove(destfile);
 			return AES_WRITE_FAIL;
 		}
 		memcpy( IV, buffer, 16 );
@@ -146,7 +147,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
-		remove(destfile);
+		safeRemove(destfile);
 		return AES_WRITE_FAIL;
 	}
 	LOG_DEBUG("S: AES - Wrote end of file\n");
@@ -358,14 +359,14 @@ int determine_filesize(FILE *fin, off_t *filesize) {
 /* purpose: destroy compromising data that is in ram			*/
 /* args: unsigned char *,  unsigned char *,  unsigned char *	*/
 /*		aes_context *, sha2_context *							*/
-/* returns: int													*/
+/* returns: void												*/
 /****************************************************************/
 void secure_exit(unsigned char buffer[1024], unsigned char digest[32], unsigned char IV[16], aes_context *aes_ctx, sha2_context *sha_ctx) {
-    memset(buffer, 0, 1024);
-    memset(digest, 0, 32);
+	memset(buffer, 0, 1024);
+	memset(digest, 0, 32);
 	memset(IV, 0, 16);
-    memset(aes_ctx, 0, sizeof(aes_context));
-    memset(sha_ctx, 0, sizeof(sha2_context));
+	memset(aes_ctx, 0, sizeof(aes_context));
+	memset(sha_ctx, 0, sizeof(sha2_context));
 	return;
 }
 

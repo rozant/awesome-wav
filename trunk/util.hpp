@@ -17,10 +17,12 @@
 #define __util_hpp__
 #include "global.hpp"
 #include <stdio.h>
+#include <string.h>
 
-/* non inline functions */
+// non inline functions
 FILE* open(const char *filename, const char *mode);
 bool close(FILE *aFile);
+int safeRemove(const char *filename);
 
 /****************************************************************/
 /* function: setBit												*/

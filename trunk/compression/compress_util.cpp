@@ -17,6 +17,7 @@
 #include "file_compression.h"
 #include "../logger.hpp"
 #include "../global.hpp"
+#include "../util.hpp"
 #include <stdio.h>
 
 /****************************************************************/
@@ -53,7 +54,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 		printf("Failed to compress file %s\n", filename);
 		fclose(fin);
 		fclose(fout);
-		remove(destfile);
+		safeRemove(destfile);
 		return COMU_FAIL;
 	}
 
@@ -105,7 +106,7 @@ int decompress_file(const char *filename, const char *destfile) {
 		printf("Failed to decompress file %s\n", filename);
 		fclose(fin);
 		fclose(fout);
-		remove(destfile);
+		safeRemove(destfile);
 		return COMU_FAIL;
 	}
 
@@ -119,7 +120,7 @@ int decompress_file(const char *filename, const char *destfile) {
 	}
 	LOG_DEBUG("S: ZLIB - Closed input file\n");
 	LOG_DEBUG("S: ZLIB - Decompressed input data.\n");
-	if (remove("data.z") == -1) {
+	if (safeRemove("data.z") == -1) {
 		LOG_DEBUG("E: ZLIB - Could not remove temporary file data.z\n");
 	}
 	printf("File %s was decompressed sucessfully.\n", filename);

@@ -76,8 +76,8 @@ bool logger::record(const char* msg) {
 	if (numEntries == maxEntries && !resize())
 		return false;
 
-	entries[numEntries].message = (char *)malloc(length + 1);
-	memcpy(entries[numEntries].message, msg, length);
+	entries[numEntries].message = (char *)malloc(sizeof(char) * (length + 1));
+	memcpy(entries[numEntries].message, msg, sizeof(char) * length);
 	entries[numEntries].message[length] = '\0';
 	numEntries++;
 
