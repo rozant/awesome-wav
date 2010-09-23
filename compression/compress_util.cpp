@@ -120,7 +120,7 @@ int decompress_file(const char *filename, const char *destfile) {
 	}
 	LOG_DEBUG("S: ZLIB - Closed input file\n");
 	LOG_DEBUG("S: ZLIB - Decompressed input data.\n");
-	if (safeRemove("data.z") == -1) {
+	if (safeRemove("data.z") != 0) {
 		LOG_DEBUG("E: ZLIB - Could not remove temporary file data.z\n");
 	}
 	printf("File %s was decompressed sucessfully.\n", filename);
