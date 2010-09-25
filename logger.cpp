@@ -37,6 +37,7 @@ logger& getLogger(void) {
 logger::logger(void) {
 	maxEntries = 0;
 	numEntries = 0;
+	lastPrinted = 0;
 	entries = NULL;
 }
 
@@ -46,7 +47,7 @@ logger::logger(void) {
 /* args: void													*/
 /****************************************************************/
 logger::~logger(void) {
-	print();
+	flush();
 	clean();
 }
 
@@ -60,6 +61,8 @@ void logger::clean(void) {
 	for (DWORD i = 0; i < numEntries; i++)
 		FREE(entries[i].message);
 	FREE(entries);
+
+	return;
 }
 
 /****************************************************************/
@@ -90,9 +93,24 @@ bool logger::record(const char* msg) {
 /* args: void													*/
 /* returns: void												*/
 /****************************************************************/
-void logger::print() {
+void logger::print(void) {
 	for (DWORD i = 0; i < numEntries; i++)
 		printf(entries[i].message);
+
+	return;
+}
+
+/****************************************************************/
+/* function: logger::flush										*/
+/* purpose: print out any queued messages						*/
+/* args: void													*/
+/* returns: void												*/
+/****************************************************************/
+void logger::flush(void) {
+	for (lastPrinted; lastPrinted < numEntries; lastPrinted++)
+		printf(entries[lastPrinted].message);
+
+	return;
 }
 
 /****************************************************************/

@@ -21,7 +21,7 @@
 #define AWESOME_VER		0.99 beta
 
 // buffer multipliers
-#define BUFFER_MULT 16
+#define BUFFER_MULT 1024
 #define Z_MULT 2
 #define LOGGER_RESIZE_AMOUNT 128
 
@@ -49,7 +49,7 @@
 
 // the normal log
 #ifndef LOG
-#define LOG(...) { char c[1024]; sprintf(c, __VA_ARGS__); getLogger().record(c);  }
+#define LOG(...) { char c[1024]; sprintf(c, __VA_ARGS__); getLogger().record(c); getLogger().flush();  }
 #endif
 
 // the debug log
