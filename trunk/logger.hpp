@@ -40,13 +40,15 @@ class logger
 		_ENTRY *entries;
 		DWORD numEntries;
 		DWORD maxEntries;
+		DWORD lastPrinted;
 
 	public:
-		friend logger& getLogger();
+		friend logger& getLogger(void);
 
 		bool record(const char *);
-		void print();
-		void clean();
+		void print(void);
+		void flush(void);
+		void clean(void);
 };
 
 logger& getLogger(void);

@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 				strcat(file_name, ".z");
 				ret = compress_file(options.data, file_name, options.comp);
 				if (ret != COMU_SUCCESS) {
-					printf("%s\n", comp_err(ret));
+					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -104,13 +104,13 @@ int main(int argc, char* argv[]) {
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
 			// if failed, cleanup
 			if (size == 0x00) {
-				printf("Failed to encode data.\n");
+				LOG("Failed to encode data.\n");
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
 			// success
-			printf("Data was sucessfully encoded into the specified file.\n");
-			printf("The Decode key is: %lu\n", size);
+			LOG("Data was sucessfully encoded into the specified file.\n");
+			LOG("The Decode key is: %lu\n", size);
 			break;
 		case DECODE:
 			// if compression is enabled
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
 			// decode
 			temp = in_wav.decode(options.input_file, temp_str, (DWORD)atol(options.data));
 			if (!temp) {
-				printf("Failed to decode data.\n");
+				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
@@ -143,12 +143,12 @@ int main(int argc, char* argv[]) {
 			if (options.comp > 0) {
 				ret = decompress_file(data_z, options.output_file);
 				if (ret != COMU_SUCCESS) {
-					printf("%s\n", comp_err(ret));
+					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 			}
-			printf("Data was sucessfully decoded from the specified file.\n");
+			LOG("Data was sucessfully decoded from the specified file.\n");
 			break;
 		case TEST:
 			// encode file
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 				strcat(file_name, ".z");
 				ret = compress_file(options.data, file_name, options.comp);
 				if ( ret != COMU_SUCCESS) {
-					printf("%s\n", comp_err(ret));
+					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -188,11 +188,11 @@ int main(int argc, char* argv[]) {
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
 			// if failed, cleanup
 			if (size == 0x00) {
-				printf("Failed to encode data.\n");
+				LOG("Failed to encode data.\n");
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
 			}
-			printf("Data was sucessfully encoded into the specified file.\n");
+			LOG("Data was sucessfully encoded into the specified file.\n");
 			// decode file
 			// if compression is enabled
 			if (options.comp > 0) { temp_str = data_z; }
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
 			// decode
 			temp = in_wav.decode(options.output_file, temp_str,size);
 			if (!temp) {
-				printf("Failed to decode data.\n");
+				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
 				opt_clean(&options);
 				exit(EXIT_FAILURE);
@@ -225,12 +225,12 @@ int main(int argc, char* argv[]) {
 			if (options.comp > 0) {
 				ret = decompress_file(data_z, options.test_out);
 				if (ret != COMU_SUCCESS) {
-					printf("%s\n", comp_err(ret));
+					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
 			}
-			printf("Data was sucessfully decoded from the specified file.\n");
+			LOG("Data was sucessfully decoded from the specified file.\n");
 			break;
 		default:
 			LOG_DEBUG("E: mode was not set.\n");

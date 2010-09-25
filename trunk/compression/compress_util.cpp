@@ -29,20 +29,20 @@
 int compress_file(const char *filename, const char *destfile, const char level) {
 	FILE *fin = NULL, *fout = NULL;
 
-	printf("Compressing file %s\n", filename);
+	LOG("Compressing file %s\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
 	if (fin == NULL) {
 		LOG_DEBUG("E: ZLIB - Failed to open %s with mode rb\n", filename);
-		printf("Failed to compress file %s\n", filename);
+		LOG("Failed to compress file %s\n", filename);
 		return COMU_IFILE_FAIL;
 	}
 	LOG_DEBUG("S: ZLIB - Opened %s with mode rb\n", filename);
 	fout = fopen(destfile, "wb");
 	if (fout == NULL) {
 		LOG_DEBUG("E: ZLIB - Failed to open %s with mode wb\n", destfile);
-		printf("Failed to compress file %s\n", filename);
+		LOG("Failed to compress file %s\n", filename);
 		fclose(fin);
 		return COMU_OFILE_FAIL;
 	}
@@ -51,7 +51,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 	// compress the file
 	if (def(fin, fout, level) != 0) {
 		LOG_DEBUG("E: ZLIB - Could not compress data file.\n");
-		printf("Failed to compress file %s\n", filename);
+		LOG("Failed to compress file %s\n", filename);
 		fclose(fin);
 		fclose(fout);
 		safeRemove(destfile);
@@ -68,7 +68,7 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 	}
 	LOG_DEBUG("S: ZLIB - Closed input file\n");
 	LOG_DEBUG("S: ZLIB - Compressed input data.\n");
-	printf("File %s was compressed sucessfully.\n", filename);
+	LOG("File %s was compressed sucessfully.\n", filename);
 	return COMU_SUCCESS;
 }
 
@@ -81,20 +81,20 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 int decompress_file(const char *filename, const char *destfile) {
 	FILE *fin = NULL, *fout = NULL;
 
-	printf("Decompressing file %s\n", filename);
+	LOG("Decompressing file %s\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
 	if (fin == NULL) {
 		LOG_DEBUG("E: ZLIB - Failed to open %s with mode rb\n", filename);
-		printf("Failed to decompress file %s\n", filename);
+		LOG("Failed to decompress file %s\n", filename);
 		return COMU_IFILE_FAIL;
 	}
 	LOG_DEBUG("S: ZLIB - Opened %s with mode rb\n", filename);
 	fout = fopen(destfile, "wb");
 	if (fout == NULL) {
 		LOG_DEBUG("E: ZLIB - Failed to open %s with mode wb\n",destfile);
-		printf("Failed to decompress file %s\n", filename);
+		LOG("Failed to decompress file %s\n", filename);
 		fclose(fin);
 		return COMU_OFILE_FAIL;
 	}
@@ -103,7 +103,7 @@ int decompress_file(const char *filename, const char *destfile) {
 	// decompress the file
 	if (inf(fin, fout) != 0) {
 		LOG_DEBUG("E: ZLIB - Could not decompress data file.\n");
-		printf("Failed to decompress file %s\n", filename);
+		LOG("Failed to decompress file %s\n", filename);
 		fclose(fin);
 		fclose(fout);
 		safeRemove(destfile);
@@ -123,7 +123,7 @@ int decompress_file(const char *filename, const char *destfile) {
 	if (safeRemove("data.z") != 0) {
 		LOG_DEBUG("E: ZLIB - Could not remove temporary file data.z\n");
 	}
-	printf("File %s was decompressed sucessfully.\n", filename);
+	LOG("File %s was decompressed sucessfully.\n", filename);
 	return COMU_SUCCESS;
 }
 

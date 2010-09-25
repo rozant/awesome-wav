@@ -223,26 +223,26 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 	unsigned long int ret_val = 0;
 	FILE *fInputWAV, *fInputDATA, *fOutputWAV;
 
-	printf("Opening input wave file...\n");
+	LOG("Opening input wave file...\n");
 	// Open up our input wav file
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
 
-	printf("Validating input wave file...\n");
+	LOG("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
 	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV); return false; }
 
-	printf("Opening input data file...\n");
+	LOG("Opening input data file...\n");
 	// Open up our input data file
 	fInputDATA = open(inputDATA, "rb");
 	if (fInputDATA == NULL) { close(fInputWAV); return false; }
 
-	printf("Opening output wav file...\n");
+	LOG("Opening output wav file...\n");
 	// open up output wav file
 	fOutputWAV = open(outputWAV, "wb");
 	if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
 
-	printf("Encoding data...\n");
+	LOG("Encoding data...\n");
 	ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
 	close(fInputWAV); close(fInputDATA); close(fOutputWAV);
 
@@ -569,21 +569,21 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 	FILE *fInputWAV, *fOutputDATA;
 	bool ret_val = 0;
 
-	printf("Opening input wave file...\n");
+	LOG("Opening input wave file...\n");
 	// Open up our input file
 	fInputWAV = open(inputWAV, "rb");
 	if (fInputWAV == NULL) { return false; }
 
-	printf("Validating input wave file...\n");
+	LOG("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
 	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV);  return false; }
 
-	printf("Opening output data file...\n");
+	LOG("Opening output data file...\n");
 	// open up our output file
 	fOutputDATA = open(outputDATA, "wb");
 	if (fOutputDATA == NULL) { close(fInputWAV); return false; }
 
-	printf("Decoding data...\n");
+	LOG("Decoding data...\n");
 	ret_val = decode(fInputWAV, fOutputDATA, fileSize);
 
 	// clean up

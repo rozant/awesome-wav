@@ -47,13 +47,13 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	off_t filesize, offset;
 	#endif
 
-	printf("Encrypting file %s\n", filename);
+	LOG("Encrypting file %s\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
 	if (fin == NULL) {
 		LOG_DEBUG("E: AES - Failed to open %s with mode rb\n", filename);
-		printf("Failed to encrypt file %s\n", filename);
+		LOG("Failed to encrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		return AES_IFILE_FAIL;
 	}
@@ -61,7 +61,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	fout = fopen(destfile, "wb");
 	if (fout == NULL) {
 		LOG_DEBUG("E: AES - Failed to open %s with mode wb\n", destfile);
-		printf("Failed to encrypt file %s\n", filename);
+		LOG("Failed to encrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fin);
 		return AES_OFILE_FAIL;
@@ -71,7 +71,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	// determine filesize
 	if (determine_filesize(fin, &filesize) == 0) {
 		LOG_DEBUG("E: AES - Failed to determine filesize\n");
-		printf("Failed to encrypt file %s\n", filename);
+		LOG("Failed to encrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -84,7 +84,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	// write the IV to the begining of the encrypted file
 	if (fwrite(IV, 1, 16, fout) != 16) {
 		LOG_DEBUG("E: AES - Failed to write IV\n");
-		printf("Failed to encrypt file %s\n", filename);
+		LOG("Failed to encrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -113,7 +113,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 
 		if (fread(buffer, 1, foo, fin) != (size_t) foo) {
 			LOG_DEBUG("E: AES - Failed to read data for encryption\n");
-			printf("Failed to encrypt file %s\n", filename);
+			LOG("Failed to encrypt file %s\n", filename);
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
@@ -129,7 +129,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 
 		if (fwrite(buffer, 1, 16, fout) != 16) {
 			LOG_DEBUG("E: AES - Failed to write encrypted data\n");
-			printf("Failed to encrypt file %s\n", filename);
+			LOG("Failed to encrypt file %s\n", filename);
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
@@ -143,7 +143,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	sha2_hmac_finish(&sha_ctx, digest);
 	if (fwrite(digest, 1, 32, fout) != 32) {
 		LOG_DEBUG("E: AES - Failed to write end of file\n");
-		printf("Failed to encrypt file %s\n", filename);
+		LOG("Failed to encrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -163,7 +163,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	}
 	LOG_DEBUG("S: AES - Closed input file\n");
 	LOG_DEBUG("S: AES - Data encrypted sucessfully\n");
-	printf("File %s was encrypted sucessfully.\n", filename);
+	LOG("File %s was encrypted sucessfully.\n", filename);
 	return AES_SUCCESS;
 }
 
@@ -185,13 +185,13 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	off_t filesize, offset;
 	#endif
 
-	printf("Decrypting file %s\n", filename);
+	LOG("Decrypting file %s\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
 	if (fin == NULL) {
 		LOG_DEBUG("E: AES - Failed to open %s with mode rb\n", filename);
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		return AES_IFILE_FAIL;
 	}
@@ -199,7 +199,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	fout = fopen(destfile, "wb");
 	if (fout == NULL) {
 		LOG_DEBUG("E: AES - Failed to open %s with mode wb\n", destfile);
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fin);
 		return AES_OFILE_FAIL;
@@ -209,7 +209,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	// determine filesize
 	if (determine_filesize(fin, &filesize) == 0) {
 		LOG_DEBUG("E: AES - Failed to determine filesize\n");
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -221,7 +221,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	// make sure that the file could possibly be what it is supposed to be
 	if (filesize < 48) {
 		LOG_DEBUG("E: AES - File too short to be encrypted\n");
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -229,7 +229,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	}
 	if ((filesize & 0x0F) != 0) {
 		LOG_DEBUG("E: AES - File size not a multiple of 16\n");
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -241,7 +241,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	// read the IV in
 	if (fread(buffer, 1, 16, fin) != 16) {
 		LOG_DEBUG("E: AES - Failed to read the IV\n");
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -268,7 +268,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	for (offset = 0; offset < filesize; offset += 16) {
 		if (fread(buffer, 1, 16, fin) != 16) {
 			LOG_DEBUG("E: AES - Failed to read encrypted data\n");
-			printf("Failed to decrypt file %s\n", filename);
+			LOG("Failed to decrypt file %s\n", filename);
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
@@ -289,7 +289,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 
 		if (fwrite(buffer, 1, n, fout) != (size_t)n) {
 			LOG_DEBUG("E: AES - Failed to write decrypted data\n");
-			printf("Failed to decrypt file %s\n", filename);
+			LOG("Failed to decrypt file %s\n", filename);
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
@@ -302,7 +302,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	// verify that everything worked correctly and verify the file
 	if (fread(buffer, 1, 32, fin) != 32) {
 		LOG_DEBUG("E: AES - Failed to read end of file\n");
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -310,7 +310,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	}
 	if (memcmp(digest, buffer, 32) != 0) {
 		LOG_DEBUG("E: AES - HMAC check failed: wrong key or file corrupted\n");
-		printf("Failed to decrypt file %s\n", filename);
+		LOG("Failed to decrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
@@ -329,7 +329,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	}
 	LOG_DEBUG("S: AES - Closed input file\n");
 	LOG_DEBUG("S: AES - Data decrypted sucessfully\n");
-	printf("File %s was decrypted sucessfully.\n", filename);
+	LOG("File %s was decrypted sucessfully.\n", filename);
 	return AES_SUCCESS;
 }
 
