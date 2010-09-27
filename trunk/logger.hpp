@@ -38,9 +38,9 @@ class logger
 		bool resize(void);
 
 		_ENTRY *entries;
-		DWORD numEntries;
-		DWORD maxEntries;
-		DWORD lastPrinted;
+		unsigned int numEntries;
+		unsigned int maxEntries;
+		unsigned int lastPrinted;
 
 	public:
 		friend logger& getLogger(void);
