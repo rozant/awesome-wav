@@ -58,10 +58,11 @@ logger::~logger(void) {
 /* returns: void												*/
 /****************************************************************/
 void logger::clean(void) {
-	for (DWORD i = 0; i < numEntries; i++)
+	for (unsigned int i = 0; i < numEntries; i++)
 		FREE(entries[i].message);
 	FREE(entries);
-
+	numEntries = maxEntries = lastPrinted = 0;
+	entries = NULL;
 	return;
 }
 
@@ -94,7 +95,7 @@ bool logger::record(const char* msg) {
 /* returns: void												*/
 /****************************************************************/
 void logger::print(void) {
-	for (DWORD i = 0; i < numEntries; i++)
+	for (unsigned int i = 0; i < numEntries; i++)
 		printf(entries[i].message);
 
 	return;
@@ -107,9 +108,10 @@ void logger::print(void) {
 /* returns: void												*/
 /****************************************************************/
 void logger::flush(void) {
-	for (lastPrinted; lastPrinted < numEntries; lastPrinted++)
-		printf(entries[lastPrinted].message);
-
+	unsigned int i = 0;
+	for (i = lastPrinted; i < numEntries; ++i)
+		printf(entries[i].message);
+	lastPrinted = i;
 	return;
 }
 
@@ -132,7 +134,7 @@ bool logger::resize(void) {
 
 	maxEntries += LOGGER_RESIZE_AMOUNT;
 
-	for (DWORD i = 0; i < numEntries; i++)
+	for (unsigned int i = 0; i < numEntries; i++)
 		newEntries[i] = entries[i];
 
 	FREE(entries);
