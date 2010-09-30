@@ -17,8 +17,8 @@
 #define __global_hpp__
 
 //version numbers for software
-#define POLARSSL_VER	0.14.0-gpl
-#define AWESOME_VER		0.99 beta
+#define POLARSSL_VER	"0.14.0-gpl"
+#define AWESOME_VER		"0.99 beta"
 
 // buffer multipliers
 #define BUFFER_MULT 1024
@@ -44,7 +44,7 @@
 
 // make freeing easier
 #ifndef FREE
-#define FREE(p)	{ if (p != NULL) { free(p); (p) = NULL; } }
+#define FREE(p)	{ free(p); (p) = NULL; }
 #endif
 
 // the normal log
