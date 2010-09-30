@@ -85,6 +85,7 @@ void wav::clean(void) {
 bool wav::validWAV(void) const {
 	return (validRIFF() && validFMT() && validFACT() && validDATA());
 }
+
 /****************************************************************/
 /* function: wav::validRIFF										*/
 /* purpose: checks if the RIFF header is valid					*/
@@ -557,7 +558,6 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 	}
 	return true;
 }
-
 
 /****************************************************************/
 /* function: decode												*/
