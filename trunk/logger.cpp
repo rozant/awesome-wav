@@ -103,15 +103,20 @@ void logger::print(void) {
 
 /****************************************************************/
 /* function: logger::flush										*/
-/* purpose: print out any queued messages						*/
+/* purpose: print out any queued messages and remove them		*/
 /* args: void													*/
 /* returns: void												*/
 /****************************************************************/
 void logger::flush(void) {
 	unsigned int i = 0;
-	for (i = lastPrinted; i < numEntries; ++i)
+
+	for (i = lastPrinted; i < numEntries; i++) {
 		printf(entries[i].message);
-	lastPrinted = i;
+		FREE(entries[i].message);
+	}
+
+	lastPrinted = 0;
+	numEntries = 0;
 	return;
 }
 
