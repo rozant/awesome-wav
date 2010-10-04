@@ -12,6 +12,8 @@ set /A COMPRESSION_LEVEL=0
 set /A TEST_NUM=1
 set /A TEST_PASS=0
 set /A NUM_TESTS=0
+set /A AES_ENABLED=0
+set AES_PASSWORD=""
 
 set FILE_8_BIT_PCM=8_Bit_PCM.wav
 set DATA_8_BIT_PCM1=test_input-1b-8kbps-21791276.txt
@@ -64,26 +66,32 @@ set NUM_64_BIT_IEEE=7
 
 :START
 cls
+if %AES_ENABLED%==1 echo AES is enabled.
+if %AES_ENABLED%==0 echo AES is disabled.
+if %COMPRESSION_LEVEL% NEQ 0 echo Compression is enabled (level %COMPRESSION_LEVEL%).
+if %COMPRESSION_LEVEL%==0 echo Compression is disabled.
+echo.
+
 echo Select an option:
-echo 1.Run all tests (not yet implemented)
-echo 2.Run 8  Bit PCM tests
-echo 3.Run 16 Bit PCM tests
-echo 4.Run 24 Bit PCM tests
-echo 5.Run 32 Bit PCM tests
-echo 6.Run 32 Bit IEEE tests
-echo 7.Run 64 Bit IEEE tests
-echo 8.Set compression level
+echo 1.Run 8  Bit PCM tests
+echo 2.Run 16 Bit PCM tests
+echo 3.Run 24 Bit PCM tests
+echo 4.Run 32 Bit PCM tests
+echo 5.Run 32 Bit IEEE tests
+echo 6.Run 64 Bit IEEE tests
+echo 7.Set compression level
+echo 8.Set AES encryption
 echo 9.Quit
 echo.
 set /p choice=Enter your choice (1-9): 
-if %choice%==1 goto START
-if %choice%==2 goto 8_BIT_PCM
-if %choice%==3 goto 16_BIT_PCM
-if %choice%==4 goto 24_BIT_PCM
-if %choice%==5 goto 32_BIT_PCM
-if %choice%==6 goto 32_BIT_IEEE
-if %choice%==7 goto 64_BIT_IEEE
-if %choice%==8 goto SET_COMPRESSION_LEVEL
+if %choice%==1 goto 8_BIT_PCM
+if %choice%==2 goto 16_BIT_PCM
+if %choice%==3 goto 24_BIT_PCM
+if %choice%==4 goto 32_BIT_PCM
+if %choice%==5 goto 32_BIT_IEEE
+if %choice%==6 goto 64_BIT_IEEE
+if %choice%==7 goto SET_COMPRESSION_LEVEL
+if %choice%==8 goto SET_AES_ENCRYPTION
 if %choice%==9 goto QUIT
 goto START
 
@@ -113,7 +121,8 @@ echo COMPRESSION LEVEL: %COMPRESSION_LEVEL%
 echo.
 if not exist %PROGRAM% goto NO_PROGRAM
 echo Encoding and decoding files.
-%PROGRAM% -aes 4444 -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+if %AES_ENABLED%==1 %PROGRAM% -aes %AES_PASSWORD% -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+if %AES_ENABLED%==0 %PROGRAM% -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
 if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.
@@ -144,6 +153,31 @@ if %choice% LSS 0 goto SET_COMPRESSION_LEVEL
 if %choice% GTR 9 goto SET_COMPRESSION_LEVEL
 set /A COMPRESSION_LEVEL=%choice%
 goto START
+
+:SET_AES_ENCRYPTION
+cls
+set /p choice=Enable AES encryption? (y/n): 
+if %choice% NEQ y goto AES_DISABLE
+if %choice%==y goto AES_ENABLE
+goto START
+
+:AES_ENABLE
+set /p choice=Enter a passphrase: 
+set AES_PASSWORD=%choice%
+set /A AES_ENABLED=1
+echo AES enabled.
+echo.
+pause
+goto START
+
+:AES_DISABLE
+set /A AES_ENABLED=0
+set AES_PASSWORD=""
+echo AES disabled.
+echo.
+pause
+goto START
+
 
 :NO_PROGRAM
 echo %PROGRAM% not found.
