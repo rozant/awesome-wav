@@ -66,10 +66,10 @@ set NUM_64_BIT_IEEE=7
 
 :START
 cls
-if %AES_ENABLED%==1 echo AES is enabled.
-if %AES_ENABLED%==0 echo AES is disabled.
 if %COMPRESSION_LEVEL% NEQ 0 echo Compression is enabled (level %COMPRESSION_LEVEL%).
 if %COMPRESSION_LEVEL%==0 echo Compression is disabled.
+if %AES_ENABLED%==1 echo AES is enabled.
+if %AES_ENABLED%==0 echo AES is disabled.
 echo.
 
 echo Select an option:
@@ -117,7 +117,10 @@ echo WAV FILE:    "%FILE%"
 echo E_WAV FILE:  "%E_FILE%"
 echo DATA FILE:   "%DATA%"
 echo D_DATAFILE:  "%D_DATA%"
-echo COMPRESSION LEVEL: %COMPRESSION_LEVEL%
+if %COMPRESSION_LEVEL% NEQ 0 echo COMPRESSION ENABLED (level %COMPRESSION_LEVEL%)
+if %COMPRESSION_LEVEL%==0 echo COMPRESSION DISABLED
+if %AES_ENABLED%==1 echo AES ENABLED
+if %AES_ENABLED%==0 echo AES DISABLED
 echo.
 if not exist %PROGRAM% goto NO_PROGRAM
 echo Encoding and decoding files.
