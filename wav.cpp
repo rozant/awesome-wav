@@ -55,21 +55,11 @@ wav::~wav(void) {
 /* returns: void												*/
 /****************************************************************/
 void wav::clean(void) {
-	if (fact != NULL) {
-		free(fact);
-		fact = NULL;
-	}
+	FREE(fact);
 	if (peak != NULL) {
-		if (peak->peak != NULL) {
-			free(peak->peak);
-			peak->peak = NULL;
-		}
-		if (peak->bit_align != NULL) {
-			free(peak->bit_align);
-			peak->bit_align = NULL;
-		}
-		free(peak);
-		peak = NULL;
+		FREE(peak->peak);
+		FREE(peak->bit_align);
+		FREE(peak);
 	}
 	return;
 }
@@ -131,7 +121,7 @@ bool wav::validFMT(void) const {
 	}
 	// check bits per sample
 	if (fmt.AudioFormat == WAVE_FORMAT_PCM) {
-		if (fmt.BitsPerSample != 16 && fmt.BitsPerSample != 8 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32) {
+		if (fmt.BitsPerSample != 8 && fmt.BitsPerSample != 16 && fmt.BitsPerSample != 24 && fmt.BitsPerSample != 32) {
 			LOG_DEBUG("E: Invalid FMT header: Bits per sample = %u\n", (unsigned int)fmt.BitsPerSample);
 			LOG_DEBUG("\tBits per sample == %u\n", (unsigned int)fmt.BitsPerSample);
 			LOG_DEBUG("\tExpected Bits per sample to be '8', '16', '24', or 32\n");
@@ -644,9 +634,17 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 
 	// read into the buffers, process, and write
 	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
-	count = dataBufferSize = maxDataBufferSize;
+	count = 0;
 
-	while (count <= fileSize) {
+	while ( true ) {
+		if (count + maxDataBufferSize > fileSize) {
+			dataBufferSize = fileSize - count;
+			count = fileSize;
+		} else {
+			dataBufferSize = maxDataBufferSize;
+			count += maxDataBufferSize;
+		}
+
 		if (!decode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
 			free(wavBuffer); free(dataBuffer);
 			return false;
@@ -658,14 +656,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 			break;
 	
  		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
-		
-		if (count + maxDataBufferSize > fileSize) {
-			dataBufferSize = fileSize - count;
-			count = fileSize;
-		} else {
-			dataBufferSize = maxDataBufferSize;
-			count += maxDataBufferSize;
-		}
 	}
 
 	LOG_DEBUG("S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
