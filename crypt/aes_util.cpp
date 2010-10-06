@@ -64,6 +64,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		LOG("Failed to encrypt file %s\n", filename);
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fin);
+		safeRemove(filename);
 		return AES_OFILE_FAIL;
 	}
 	LOG_DEBUG("S: AES - Opened %s with mode wb\n", destfile);
@@ -75,6 +76,8 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
+		safeRemove(filename);
+		safeRemove(destfile);
         return AES_FAIL;
 	}
 	LOG_DEBUG("S: AES - Filesize is %ld\n", filesize);
@@ -88,6 +91,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
+		safeRemove(filename);
 		safeRemove(destfile);
 		return AES_WRITE_FAIL;
 	}
@@ -117,6 +121,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
+			safeRemove(filename);
 			safeRemove(destfile);
 			return AES_READ_FAIL;
 		}
@@ -133,6 +138,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 			fclose(fout);
 			fclose(fin);
+			safeRemove(filename);
 			safeRemove(destfile);
 			return AES_WRITE_FAIL;
 		}
@@ -147,6 +153,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 		secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
 		fclose(fout);
 		fclose(fin);
+		safeRemove(filename);
 		safeRemove(destfile);
 		return AES_WRITE_FAIL;
 	}
