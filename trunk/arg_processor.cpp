@@ -99,7 +99,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 		}
 	}
 	// check for arguemnt errors that have not been caught yet
-	if ( (options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4) ) {
+	if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
 		LOG_DEBUG("E: Incorrect number of arguments.\n");
 		return EXIT_FAILURE;
 	}
@@ -114,21 +114,15 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 /* returns: void												*/
 /****************************************************************/
 void opt_clean(opts *foo) {
-	if (foo->input_file != NULL)
-		free(foo->input_file);
-	if (foo->output_file != NULL)
-		free(foo->output_file);
-	if (foo->data != NULL)
-		free(foo->data);
-	if (foo->test_out != NULL)
-		free(foo->test_out);
+	FREE(foo->input_file);
+	FREE(foo->output_file);
+	FREE(foo->data);
+	FREE(foo->test_out);
 	if (foo->enc_key != NULL) {
 		memset(foo->enc_key,0,sizeof(foo->enc_key));
 		free(foo->enc_key);
+		foo->enc_key = NULL;
 	}
-	foo->enc_key = NULL;
-	foo->input_file = foo->output_file = NULL;
-	foo->data = foo->test_out = NULL;
 	return;
 }
 

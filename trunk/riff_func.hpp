@@ -123,7 +123,8 @@ int RIFFreadRIFF(FILE *inFile, T *input) {
 	// read
 	if (fread(input->riff.ChunkID, sizeof(BYTE), 4, inFile) &&
 		fread(&input->riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(input->riff.Format, sizeof(BYTE), 4, inFile)) {
+		fread(input->riff.Format, sizeof(BYTE), 4, inFile))
+	{
 		LOG_DEBUG("S: Read RIFF header\n");
 	} else {
 		LOG_DEBUG("E: Failed to read RIFF header: Could not read bytes\n");
@@ -166,7 +167,8 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 			if (input->fmt.ExtraFormatBytes == 22) {
 				if (!(fread(&input->fmt.ValidBitsPerSample, sizeof(SHORT), 1, inFile) &&
 					fread(&input->fmt.ChannelMask, sizeof(DWORD), 1, inFile) &&
-					fread(input->fmt.SubFormat, sizeof(BYTE), 16, inFile))) {
+					fread(input->fmt.SubFormat, sizeof(BYTE), 16, inFile)))
+				{
 					LOG_DEBUG("E: Failed to read FMT header: Could not read bytes\n");
 					return RIFF_READ_FAIL;
 				}
@@ -244,7 +246,8 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 	{
 		// make sure peak size is valid
 		if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
-			input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
+			input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT)))
+		{
 			LOG_DEBUG("E: Invalid PEAK chunk size\n");
 			return RIFF_VALID_FAIL;
 		}
@@ -257,7 +260,8 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 		}
 		for (foo = 0; foo < input->fmt.NumChannels; ++foo) {
 			if (!(fread(&input->peak->peak[foo].Value, sizeof(float), 1, inFile) &&
-				fread(&input->peak->peak[foo].Position, sizeof(DWORD), 1, inFile))) {
+				fread(&input->peak->peak[foo].Position, sizeof(DWORD), 1, inFile)))
+			{
 				LOG_DEBUG("E: Failed to read PEAK header: Could not read bytes\n");
 				return RIFF_READ_FAIL;
 			}
