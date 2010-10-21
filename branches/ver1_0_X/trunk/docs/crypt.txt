@@ -1,7 +1,0 @@
-aes.c
-aes.h
-sha2.c
-sha2.h
-config.h
-
-are all files obtained from the polarssl source, relased under GPL v2.  See license.txt for full licence information.

@@ -1,5 +1,0 @@
-FORMULAS:
-8-bit wav max size in bytes:  maxSize = ((data.SubchunkSize / bytesPerSample) - 1) >> 1
-16-bit wav max size in bytes: maxSize = (data.SubchunkSize / bytesPerSample) - 1
-24-bit wav max size in bytes: maxSize = ((data.SubchunkSize / bytesPerSample) - 1) * 1.5
-32-bit wav max size in bytes: maxSize = ((data.SubchunkSize / bytesPerSample) - 1) << 1
