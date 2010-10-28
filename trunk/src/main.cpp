@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
-				if (encrypt_file(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+				if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
 					if (options.comp > 0) { safeRemove(options.data); }
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
 			if (options.enc_key != NULL) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.output_file; }
-				if (decrypt_file(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
 					safeRemove(data_aes);
 					safeRemove(temp_str);
 					opt_clean(&options);
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
-				if (encrypt_file(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+				if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
 					if (options.comp > 0) { safeRemove(options.data); }
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
 			if (options.enc_key != NULL) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.test_out; }
-				if (decrypt_file(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
 					safeRemove(data_aes);
 					safeRemove(temp_str);
 					opt_clean(&options);
