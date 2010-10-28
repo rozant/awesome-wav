@@ -38,8 +38,10 @@ enum aes_util_ret_code {
 };
 
 // function prototypes
-int encrypt_file(const char *, const char *, const unsigned char *);
-int decrypt_file(const char *, const char *, const unsigned char *);
+int encrypt_file_ecb(const char *, const char *, const unsigned char *);
+//int encrypt_file_cbc(const char *, const char *, const unsigned char *);
+int decrypt_file_ecb(const char *, const char *, const unsigned char *);
+//int decrypt_file_cbc(const char *, const char *, const unsigned char *);
 #ifdef _WIN32
 int determine_filesize(FILE *, __int64 *);
 int generateIV(unsigned char *, const char *, __int64);

@@ -29,13 +29,13 @@
 #endif
 
 /****************************************************************/
-/* function: encrypt_file										*/
-/* purpose: encrypt a file with AES								*/
+/* function: encrypt_file_ecb									*/
+/* purpose: encrypt a file with AES ECB							*/
 /* args: const char *, const char * const unsigned char *		*/
 /* returns: int													*/
 /* notes: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
-int encrypt_file(const char *filename, const char *destfile, const unsigned char *key) {
+int encrypt_file_ecb(const char *filename, const char *destfile, const unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16];
 	unsigned int foo = 0, keylen = sizeof(key);
 	FILE *fout = NULL, *fin = NULL;
@@ -47,7 +47,7 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 	off_t filesize, offset;
 	#endif
 
-	LOG("Encrypting file %s\n", filename);
+	LOG("Encrypting file %s with AES ECB\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
@@ -175,12 +175,25 @@ int encrypt_file(const char *filename, const char *destfile, const unsigned char
 }
 
 /****************************************************************/
-/* function: decrpyt_file										*/
-/* purpose: decrypt a file										*/
+/* function: encrypt_file_cbc									*/
+/* purpose: encrypt a file with AES CBC							*/
+/* args: const char *, const char * const unsigned char *		*/
+/* returns: int													*/
+/* notes: IV = SHA-256( filesize || filename )[0..15]			*/
+/****************************************************************/
+/*
+int encrypt_file_cbc(const char *filename, const char *destfile, const unsigned char *key) {
+	return AES_SUCCESS;
+}
+*/
+
+/****************************************************************/
+/* function: decrpyt_file_ecb									*/
+/* purpose: decrypt a file encrypted using AES ECB				*/
 /* args: const char *, const char *, unsigned char *			*/
 /* returns: int													*/
 /****************************************************************/
-int decrypt_file(const char *filename, const char *destfile, const unsigned char *key) {
+int decrypt_file_ecb(const char *filename, const char *destfile, const unsigned char *key) {
 	unsigned char buffer[1024], digest[32], IV[16], tmp[16];
 	int foo = 0, keylen = sizeof(key), n = 0, lastn = 0;
 	FILE *fout = NULL, *fin = NULL;
@@ -192,7 +205,7 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	off_t filesize, offset;
 	#endif
 
-	LOG("Decrypting file %s\n", filename);
+	LOG("Decrypting file %s encrypted with AES ECB\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
@@ -339,6 +352,19 @@ int decrypt_file(const char *filename, const char *destfile, const unsigned char
 	LOG("File %s was decrypted sucessfully.\n", filename);
 	return AES_SUCCESS;
 }
+
+/****************************************************************/
+/* function: decrypt_file_cbc									*/
+/* purpose: decrypt a file encrypted using AES ECB				*/
+/* args: const char *, const char * const unsigned char *		*/
+/* returns: int													*/
+/* notes: IV = SHA-256( filesize || filename )[0..15]			*/
+/****************************************************************/
+/*
+int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned char *key) {
+	return AES_SUCCESS;
+}
+*/
 
 /****************************************************************/
 /* function: determine_filesize									*/
