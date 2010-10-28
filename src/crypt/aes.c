@@ -748,18 +748,6 @@ int aes_crypt_cbc( aes_context *ctx,
     if( length % 16 )
         return( POLARSSL_ERR_AES_INVALID_INPUT_LENGTH );
 
-#if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
-    if( padlock_supports( PADLOCK_ACE ) )
-    {
-        if( padlock_xcryptcbc( ctx, mode, length, iv, input, output ) == 0 )
-            return( 0 );
-        
-        // If padlock data misaligned, we just fall back to
-        // unaccelerated mode
-        //
-    }
-#endif
-
     if( mode == AES_DECRYPT )
     {
         while( length > 0 )
