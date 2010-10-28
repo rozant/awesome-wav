@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\win32\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\src\win32\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_DEBUGOUTPUT;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:MSVCRT"
-				AdditionalDependencies="..\win32\lib\zlib.lib"
+				AdditionalDependencies="..\src\win32\lib\zlib.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -122,7 +122,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;..\win32\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\src\win32\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:MSVCRT"
-				AdditionalDependencies="..\win32\lib\zlib.lib"
+				AdditionalDependencies="..\src\win32\lib\zlib.lib"
 				LinkIncremental="1"
 				GenerateManifest="false"
 				GenerateDebugInformation="false"
@@ -206,7 +206,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;..\win32\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\src\win32\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_DEBUGOUTPUT;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -229,7 +229,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:MSVCRT"
-				AdditionalDependencies="..\win32\lib\zlib.lib"
+				AdditionalDependencies="..\src\win32\lib\zlib.lib"
 				LinkIncremental="1"
 				GenerateManifest="false"
 				GenerateDebugInformation="false"
@@ -271,42 +271,42 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\arg_processor.cpp"
+				RelativePath="..\src\arg_processor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\logger.cpp"
+				RelativePath="..\src\logger.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\main.cpp"
+				RelativePath="..\src\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\util.cpp"
+				RelativePath="..\src\util.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\wav.cpp"
+				RelativePath="..\src\wav.cpp"
 				>
 			</File>
 			<Filter
 				Name="crypt"
 				>
 				<File
-					RelativePath="..\crypt\aes.c"
+					RelativePath="..\src\crypt\aes.c"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\aes_util.cpp"
+					RelativePath="..\src\crypt\aes_util.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\sha2.c"
+					RelativePath="..\src\crypt\sha2.c"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\sha2_util.cpp"
+					RelativePath="..\src\crypt\sha2_util.cpp"
 					>
 				</File>
 			</Filter>
@@ -314,11 +314,11 @@
 				Name="compression"
 				>
 				<File
-					RelativePath="..\compression\compress_util.cpp"
+					RelativePath="..\src\compression\compress_util.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\compression\file_compression.c"
+					RelativePath="..\src\compression\file_compression.c"
 					>
 				</File>
 			</Filter>
@@ -329,58 +329,58 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\arg_processor.hpp"
+				RelativePath="..\src\arg_processor.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\global.hpp"
+				RelativePath="..\src\global.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\logger.hpp"
+				RelativePath="..\src\logger.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\riff.hpp"
+				RelativePath="..\src\riff.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\riff_func.hpp"
+				RelativePath="..\src\riff_func.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\riff_struct.hpp"
+				RelativePath="..\src\riff_struct.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\util.hpp"
+				RelativePath="..\src\util.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\wav.hpp"
+				RelativePath="..\src\wav.hpp"
 				>
 			</File>
 			<Filter
 				Name="crypt"
 				>
 				<File
-					RelativePath="..\crypt\aes.h"
+					RelativePath="..\src\crypt\aes.h"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\aes_util.hpp"
+					RelativePath="..\src\crypt\aes_util.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\config.h"
+					RelativePath="..\src\crypt\config.h"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\sha2.h"
+					RelativePath="..\src\crypt\sha2.h"
 					>
 				</File>
 				<File
-					RelativePath="..\crypt\sha2_util.hpp"
+					RelativePath="..\src\crypt\sha2_util.hpp"
 					>
 				</File>
 			</Filter>
@@ -388,11 +388,11 @@
 				Name="compression"
 				>
 				<File
-					RelativePath="..\compression\compress_util.hpp"
+					RelativePath="..\src\compression\compress_util.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\compression\file_compression.h"
+					RelativePath="..\src\compression\file_compression.h"
 					>
 				</File>
 			</Filter>

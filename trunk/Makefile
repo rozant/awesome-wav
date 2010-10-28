@@ -17,7 +17,7 @@ OFLAGS= -O2
 CFLAGS= -Wall -Wextra -lz -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS =
-FILES = main.cpp wav.cpp arg_processor.cpp util.cpp logger.cpp ./compression/file_compression.c ./compression/compress_util.cpp ./crypt/sha2_util.cpp ./crypt/sha2.c ./crypt/aes_util.cpp ./crypt/aes.c
+FILES = ./src/main.cpp ./src/wav.cpp ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/file_compression.c ./src/compression/compress_util.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
 
 all:
 	g++ $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
@@ -38,7 +38,7 @@ uninstall:
 	rm -f $(INSTLOC)/$(PROGNAME)
 
 clean:
-	rm -f *.o *.gch
+	rm -f ./src/*.o ./src/*.gch
 
 clean-all: clean
 	rm -f ./bin/$(PROGNAME)*
