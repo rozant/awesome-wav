@@ -939,8 +939,10 @@ BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, c
 		d_MinBPS = ((double)((bitsPerSample >> 2)*3) / ((double)maxSize / (double)fileSize));
 	}
 
+	// convert to int
 	i_MinBPS = (int)d_MinBPS;
-	if (d_MinBPS > i_MinBPS)
+	// make sure it rounded up
+	if (d_MinBPS > (double)i_MinBPS)
 		i_MinBPS++;
 
 	if (i_MinBPS == 1)
