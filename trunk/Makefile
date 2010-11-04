@@ -14,22 +14,35 @@
 PROGNAME=awesome-wav
 INSTLOC=/usr/bin
 OFLAGS= -O2
-CFLAGS= -Wall -Wextra -lz -D_FILE_OFFSET_BITS=64
+CFLAGS= -Wall -Wextra -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS =
-FILES = ./src/main.cpp ./src/wav.cpp ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/file_compression.c ./src/compression/compress_util.cpp ./src/compression/quicklz.c ./src/compression/compress_util2.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
+FILES = ./src/main.cpp ./src/wav.cpp ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/quicklz.c ./src/compression/compress_util2.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
+ZFILES = ./src/compression/file_compression.c ./src/compression/compress_util.cpp
 
 all:
-	g++ $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
+	g++ -lz $(CFLAGS) $(OFLAGS) $(FILES) $(ZFILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
 
 test:
-	g++ $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	g++ -lz $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) $(ZFILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test
 
 debug:
-	g++ -g $(CFLAGS) $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+	g++ -g -lz $(CFLAGS) $(DBGFLAGS) $(FILES) $(ZFILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-debug ./test_suite/$(PROGNAME)-debug
-build-test: all test debug clean-all
+
+nzlib:
+	g++ -D _NZLIB $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-nzlib $(LDFLAGS)
+
+test-nzlib:
+	g++ -D _NZLIB $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test-nzlib
+
+debug-nzlib:
+	g++ -D _NZLIB -g $(CFLAGS) $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-debug ./test_suite/$(PROGNAME)-debug-nzlib
+
+build-test: all test debug nzlib test-nzlib debug-nzlib clean-all 
 
 install: all
 	cp ./bin/$(PROGNAME) $(INSTLOC)
