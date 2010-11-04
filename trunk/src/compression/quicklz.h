@@ -19,12 +19,12 @@
 // the outside like the compiler command line or from higher level code.
 
 #ifndef QLZ_COMPRESSION_LEVEL
-	#define QLZ_COMPRESSION_LEVEL 1
-	//#define QLZ_COMPRESSION_LEVEL 2
+	//#define QLZ_COMPRESSION_LEVEL 1
+	#define QLZ_COMPRESSION_LEVEL 2
 	//#define QLZ_COMPRESSION_LEVEL 3
 
-	#define QLZ_STREAMING_BUFFER 0
-	//#define QLZ_STREAMING_BUFFER 100000
+	//#define QLZ_STREAMING_BUFFER 0
+	#define QLZ_STREAMING_BUFFER 100000
 	//#define QLZ_STREAMING_BUFFER 1000000
 
 	//#define QLZ_MEMORY_SAFE
