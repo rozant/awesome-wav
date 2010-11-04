@@ -130,7 +130,8 @@ if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.
 echo Comparing data files.
-fc "%DATA%" "%D_DATA%" > NUL
+echo n | comp "%DATA%" "%D_DATA%" > NUL
+echo.
 if %ERRORLEVEL% NEQ 0 goto COMPARE_FAIL
 echo File comparison succeeded.
 echo.
