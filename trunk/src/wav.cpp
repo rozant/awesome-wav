@@ -252,7 +252,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	DWORD bytesPerSample = (fmt.BitsPerSample >> 3);
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
 	BYTE bitsUsed = 0;
-	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
+	size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
 	bool endOfDataFile = false;
 
 	// Get size of data file we want to encode
