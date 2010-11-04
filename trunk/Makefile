@@ -35,12 +35,12 @@ nzlib:
 	g++ -D _NZLIB $(CFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-nzlib $(LDFLAGS)
 
 test-nzlib:
-	g++ -D _NZLIB $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
-	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test-nzlib
+	g++ -D _NZLIB $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) -o ./bin/$(PROGNAME)-test-nzlib $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-test-nzlib ./test_suite/$(PROGNAME)-test-nzlib
 
 debug-nzlib:
-	g++ -D _NZLIB -g $(CFLAGS) $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
-	cp ./bin/$(PROGNAME)-debug ./test_suite/$(PROGNAME)-debug-nzlib
+	g++ -D _NZLIB -g $(CFLAGS) $(DBGFLAGS) $(FILES) -o ./bin/$(PROGNAME)-debug-nzlib $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-debug-nzlib ./test_suite/$(PROGNAME)-debug-nzlib
 
 build-test: all test debug nzlib test-nzlib debug-nzlib clean-all 
 

@@ -18,7 +18,7 @@
 #include "wav.hpp"
 #include "logger.hpp"
 #include "util.hpp"
-#ifndef NZLIB
+#ifndef _NZLIB
 #include "./compression/compress_util.hpp"
 #endif
 #include "./compression/compress_util2.hpp"
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 				#ifndef _NZLIB
 				}
 				#endif
-				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
+				if (ret != 0) {
 					#ifndef _NZLIB
 					if(options.comp < 10) {
 						LOG("%s\n", comp_err(ret));	
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
 				#ifndef _NZLIB
 				}
 				#endif
-				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
+				if (ret != 0) {
 					#ifndef _NZLIB
 					if(options.comp < 10) {
 						LOG("%s\n", comp_err(ret));	
@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
 				#ifndef _NZLIB
 				}
 				#endif
-				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
+				if (ret != 0) {
 					#ifndef _NZLIB
 					if(options.comp < 10) {
 						LOG("%s\n", comp_err(ret));	
@@ -302,7 +302,7 @@ int main(int argc, char* argv[]) {
 				#ifndef _NZLIB
 				}
 				#endif
-				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
+				if (ret != 0) {
 					#ifndef _NZLIB
 					if(options.comp < 10) {
 						LOG("%s\n", comp_err(ret));	
