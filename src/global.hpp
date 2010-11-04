@@ -23,6 +23,7 @@
 // buffer multipliers
 #define BUFFER_MULT 1024
 #define Z_MULT 2
+#define C_BUFF 10240
 #define LOGGER_RESIZE_AMOUNT 128
 
 // gettext makes life a little easier sometimes
