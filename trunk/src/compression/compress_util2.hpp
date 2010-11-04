@@ -13,8 +13,8 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#ifndef __compress_util_hpp__
-#define __compress_util_hpp__
+#ifndef __compress_util2_hpp__
+#define __compress_util2_hpp__
 
 #ifndef gettext
 #define gettext(Msgid) ((const char *) (Msgid))
@@ -30,7 +30,7 @@ enum qlz_compress_util_ret_code {
 };
 
 // function prototypes
-int qlz_compress_file(const char *, const char *, const char);
+int qlz_compress_file(const char *, const char *);
 int qlz_decompress_file(const char *, const char *);
 const char *qlz_comp_err(const int);
 

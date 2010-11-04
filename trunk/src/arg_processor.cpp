@@ -35,20 +35,14 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 	for (int foo = 1; foo < argc; foo++) {				// for all of the argumets
 		if (argv[foo][0] == '-') {						// if it is an option do stuff
 			if (strcmp(argv[foo],"-e") == 0) {				// if encoding, set the mode to encode
-				if (options->mode == NONE) {
-					LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
-					options->mode = ENCODE;
-				}
+				LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
+				options->mode = ENCODE;
 			} else if (strcmp(argv[foo],"-d") == 0) {		// if decoding, set the mode to decode
-				if (options->mode == NONE) {
-					LOG_DEBUG("S: Setting mode to 'DECODE'\n");
-					options->mode = DECODE;
-				}
+				LOG_DEBUG("S: Setting mode to 'DECODE'\n");
+				options->mode = DECODE;
 			} else if (strcmp(argv[foo],"-t") == 0) {		// if testing, set the mode to test
-				if (options->mode == NONE) {
-					LOG_DEBUG("S: Setting mode to 'TEST'\n");
-					options->mode = TEST;
-				}
+				LOG_DEBUG("S: Setting mode to 'TEST'\n");
+				options->mode = TEST;
 			} else if (strcmp(argv[foo],"--version") == 0) {	// if wanting to display version number
 				LOG_DEBUG("S: Setting mode to 'VERSION'\n");
 				options->mode = VERSION;
@@ -57,14 +51,16 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				LOG_DEBUG("S: Setting QLZ compression\n");
 				options->comp = 10;
 			} else if (strncmp(argv[foo],"-zlib",5) == 0) {	// compress with zlib
-				LOG_DEBUG("S: Setting ZLIB compression\n");
 				if ( strlen(argv[foo]) == 6 ) {
 					if (isdigit(argv[foo][5])) {
+						LOG_DEBUG("S: Setting ZLIB compression level %d\n",atoi(&argv[foo][5]));
 						options->comp = (char)atoi(&argv[foo][5]);
 					} else {
+						LOG_DEBUG("S: Setting ZLIB compression level 6\n");
 						options->comp = 6;
 					}
 				} else {
+					LOG_DEBUG("S: Setting ZLIB compression level 6\n");
 					options->comp = 6;
 				}
 			} else if (strcmp(argv[foo], "-aes") == 0) {		// encrypt with AES

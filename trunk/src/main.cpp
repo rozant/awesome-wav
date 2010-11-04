@@ -19,6 +19,7 @@
 #include "logger.hpp"
 #include "util.hpp"
 #include "./compression/compress_util.hpp"
+#include "./compression/compress_util2.hpp"
 #include "./crypt/aes_util.hpp"
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,7 @@ void usage(const char prog_name[]) {
 void version_info(void) {
 	LOG("awesome-wav version: %s\n",AWESOME_VER);
 	LOG("polarssl version: %s\n",POLARSSL_VER);
-	LOG("qlz version: \n");
+	LOG("qlz version: %s\n",QLZ_VER);
 	return;
 }
 
@@ -90,8 +91,12 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+3), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".z");
-				ret = compress_file(options.data, file_name, options.comp);
-				if (ret != COMU_SUCCESS) {
+				if(options.comp < 10) {
+					ret = compress_file(options.data, file_name, options.comp);
+				} else {
+					ret = qlz_compress_file(options.data, file_name);
+				}
+				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
 					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
@@ -158,8 +163,12 @@ int main(int argc, char* argv[]) {
 			}
 			// if compression is enabled
 			if (options.comp > 0) {
-				ret = decompress_file(data_z, options.output_file);
-				if (ret != COMU_SUCCESS) {
+				if(options.comp < 10) {
+					ret = decompress_file(data_z, options.output_file);
+				} else {
+					ret = qlz_decompress_file(data_z, options.output_file);
+				}
+				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
 					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
@@ -174,8 +183,12 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+3), sizeof(char));
 				memcpy(file_name,options.data, strlen(options.data));
 				strcat(file_name, ".z");
-				ret = compress_file(options.data, file_name, options.comp);
-				if ( ret != COMU_SUCCESS) {
+				if(options.comp < 10) {
+					ret = compress_file(options.data, file_name, options.comp);
+				} else {
+					ret = qlz_compress_file(options.data, file_name);
+				}
+				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
 					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
@@ -240,8 +253,12 @@ int main(int argc, char* argv[]) {
 			}
 			// if compression is enabled
 			if (options.comp > 0) {
-				ret = decompress_file(data_z, options.test_out);
-				if (ret != COMU_SUCCESS) {
+				if(options.comp < 10) {
+					ret = decompress_file(data_z, options.test_out);
+				} else {
+					ret = qlz_decompress_file(data_z, options.output_file);
+				}
+				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
 					LOG("%s\n", comp_err(ret));
 					opt_clean(&options);
 					exit(EXIT_FAILURE);

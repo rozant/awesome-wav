@@ -318,6 +318,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\compression\compress_util2.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\compression\quicklz.c"
+					>
+				</File>
+				<File
 					RelativePath="..\src\compression\file_compression.c"
 					>
 				</File>
@@ -389,6 +397,14 @@
 				>
 				<File
 					RelativePath="..\src\compression\compress_util.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\compression\compress_util2.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\compression\quicklz.h"
 					>
 				</File>
 				<File
