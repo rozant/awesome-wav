@@ -18,7 +18,9 @@
 #include "wav.hpp"
 #include "logger.hpp"
 #include "util.hpp"
+#ifndef NZLIB
 #include "./compression/compress_util.hpp"
+#endif
 #include "./compression/compress_util2.hpp"
 #include "./crypt/aes_util.hpp"
 #include <stdio.h>
@@ -37,8 +39,10 @@ void usage(const char prog_name[]) {
 	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
 	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");
 	LOG("  -c\tenable data compression with qlz.  If decoding, assume retrieved data is compressed\n");
+#ifndef NZLIB
 	LOG("  -zlib\tenable data compression with zlib.  If decoding, assume retrieved data is compressed\n");
 	LOG("\tdefaults to -zlib6. valid options are -zlib1 through -zlib9, from low to high compression\n");
+#endif
 	LOG("  -aes\tenable data encryption.  must be followed by the key.\n");
 	return;
 }
@@ -91,13 +95,25 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+3), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".z");
+				#ifndef _NZLIB
 				if(options.comp < 10) {
 					ret = compress_file(options.data, file_name, options.comp);
 				} else {
+				#endif
 					ret = qlz_compress_file(options.data, file_name);
+				#ifndef _NZLIB
 				}
+				#endif
 				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
-					LOG("%s\n", comp_err(ret));
+					#ifndef _NZLIB
+					if(options.comp < 10) {
+						LOG("%s\n", comp_err(ret));	
+					} else {
+					#endif
+						LOG("%s\n", qlz_comp_err(ret));
+					#ifndef _NZLIB
+					}
+					#endif
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -163,13 +179,25 @@ int main(int argc, char* argv[]) {
 			}
 			// if compression is enabled
 			if (options.comp > 0) {
+				#ifndef _NZLIB
 				if(options.comp < 10) {
 					ret = decompress_file(data_z, options.output_file);
 				} else {
+				#endif
 					ret = qlz_decompress_file(data_z, options.output_file);
+				#ifndef _NZLIB
 				}
+				#endif
 				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
-					LOG("%s\n", comp_err(ret));
+					#ifndef _NZLIB
+					if(options.comp < 10) {
+						LOG("%s\n", comp_err(ret));	
+					} else {
+					#endif
+						LOG("%s\n", qlz_comp_err(ret));
+					#ifndef _NZLIB
+					}
+					#endif
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -183,13 +211,25 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+3), sizeof(char));
 				memcpy(file_name,options.data, strlen(options.data));
 				strcat(file_name, ".z");
+				#ifndef _NZLIB
 				if(options.comp < 10) {
 					ret = compress_file(options.data, file_name, options.comp);
 				} else {
+				#endif
 					ret = qlz_compress_file(options.data, file_name);
+				#ifndef _NZLIB
 				}
+				#endif
 				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
-					LOG("%s\n", comp_err(ret));
+					#ifndef _NZLIB
+					if(options.comp < 10) {
+						LOG("%s\n", comp_err(ret));	
+					} else {
+					#endif
+						LOG("%s\n", qlz_comp_err(ret));
+					#ifndef _NZLIB
+					}
+					#endif
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -253,13 +293,25 @@ int main(int argc, char* argv[]) {
 			}
 			// if compression is enabled
 			if (options.comp > 0) {
+				#ifndef _NZLIB
 				if(options.comp < 10) {
 					ret = decompress_file(data_z, options.test_out);
 				} else {
-					ret = qlz_decompress_file(data_z, options.output_file);
+				#endif
+					ret = qlz_decompress_file(data_z, options.test_out);
+				#ifndef _NZLIB
 				}
+				#endif
 				if (ret != COMU_SUCCESS || ret != QLZ_SUCCESS) {
-					LOG("%s\n", comp_err(ret));
+					#ifndef _NZLIB
+					if(options.comp < 10) {
+						LOG("%s\n", comp_err(ret));	
+					} else {
+					#endif
+						LOG("%s\n", qlz_comp_err(ret));
+					#ifndef _NZLIB
+					}
+					#endif
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
