@@ -124,8 +124,8 @@ if %AES_ENABLED%==0 echo AES DISABLED
 echo.
 if not exist %PROGRAM% goto NO_PROGRAM
 echo Encoding and decoding files.
-if %AES_ENABLED%==1 %PROGRAM% -aes %AES_PASSWORD% -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
-if %AES_ENABLED%==0 %PROGRAM% -c%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+if %AES_ENABLED%==1 %PROGRAM% -aes %AES_PASSWORD% -zlib%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+if %AES_ENABLED%==0 %PROGRAM% -zlib%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
 if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.
