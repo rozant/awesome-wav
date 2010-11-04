@@ -35,9 +35,23 @@ void usage(const char prog_name[]) {
 	LOG("Encode data into a wav file, or decode data from a wav file.\n\n");
 	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
 	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");
-	LOG("  -c\tenable data compression.  If decoding, assume retrieved data is compressed\n");
-	LOG("\tdefaults to -c6. valid options are -c1 through -c9, from low to high compression\n");
+	LOG("  -c\tenable data compression with qlz.  If decoding, assume retrieved data is compressed\n");
+	LOG("  -zlib\tenable data compression with zlib.  If decoding, assume retrieved data is compressed\n");
+	LOG("\tdefaults to -zlib6. valid options are -zlib1 through -zlib9, from low to high compression\n");
 	LOG("  -aes\tenable data encryption.  must be followed by the key.\n");
+	return;
+}
+
+/****************************************************************/
+/* function: version_info										*/
+/* purpose: display the known version information			 	*/
+/* args: void													*/
+/* returns: void												*/
+/****************************************************************/
+void version_info(void) {
+	LOG("awesome-wav version: %s\n",AWESOME_VER);
+	LOG("polarssl version: %s\n",POLARSSL_VER);
+	LOG("qlz version: \n");
 	return;
 }
 
@@ -67,6 +81,9 @@ int main(int argc, char* argv[]) {
 
 	// if we are encoding or decoding, do the right thing
 	switch(options.mode) {
+		case VERSION:
+			version_info();
+			break;
 		case ENCODE:
 			// if compression is enabled
 			if (options.comp > 0) {

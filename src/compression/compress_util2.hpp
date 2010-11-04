@@ -26,14 +26,13 @@ enum qlz_compress_util_ret_code {
 	QLZ_OFILE_FAIL = -3,
 	QLZ_IFILE_FAIL = -2,
 	QLZ_FAIL = -1,
-	QLZ_SUCCESS = 0,
-	COMU_SUCCESS = 0
+	QLZ_SUCCESS = 0
 };
 
 // function prototypes
-int compress_file(const char *, const char *, const char);
-int decompress_file(const char *, const char *);
-const char *comp_err(const int);
+int qlz_compress_file(const char *, const char *, const char);
+int qlz_decompress_file(const char *, const char *);
+const char *qlz_comp_err(const int);
 
 #endif
 
