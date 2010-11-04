@@ -32,79 +32,82 @@
 int arg_processor(const int argc, const char **argv, opts *options) {
 	int arg_count = 0;
 
-	// for all of the argumets
-	for (int foo = 1; foo < argc; foo++) {
-		// if it is an option do stuff
-		if (argv[foo][0] == '-') {
-			if (strlen(argv[foo]) == 2 || (argv[foo][1] == 'c' && strlen(argv[foo]) == 3) || (argv[foo][1] == 'a' && strlen(argv[foo]) == 4) ) {
-				switch(argv[foo][1]) {
-					case 'e':				// encode (default)
-						options->mode = ENCODE;
-						break;
-					case 'd':				// decode
-						options->mode = DECODE;
-						break;
-					case 't':				// testing
-						options->mode = TEST;
-						break;
-					case 'c':				// data compression
-						if ( strlen(argv[foo]) == 3 ) {
-							if (isdigit(argv[foo][2])) {
-								options->comp = (char)atoi(&argv[foo][2]);
-							} else {
-								options->comp = 6;
-							}
-						} else {
-							options->comp = 6;
-						}
-						break;
-					case 'a':			 	// data encryption
-						if (strcmp(argv[foo], "-aes") == 0) {
-							if (++foo >= argc) { return EXIT_FAILURE; }
-							options->enc_key = sha2_key(argv[foo]);
-						}
-						break;
-					default:				// invalid option
-						LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
-						return EXIT_FAILURE;
-						break;
+	for (int foo = 1; foo < argc; foo++) {				// for all of the argumets
+		if (argv[foo][0] == '-') {						// if it is an option do stuff
+			if (strcmp(argv[foo],"-e") == 0) {				// if encoding, set the mode to encode
+				if (options->mode == NONE) {
+					LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
+					options->mode = ENCODE;
 				}
-			} else {						// more invalid option
+			} else if (strcmp(argv[foo],"-d") == 0) {		// if decoding, set the mode to decode
+				if (options->mode == NONE) {
+					LOG_DEBUG("S: Setting mode to 'DECODE'\n");
+					options->mode = DECODE;
+				}
+			} else if (strcmp(argv[foo],"-t") == 0) {		// if testing, set the mode to test
+				if (options->mode == NONE) {
+					LOG_DEBUG("S: Setting mode to 'TEST'\n");
+					options->mode = TEST;
+				}
+			} else if (strcmp(argv[foo],"--version") == 0) {	// if wanting to display version number
+				LOG_DEBUG("S: Setting mode to 'VERSION'\n");
+				options->mode = VERSION;
+				break;
+			} else if (strcmp(argv[foo],"-c") == 0) {		// compress with qlz
+				LOG_DEBUG("S: Setting QLZ compression\n");
+				options->comp = 10;
+			} else if (strncmp(argv[foo],"-zlib",5) == 0) {	// compress with zlib
+				LOG_DEBUG("S: Setting ZLIB compression\n");
+				if ( strlen(argv[foo]) == 6 ) {
+					if (isdigit(argv[foo][5])) {
+						options->comp = (char)atoi(&argv[foo][5]);
+					} else {
+						options->comp = 6;
+					}
+				} else {
+					options->comp = 6;
+				}
+			} else if (strcmp(argv[foo], "-aes") == 0) {		// encrypt with AES
+				if (++foo >= argc) { return EXIT_FAILURE; }
+				LOG_DEBUG("S: Setting AES encryption\n");
+				options->enc_key = sha2_key(argv[foo]);
+			} else {									// more invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 				return EXIT_FAILURE;
 			}
-		} else {
-			// otherwise assume it is a file name
+		} else {										// otherwise assume it is a file name
 			switch(arg_count) {
-				case 0:						// arg 1
+				case 0:									// arg 1
 					options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->input_file, argv[foo], strlen(argv[foo]));
 					break;
-				case 1:						// arg 2
+				case 1:									// arg 2
 					options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->output_file, argv[foo], strlen(argv[foo]));
 					break;
-				case 2:						// arg 3
+				case 2:									// arg 3
 					options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->data, argv[foo], strlen(argv[foo]));
 					break;
-				case 3:						// arg 4
+				case 3:									// arg 4
 					options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->test_out, argv[foo], strlen(argv[foo]));
 					break;
-				default:					// others
+				default:								// others
 					break;
 			}
 			++arg_count;
 		}
 	}
 	// check for arguemnt errors that have not been caught yet
-	if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
-		LOG_DEBUG("E: Incorrect number of arguments.\n");
-		return EXIT_FAILURE;
+	if (options->mode != VERSION) {
+		if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
+			LOG_DEBUG("E: Incorrect number of arguments.\n");
+			return EXIT_FAILURE;
+		}
 	}
-	// its over
-	return EXIT_SUCCESS;
+
+	return EXIT_SUCCESS;								// its over
 }
 
 /****************************************************************/
@@ -136,7 +139,7 @@ void opt_init(opts *foo) {
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
 	foo->enc_key = NULL;
-	foo->mode = ENCODE; 
+	foo->mode = NONE; 
 	foo->comp = 0; 
 	return;
 }

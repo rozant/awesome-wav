@@ -22,12 +22,12 @@
 #include <stdlib.h>
 
 /****************************************************************/
-/* function: compress_file										*/
+/* function: qlz_compress_file									*/
 /* purpose: compress a file										*/
-/* args: const char *,  const char *,  const char				*/
+/* args: const char *,  const char *							*/
 /* returns: int													*/
 /****************************************************************/
-int compress_file(const char *filename, const char *destfile, const char level) {
+int qlz_compress_file(const char *filename, const char *destfile) {
 	FILE *fin = NULL, *fout = NULL;
 	char *in_buff, *com_buff, *scratch;
 	size_t read, com;
@@ -81,12 +81,12 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 }
 
 /****************************************************************/
-/* function: decompress_file									*/
+/* function: qlz_decompress_file								*/
 /* purpose: decompress a file									*/
 /* args: const char *,  const char *							*/
 /* returns: int													*/
 /****************************************************************/
-int decompress_file(const char *filename, const char *destfile) {
+int qlz_decompress_file(const char *filename, const char *destfile) {
 	FILE *fin = NULL, *fout = NULL;
 	char *in_buff, *decom_buff, *scratch;
 	size_t read, decom;
@@ -145,12 +145,12 @@ int decompress_file(const char *filename, const char *destfile) {
 }
 
 /****************************************************************/
-/* function: comp_err											*/
-/* purpose: report a compress_util error					 	*/
+/* function: qlz_comp_err										*/
+/* purpose: report a qlz_compress_util error				 	*/
 /* args: const int												*/
 /* returns: const char *										*/
 /****************************************************************/
-const char *comp_err(const int ret) {
+const char *qlz_comp_err(const int ret) {
 	switch (ret) {
 		case QLZ_SUCCESS:
 			return gettext("qlz util did not fail");

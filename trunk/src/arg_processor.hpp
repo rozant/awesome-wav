@@ -21,7 +21,8 @@ enum opt_modes {
 	NONE = 0,	
 	ENCODE = 1,
 	DECODE = 2,
-	TEST = 3
+	TEST = 3,
+	VERSION = 4
 };
 
 // structure for holding options
@@ -31,8 +32,8 @@ struct opts {
 	char *data;								// data file name
 	char *test_out;							// test data output
 	unsigned char *enc_key;					// encryption key
-	char mode;								// encode or decode
-	char comp;								// should data be/is data compressed
+	unsigned char mode;						// encode or decode
+	unsigned char comp;						// should data be/is data compressed
 };
 
 // function prototypes
