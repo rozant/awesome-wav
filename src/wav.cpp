@@ -21,9 +21,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#ifdef _DEBUGOUTPUT
 #include <time.h>
-#endif
 
 /****************************************************************/
 /* function: wav::wav											*/
@@ -250,11 +248,12 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /* returns: unsigned long int									*/
 /****************************************************************/
 unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
-	unsigned long int dataSize = 0, maxSize = 0;
+	unsigned long int dataSize = 0, currentSize = 0, maxSize = 0;
 	DWORD bytesPerSample = (fmt.BitsPerSample >> 3);
 	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
 	BYTE bitsUsed = 0;
 	size_t wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
+	bool endOfDataFile = false;
 
 	// Get size of data file we want to encode
 	fseek(fInputDATA, 0, SEEK_END);
@@ -304,22 +303,63 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	clock_t start = clock();
 	#endif
 
-	// read into the buffers, process, and write
-	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
-	dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
+	wavBufferSize = 1;
 
 	// while there is data in the buffer encode and write to the file
-	while (wavBufferSize != 0) {
+	while (true) {
+		// get the next chunk of song
+ 		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
+		if (wavBufferSize == 0) {
+			break;
+		}
+
+		// get the next chunk of data
+		if (!endOfDataFile) {
+			dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
+			if ( dataBufferSize < maxDataBufferSize ) {
+				endOfDataFile = true;
+				// seed the random number generator
+				srand((unsigned int)time(NULL));
+			}
+		}
+
+		// no more data so generate random stuff
+		if (endOfDataFile) {
+			BYTE* currPos_DataBuffer = dataBuffer;
+			size_t count = 0x00, offset = 0, increment = sizeof(int);
+
+			// copy music data to the data buffer
+			if ( dataBufferSize < maxDataBufferSize ) {
+				// the buffer is partiallly full from a read... only overwrite some of the buffer
+				offset = dataBufferSize;
+				memcpy(dataBuffer + dataBufferSize, wavBuffer, maxDataBufferSize - dataBufferSize);
+			} else {
+				memcpy(dataBuffer, wavBuffer, dataBufferSize);
+			}
+
+			// we continue encoding until the data buffer is empty so make sure its to correct size
+			dataBufferSize = (currentSize + maxDataBufferSize > maxSize) ? maxSize - currentSize : maxDataBufferSize;
+
+			if (dataBufferSize - offset >= increment) {
+				currPos_DataBuffer += offset;
+				count += offset;
+				while (count <= dataBufferSize - increment) {
+					*currPos_DataBuffer = rand();
+					currPos_DataBuffer += increment;
+					count += increment;
+				}
+			}
+		}
+
 		// encode and error out if it fails
-		if ((dataBufferSize != 0) && !encode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
+		if (!encode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
 			free(wavBuffer); free(dataBuffer);
 			return false;
 		}
 		// write the changes to the file
 		fwrite(wavBuffer, sizeof(BYTE), wavBufferSize, fOutputWAV);
-		// get the next chunk of data
- 		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
-		dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
+
+		currentSize += maxDataBufferSize;
 	}
 
 	LOG_DEBUG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
