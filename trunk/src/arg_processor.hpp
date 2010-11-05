@@ -18,6 +18,7 @@
 
 // defines for all of the formats the program supports
 enum opt_formats {
+	UNKNOWN,
 	WAV,
 	FLAC
 };

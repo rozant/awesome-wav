@@ -101,6 +101,12 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 			++arg_count;
 		}
 	}
+
+	// change to check for file extension
+	if (options->format == UNKNOWN) {
+		options->format = WAV;
+	}
+
 	// check for arguemnt errors that have not been caught yet
 	if (options->mode != VERSION) {
 		if ((options->format != WAV) && (options->format != FLAC)) {
@@ -132,6 +138,8 @@ void opt_clean(opts *foo) {
 		free(foo->enc_key);
 		foo->enc_key = NULL;
 	}
+	foo->input_file = foo->output_file = NULL;
+	foo->data = foo->test_out = NULL;
 	return;
 }
 
@@ -145,8 +153,9 @@ void opt_init(opts *foo) {
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
 	foo->enc_key = NULL;
+	foo->format = UNKNOWN;
 	foo->mode = NONE; 
-	foo->comp = 0; 
+	foo->comp = 0;
 	return;
 }
 
