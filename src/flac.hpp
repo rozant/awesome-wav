@@ -40,8 +40,8 @@ class flac {
 		// destructor
 		~flac(void);
 		// manipulation
-		unsigned long int encode(void);
-		bool decode(void);
+		unsigned long int encode(const char[], const char[], const char[]);
+		bool decode(const char[], const char[], const DWORD&);
 };
 
 #endif
