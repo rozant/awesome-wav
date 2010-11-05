@@ -16,23 +16,30 @@
 #ifndef __arg_processor_hpp__
 #define __arg_processor_hpp__
 
+// defines for all of the formats the program supports
+enum opt_formats {
+	WAV,
+	FLAC
+};
+
 // defines for all of the modes the program supports
 enum opt_modes {
-	NONE = 0,	
-	ENCODE = 1,
-	DECODE = 2,
-	TEST = 3,
-	VERSION = 4
+	NONE,
+	ENCODE,
+	DECODE,
+	TEST,
+	VERSION
 };
 
 // structure for holding options
 struct opts {
-	char *input_file;						// input wav name
-	char *output_file;						// output wav name
+	char *input_file;						// input song name
+	char *output_file;						// output song name
 	char *data;								// data file name
 	char *test_out;							// test data output
 	unsigned char *enc_key;					// encryption key
-	unsigned char mode;						// encode or decode
+	opt_formats format;						// song file format
+	opt_modes mode;							// encode or decode
 	unsigned char comp;						// should data be/is data compressed
 };
 

@@ -32,25 +32,31 @@
 int arg_processor(const int argc, const char **argv, opts *options) {
 	int arg_count = 0;
 
-	for (int foo = 1; foo < argc; foo++) {				// for all of the argumets
+	for (int foo = 1; foo < argc; foo++) {			// for all of the argumets
 		if (argv[foo][0] == '-') {						// if it is an option do stuff
-			if (strcmp(argv[foo],"-e") == 0) {				// if encoding, set the mode to encode
+			if (strcmp(argv[foo],"-wav") == 0) {				// its a WAV file
+				LOG_DEBUG("S: Setting format to 'WAV'\n");
+				options->format = WAV;
+			} else if (strcmp(argv[foo],"-WAV") == 0) {			// its a WAV file
+				LOG_DEBUG("S: Setting format to 'WAV'\n");
+				options->format = WAV;
+			} else if (strcmp(argv[foo],"-e") == 0) {			// if encoding, set the mode to encode
 				LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
 				options->mode = ENCODE;
-			} else if (strcmp(argv[foo],"-d") == 0) {		// if decoding, set the mode to decode
+			} else if (strcmp(argv[foo],"-d") == 0) {			// if decoding, set the mode to decode
 				LOG_DEBUG("S: Setting mode to 'DECODE'\n");
 				options->mode = DECODE;
-			} else if (strcmp(argv[foo],"-t") == 0) {		// if testing, set the mode to test
+			} else if (strcmp(argv[foo],"-t") == 0) {			// if testing, set the mode to test
 				LOG_DEBUG("S: Setting mode to 'TEST'\n");
 				options->mode = TEST;
 			} else if (strcmp(argv[foo],"--version") == 0) {	// if wanting to display version number
 				LOG_DEBUG("S: Setting mode to 'VERSION'\n");
 				options->mode = VERSION;
 				break;
-			} else if (strcmp(argv[foo],"-c") == 0) {		// compress with qlz
+			} else if (strcmp(argv[foo],"-c") == 0) {			// compress with qlz
 				LOG_DEBUG("S: Setting QLZ compression\n");
 				options->comp = 10;
-			} else if (strncmp(argv[foo],"-zlib",5) == 0) {	// compress with zlib
+			} else if (strncmp(argv[foo],"-zlib",5) == 0) {		// compress with zlib
 				if ( strlen(argv[foo]) == 6 ) {
 					if (isdigit(argv[foo][5])) {
 						LOG_DEBUG("S: Setting ZLIB compression level %d\n",atoi(&argv[foo][5]));
@@ -67,7 +73,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				if (++foo >= argc) { return EXIT_FAILURE; }
 				LOG_DEBUG("S: Setting AES encryption\n");
 				options->enc_key = sha2_key(argv[foo]);
-			} else {									// more invalid option
+			} else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 				return EXIT_FAILURE;
 			}
@@ -97,6 +103,10 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 	}
 	// check for arguemnt errors that have not been caught yet
 	if (options->mode != VERSION) {
+		if ((options->format != WAV) && (options->format != FLAC)) {
+			LOG_DEBUG("E: Must specify a song file format.\n");
+			return EXIT_FAILURE;
+		}
 		if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
 			LOG_DEBUG("E: Incorrect number of arguments.\n");
 			return EXIT_FAILURE;

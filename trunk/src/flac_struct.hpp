@@ -18,6 +18,13 @@
 #include "global.hpp"
 #include <stdlib.h>
 
+// error code defines
+#define FLAC_SUCCESS		 1
+#define FLAC_READ_FAIL		-1
+#define FLAC_WRITE_FAIL		-2
+#define FLAC_VALID_FAIL		-3
+#define FLAC_FILE_CLOSED	-4
+
 struct FLAC_METADATA_BLOCK_STREAMINFO {
 };
 

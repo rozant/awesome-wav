@@ -16,6 +16,7 @@
 #include "arg_processor.hpp"
 #include "global.hpp"
 #include "wav.hpp"
+#include "flac.hpp"
 #include "logger.hpp"
 #include "util.hpp"
 #ifndef _NZLIB
@@ -36,12 +37,17 @@
 void usage(const char prog_name[]) {
 	LOG("Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n", prog_name);
 	LOG("Encode data into a wav file, or decode data from a wav file.\n\n");
+	LOG("  -wav\tsong is a wav file\n");
+	LOG("  -flac\tsong is a flac file\n");
 	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
 	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");
-	LOG("  -c\tenable data compression with qlz.  If decoding, assume retrieved data is compressed\n");
+	LOG("  -c\tenable data compression with qlz\n");
+	LOG("\t -If decoding, assume retrieved data is compressed\n");
 #ifndef NZLIB
-	LOG("  -zlib\tenable data compression with zlib.  If decoding, assume retrieved data is compressed\n");
-	LOG("\tdefaults to -zlib6. valid options are -zlib1 through -zlib9, from low to high compression\n");
+	LOG("  -zlib\tenable data compression with zlib\n");
+	LOG("\t -If decoding, assume retrieved data is compressed\n");
+	LOG("\t -Defaults to -zlib6\n");
+	LOG("\t -Valid options are -zlib1 through -zlib9, from low to high compression\n");
 #endif
 	LOG("  -aes\tenable data encryption.  must be followed by the key.\n");
 	return;
@@ -74,7 +80,9 @@ int main(int argc, char* argv[]) {
 	char *data_z = (char *)"data.z";
 	char *data_aes = (char *)"data.aes";
 	opts options;
-	wav in_wav; // wav file definitaion
+	wav in_wav; // wav file definition
+	flac in_flac; // flac file definition
+
 	opt_init(&options); // set up the options struct
 
 	// decide what to do
@@ -137,7 +145,11 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// encode
-			size = in_wav.encode(options.input_file, options.data, options.output_file);
+			if (options.format == WAV) {
+				size = in_wav.encode(options.input_file, options.data, options.output_file);
+			} else if (options.format == FLAC) {
+				size = in_flac.encode();
+			}
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
 			// if failed, cleanup
@@ -158,7 +170,11 @@ int main(int argc, char* argv[]) {
 			// if neither is enabled
 			if (options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
 			// decode
-			temp = in_wav.decode(options.input_file, temp_str, (DWORD)atol(options.data));
+			if (options.format == WAV) {
+				temp = in_wav.decode(options.input_file, temp_str, (DWORD)atol(options.data));
+			} else if (options.format == FLAC) {
+				temp = in_flac.decode();
+			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
@@ -253,7 +269,11 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// encode
-			size = in_wav.encode(options.input_file, options.data, options.output_file);
+			if (options.format == WAV) {
+				size = in_wav.encode(options.input_file, options.data, options.output_file);
+			} else if (options.format == FLAC) {
+				size = in_flac.encode();
+			}
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
 			// if failed, cleanup
@@ -271,7 +291,11 @@ int main(int argc, char* argv[]) {
 			// if neither is enabled
 			if (options.comp == 0 && options.enc_key == NULL) { temp_str = options.test_out; }
 			// decode
-			temp = in_wav.decode(options.output_file, temp_str,size);
+			if (options.format == WAV) {
+				temp = in_wav.decode(options.output_file, temp_str, size);
+			} else if (options.format == FLAC) {
+				temp = in_flac.decode();
+			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
