@@ -13,8 +13,7 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#include "flac_struct.hpp"
-#include "flac_func.hpp"
+#include "test.hpp"
 #include "flac.hpp"
 #include "global.hpp"
 #include "util.hpp"
@@ -48,3 +47,30 @@ flac::~flac(void) {
 void flac::clean(void) {
 	return;
 }
+
+/****************************************************************/
+/* function: flac::dostuff										*/
+/* purpose: does things											*/
+/* args: void													*/
+/* returns: unsigned long int 									*/
+/****************************************************************/
+unsigned long int flac::dostuff(void) {
+	unsigned long int ret_val = 0;
+	FILE *fInputFLAC;
+	char *inputFLAC = (char *)"16_Bit_PCM.flac";
+
+	LOG("Opening input wave file...\n");
+	// Open up our input wav file
+	fInputFLAC = open(inputFLAC, "rb");
+	if (fInputFLAC == NULL) { return false; }
+
+	FLACread(fInputFLAC, this);
+
+	// clean up
+	clean();
+	return ret_val;
+}
+
+/****************************************************************/
+/****************************************************************/
+/****************************************************************/

@@ -25,9 +25,15 @@
 /****************************************************************/
 class flac {
 	private:
-
+		FLAC_STREAM stream;
+		// file operations
+		template <class T>
+		friend int FLACread(FILE*,T *);
+		template <class T>
+		friend int FLACreadSTREAM(FILE*,T *);
 		// other things
 		void clean(void);
+		unsigned long int dostuff(void);
 	public:
 		// constructors
 		flac(void);
