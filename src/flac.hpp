@@ -39,6 +39,9 @@ class flac {
 		flac(void);
 		// destructor
 		~flac(void);
+		// manipulation
+		unsigned long int encode(void);
+		bool decode(void);
 };
 
 #endif

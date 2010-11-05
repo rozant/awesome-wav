@@ -17,7 +17,6 @@
 #define __flac_func_hpp__
 #include "global.hpp"
 #include "flac_struct.hpp"
-#include "flac_func.hpp"
 #include "logger.hpp"
 #include <stdio.h>
 #include <string.h>

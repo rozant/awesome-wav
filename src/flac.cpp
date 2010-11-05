@@ -13,7 +13,6 @@
 * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,	 *
 * USA.															 *
 *****************************************************************/
-#include "test.hpp"
 #include "flac.hpp"
 #include "global.hpp"
 #include "util.hpp"
@@ -49,12 +48,12 @@ void flac::clean(void) {
 }
 
 /****************************************************************/
-/* function: flac::dostuff										*/
-/* purpose: does things											*/
-/* args: void													*/
-/* returns: unsigned long int 									*/
+/* function: encode												*/
+/* purpose: open the files ment for encoding				 	*/
+/* args: const char[], const char[], const char[]				*/
+/* returns: unsigned long int									*/
 /****************************************************************/
-unsigned long int flac::dostuff(void) {
+unsigned long int flac::encode(void) {
 	unsigned long int ret_val = 0;
 	FILE *fInputFLAC;
 	char *inputFLAC = (char *)"16_Bit_PCM.flac";
@@ -69,6 +68,16 @@ unsigned long int flac::dostuff(void) {
 	// clean up
 	clean();
 	return ret_val;
+}
+
+/****************************************************************/
+/* function: decode												*/
+/* purpose: open the files ment for decoding				 	*/
+/* args: const char[], const char[], const DWORD&				*/
+/* returns: bool												*/
+/****************************************************************/
+bool flac::decode(void) {
+	return false;
 }
 
 /****************************************************************/
