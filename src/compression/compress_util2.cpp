@@ -62,9 +62,9 @@ int qlz_compress_file(const char *filename, const char *destfile) {
 	}
 	// compress the file
 	while((read = fread(in_buff, 1,C_BUFF, fin)) != 0) {
-        com = qlz_compress(in_buff, com_buff, read, scratch);
-        fwrite(com_buff, com, 1, fout);
-    }
+		com = qlz_compress(in_buff, com_buff, read, scratch);
+		fwrite(com_buff, com, 1, fout);
+	}
 
 	// close files and exit
 	if (fclose(fout)) {
@@ -120,12 +120,12 @@ int qlz_decompress_file(const char *filename, const char *destfile) {
 		return QLZ_BUFF_MEM_FAIL;
 	}
 	// decompress the file
-    while((read = fread(in_buff, 1, 9, fin)) != 0) {
-        read = qlz_size_compressed(in_buff);
-        fread(in_buff + 9, 1, read - 9, fin);
-        decom = qlz_decompress(in_buff, decom_buff, scratch);
-        fwrite(decom_buff, decom, 1, fout);
-    }
+	while((read = fread(in_buff, 1, 9, fin)) != 0) {
+		//read = qlz_size_compressed(in_buff);
+		fread(in_buff + 9, 1, read - 9, fin);
+		//decom = qlz_decompress(in_buff, decom_buff, scratch);
+		fwrite(decom_buff, decom, 1, fout);
+	}
 
 	// close files and exit
 	if (fclose(fout)) {
