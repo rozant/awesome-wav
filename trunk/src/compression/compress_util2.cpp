@@ -121,9 +121,9 @@ int qlz_decompress_file(const char *filename, const char *destfile) {
 	}
 	// decompress the file
 	while((read = fread(in_buff, 1, 9, fin)) != 0) {
-		//read = qlz_size_compressed(in_buff);
+		read = qlz_size_compressed(in_buff);
 		fread(in_buff + 9, 1, read - 9, fin);
-		//decom = qlz_decompress(in_buff, decom_buff, scratch);
+		decom = qlz_decompress(in_buff, decom_buff, scratch);
 		fwrite(decom_buff, decom, 1, fout);
 	}
 
