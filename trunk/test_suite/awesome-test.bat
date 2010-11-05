@@ -6,8 +6,9 @@ set PROGRAM=..\bin\awesome-wav.exe
 set FILE=""
 set DATA=""
 set CURR_SERIES=""
-set E_FILE=E_FILE.wav
+set E_FILE=""
 set D_DATA=D_data.txt
+set FORMAT=""
 set /A COMPRESSION_LEVEL=0
 set /A TEST_NUM=1
 set /A TEST_PASS=0
@@ -64,6 +65,10 @@ set DATA_64_BIT_IEEE6=test_input-16b-64kbps-174329944.txt
 set DATA_64_BIT_IEEE7=test_input-32b-64kbps-174329944.txt
 set NUM_64_BIT_IEEE=7
 
+set FILE_FLAC=song.flac
+set DATA_FLAC1=test.txt
+set NUM_FLAC=1
+
 :START
 cls
 if %COMPRESSION_LEVEL% NEQ 0 echo Compression is enabled (level %COMPRESSION_LEVEL%).
@@ -79,20 +84,22 @@ echo 3.Run 24 Bit PCM tests
 echo 4.Run 32 Bit PCM tests
 echo 5.Run 32 Bit IEEE tests
 echo 6.Run 64 Bit IEEE tests
-echo 7.Set compression level
-echo 8.Set AES encryption
-echo 9.Quit
+echo 7.Run Flac tests
+echo 8.Set compression level
+echo 9.Set AES encryption
+echo 10.Quit
 echo.
-set /p choice=Enter your choice (1-9): 
+set /p choice=Enter your choice (1-10): 
 if %choice%==1 goto 8_BIT_PCM
 if %choice%==2 goto 16_BIT_PCM
 if %choice%==3 goto 24_BIT_PCM
 if %choice%==4 goto 32_BIT_PCM
 if %choice%==5 goto 32_BIT_IEEE
 if %choice%==6 goto 64_BIT_IEEE
-if %choice%==7 goto SET_COMPRESSION_LEVEL
-if %choice%==8 goto SET_AES_ENCRYPTION
-if %choice%==9 goto QUIT
+if %choice%==7 goto FLAC
+if %choice%==8 goto SET_COMPRESSION_LEVEL
+if %choice%==9 goto SET_AES_ENCRYPTION
+if %choice%==10 goto QUIT
 goto START
 
 :SHOW_RESULTS
@@ -113,10 +120,10 @@ goto %CURR_SERIES%%TEST_NUM%
 echo ===============================================================================
 echo Test %TEST_NUM%
 echo ===============================================================================
-echo WAV FILE:    "%FILE%"
+echo SONG FILE:   "%FILE%"
 echo E_WAV FILE:  "%E_FILE%"
 echo DATA FILE:   "%DATA%"
-echo D_DATAFILE:  "%D_DATA%"
+echo D_DATA FILE: "%D_DATA%"
 if %COMPRESSION_LEVEL% NEQ 0 echo COMPRESSION ENABLED (level %COMPRESSION_LEVEL%)
 if %COMPRESSION_LEVEL%==0 echo COMPRESSION DISABLED
 if %AES_ENABLED%==1 echo AES ENABLED
@@ -124,8 +131,9 @@ if %AES_ENABLED%==0 echo AES DISABLED
 echo.
 if not exist %PROGRAM% goto NO_PROGRAM
 echo Encoding and decoding files.
-if %AES_ENABLED%==1 %PROGRAM% -aes %AES_PASSWORD% -zlib%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
-if %AES_ENABLED%==0 %PROGRAM% -zlib%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+echo %FORMAT%
+if %AES_ENABLED%==1 %PROGRAM% -%FORMAT% -aes %AES_PASSWORD% -zlib%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
+if %AES_ENABLED%==0 %PROGRAM% -%FORMAT% -zlib%COMPRESSION_LEVEL% -t "%FILE%" "%E_FILE%" "%DATA%" "%D_DATA%"
 if %ERRORLEVEL% NEQ 0 goto PROGRAM_FAIL
 echo Program succeeded.
 echo.
@@ -196,6 +204,8 @@ if %choice% NEQ y goto QUIT
 exit
 
 :8_BIT_PCM
+set FORMAT=wav
+set E_FILE=E_FILE.wav
 set CURR_SERIES=T_8_BIT_PCM
 set FILE=%FILE_8_BIT_PCM%
 set /A NUM_TESTS=%NUM_8_BIT_PCM%
@@ -215,6 +225,8 @@ set DATA=%DATA_8_BIT_PCM3%
 goto RUN_TEST
 
 :16_BIT_PCM
+set FORMAT=wav
+set E_FILE=E_FILE.wav
 set CURR_SERIES=T_16_BIT_PCM
 set FILE=%FILE_16_BIT_PCM%
 set /A NUM_TESTS=%NUM_16_BIT_PCM%
@@ -238,6 +250,8 @@ set DATA=%DATA_16_BIT_PCM4%
 goto RUN_TEST
 
 :24_BIT_PCM
+set FORMAT=wav
+set E_FILE=E_FILE.wav
 set CURR_SERIES=T_24_BIT_PCM
 set FILE=%FILE_24_BIT_PCM%
 set /A NUM_TESTS=%NUM_24_BIT_PCM%
@@ -265,6 +279,8 @@ set DATA=%DATA_24_BIT_PCM5%
 goto RUN_TEST
 
 :32_BIT_PCM
+set FORMAT=wav
+set E_FILE=E_FILE.wav
 set CURR_SERIES=T_32_BIT_PCM
 set FILE=%FILE_32_BIT_PCM%
 set /A NUM_TESTS=%NUM_32_BIT_PCM%
@@ -296,6 +312,8 @@ set DATA=%DATA_32_BIT_PCM6%
 goto RUN_TEST
 
 :32_BIT_IEEE
+set FORMAT=wav
+set E_FILE=E_FILE.wav
 set CURR_SERIES=T_32_BIT_IEEE
 set FILE=%FILE_32_BIT_IEEE%
 set /A NUM_TESTS=%NUM_32_BIT_IEEE%
@@ -327,6 +345,8 @@ set DATA=%DATA_32_BIT_IEEE6%
 goto RUN_TEST
 
 :64_BIT_IEEE
+set FORMAT=wav
+set E_FILE=E_FILE.wav
 set CURR_SERIES=T_64_BIT_IEEE
 set FILE=%FILE_64_BIT_IEEE%
 set /A NUM_TESTS=%NUM_64_BIT_IEEE%
@@ -359,4 +379,17 @@ goto RUN_TEST
 
 :T_64_BIT_IEEE7
 set DATA=%DATA_64_BIT_IEEE7%
+goto RUN_TEST
+
+:FLAC
+set FORMAT=flac
+set E_FILE=E_FILE.flac
+set CURR_SERIES=T_FLAC
+set FILE=%FILE_FLAC%
+set /A NUM_TESTS=%NUM_FLAC%
+cls
+goto T_FLAC1
+
+:T_FLAC1
+set DATA=%DATA_FLAC1%
 goto RUN_TEST

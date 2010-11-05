@@ -34,12 +34,12 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 
 	for (int foo = 1; foo < argc; foo++) {			// for all of the argumets
 		if (argv[foo][0] == '-') {						// if it is an option do stuff
-			if (strcmp(argv[foo],"-wav") == 0) {				// its a WAV file
+			if (strcmp(argv[foo],"-wav") == 0) {				// its a wav file
 				LOG_DEBUG("S: Setting format to 'WAV'\n");
 				options->format = WAV;
-			} else if (strcmp(argv[foo],"-WAV") == 0) {			// its a WAV file
-				LOG_DEBUG("S: Setting format to 'WAV'\n");
-				options->format = WAV;
+			} else if (strcmp(argv[foo],"-flac") == 0) {		// its a flac file
+				LOG_DEBUG("S: Setting format to 'FLAC'\n");
+				options->format = FLAC;
 			} else if (strcmp(argv[foo],"-e") == 0) {			// if encoding, set the mode to encode
 				LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
 				options->mode = ENCODE;

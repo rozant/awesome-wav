@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				size = in_wav.encode(options.input_file, options.data, options.output_file);
 			} else if (options.format == FLAC) {
-				size = in_flac.encode();
+				size = in_flac.encode(options.input_file, options.data, options.output_file);
 			}
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				temp = in_wav.decode(options.input_file, temp_str, (DWORD)atol(options.data));
 			} else if (options.format == FLAC) {
-				temp = in_flac.decode();
+				temp = in_flac.decode(options.input_file, temp_str, (DWORD)atol(options.data));
 			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");
@@ -272,7 +272,7 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				size = in_wav.encode(options.input_file, options.data, options.output_file);
 			} else if (options.format == FLAC) {
-				size = in_flac.encode();
+				size = in_flac.encode(options.input_file, options.data, options.output_file);
 			}
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
@@ -294,7 +294,7 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				temp = in_wav.decode(options.output_file, temp_str, size);
 			} else if (options.format == FLAC) {
-				temp = in_flac.decode();
+				temp = in_flac.decode(options.output_file, temp_str, size);
 			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");

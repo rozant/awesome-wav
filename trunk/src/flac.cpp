@@ -53,7 +53,7 @@ void flac::clean(void) {
 /* args: const char[], const char[], const char[]				*/
 /* returns: unsigned long int									*/
 /****************************************************************/
-unsigned long int flac::encode(void) {
+unsigned long int flac::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
 	unsigned long int ret_val = 0;
 	FILE *fInputFLAC;
 	char *inputFLAC = (char *)"16_Bit_PCM.flac";
@@ -76,7 +76,7 @@ unsigned long int flac::encode(void) {
 /* args: const char[], const char[], const DWORD&				*/
 /* returns: bool												*/
 /****************************************************************/
-bool flac::decode(void) {
+bool flac::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize) {
 	return false;
 }
 
