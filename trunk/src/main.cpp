@@ -73,7 +73,7 @@ void version_info(void) {
 /* returns: int													*/
 /****************************************************************/
 int main(int argc, char* argv[]) {
-	unsigned long int size = 0x00, temp;
+	unsigned long int size = 0x00, temp = 0;
 	int ret = EXIT_SUCCESS;
 	char *temp_str = NULL;
 	char *file_name = NULL;
