@@ -37,12 +37,20 @@
 // Using size_t, memset() and memcpy()
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Public functions of QuickLZ
 size_t qlz_size_decompressed(const char *source);
 size_t qlz_size_compressed(const char *source);
 size_t qlz_decompress(const char *source, void *destination, char *scratch_decompress);
 size_t qlz_compress(const void *source, char *destination, size_t size, char *scratch_compress);
 int qlz_get_setting(int setting);
+
+#ifdef __cplusplus
+}
+#endif
 
 // Verify compression level
 #if QLZ_COMPRESSION_LEVEL != 1 && QLZ_COMPRESSION_LEVEL != 2 && QLZ_COMPRESSION_LEVEL != 3
