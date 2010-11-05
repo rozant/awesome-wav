@@ -110,6 +110,7 @@ int RIFFread(FILE *inFile, T *input) {
 	}
 	return RIFF_SUCCESS;
 }
+
 /****************************************************************/
 /* function: RIFFreadRIFF										*/
 /* purpose: reads the riff header from a wav file				*/

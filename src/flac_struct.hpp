@@ -18,139 +18,155 @@
 #include "global.hpp"
 #include <stdlib.h>
 
-struct _METADATA_BLOCK_STREAMINFO {
-	_METADATA_BLOCK_STREAMINFO(void) { return; }
-	~_METADATA_BLOCK_STREAMINFO(void) { return; }
+struct FLAC_METADATA_BLOCK_STREAMINFO {
 };
 
-struct _METADATA_BLOCK_PADDING {
-	_METADATA_BLOCK_PADDING(void) { return; }
-	~_METADATA_BLOCK_PADDING(void) { return; }
+struct FLAC_METADATA_BLOCK_PADDING {
 };
 
-struct _METADATA_BLOCK_APPLICATION {
-	_METADATA_BLOCK_APPLICATION(void) { return; }
-	~_METADATA_BLOCK_APPLICATION(void) { return; }
+struct FLAC_METADATA_BLOCK_APPLICATION {
 };
 
-struct _METADATA_BLOCK_SEEKTABLE {
-	_METADATA_BLOCK_SEEKTABLE(void) { return; }
-	~_METADATA_BLOCK_SEEKTABLE(void) { return; }
+struct FLAC_SEEKPOINT {
+	FLAC_SEEKPOINT(void) { return; }
+	~FLAC_SEEKPOINT(void) { return; }
 };
 
-struct _SEEKPOINT {
-	_SEEKPOINT(void) { return; }
-	~_SEEKPOINT(void) { return; }
+struct FLAC_METADATA_BLOCK_SEEKTABLE {
 };
 
-struct _METADATA_BLOCK_VORBIS_COMMENT {
-	_METADATA_BLOCK_VORBIS_COMMENT(void) { return; }
-	~_METADATA_BLOCK_VORBIS_COMMENT(void) { return; }
+struct FLAC_METADATA_BLOCK_VORBIS_COMMENT {
 };
 
-struct CUESHEET_INDEX {
-	CUESHEET_INDEX(void) { return; }
-	~CUESHEET_INDEX(void) { return; }
+struct FLAC_CUESHEET_INDEX {
+	FLAC_CUESHEET_INDEX(void) { return; }
+	~FLAC_CUESHEET_INDEX(void) { return; }
 };
 
-struct CUESHEET_TRACK {
-	CUESHEET_TRACK(void) { return; }
-	~CUESHEET_TRACK(void) { return; }
+struct FLAC_CUESHEET_TRACK {
+	FLAC_CUESHEET_TRACK(void) { return; }
+	~FLAC_CUESHEET_TRACK(void) { return; }
 };
 
-struct _METADATA_BLOCK_CUESHEET {
-	_METADATA_BLOCK_CUESHEET(void) { return; }
-	~_METADATA_BLOCK_CUESHEET(void) { return; }
+struct FLAC_METADATA_BLOCK_CUESHEET {
 };
 
-struct _METADATA_BLOCK_PICTURE {
-	_METADATA_BLOCK_PICTURE(void) { return; }
-	~_METADATA_BLOCK_PICTURE(void) { return; }
+struct FLAC_METADATA_BLOCK_PICTURE {
 };
 
-struct _FRAME_HEADER {
-	_FRAME_HEADER(void) { return; }
-	~_FRAME_HEADER(void) { return; }
+struct FLAC_FRAME_HEADER {
+	SHORT SyncCode_BlockingStrategy;
+	BYTE BlockSize_SampleRate;
+	BYTE ChannelAssignment_SampleSize;
+	BYTE *Extra;
+	BYTE CRC8;
+	FLAC_FRAME_HEADER(void) { Extra = NULL; return; }
+	~FLAC_FRAME_HEADER(void) { free(Extra); return; }
 };
 
-struct _RICE_PARTITION {
-	_RICE_PARTITION(void) { return; }
-	~_RICE_PARTITION(void) { return; }
+struct FLAC_RICE_PARTITION {
+	FLAC_RICE_PARTITION(void) { return; }
+	~FLAC_RICE_PARTITION(void) { return; }
 };
 
-struct _RESIDUAL_CODING_METHOD_PARTITIONED_RICE {
-	_RESIDUAL_CODING_METHOD_PARTITIONED_RICE(void) { return; }
-	~_RESIDUAL_CODING_METHOD_PARTITIONED_RICE(void) { return; }
+struct FLAC_RESIDUAL_CODING_METHOD_PARTITIONED_RICE {
+	FLAC_RESIDUAL_CODING_METHOD_PARTITIONED_RICE(void) { return; }
+	~FLAC_RESIDUAL_CODING_METHOD_PARTITIONED_RICE(void) { return; }
 };
 
-struct RICE2_PARTITION {
-	RICE2_PARTITION(void) { return; }
-	~RICE2_PARTITION(void) { return; }
+struct FLAC_RICE2_PARTITION {
+	FLAC_RICE2_PARTITION(void) { return; }
+	~FLAC_RICE2_PARTITION(void) { return; }
 };
 
-struct RESIDUAL_CODING_METHOD_PARTITIONED_RICE2 {
-	RESIDUAL_CODING_METHOD_PARTITIONED_RICE2(void) { return; }
-	~RESIDUAL_CODING_METHOD_PARTITIONED_RICE2(void) { return; }
+struct FLAC_RESIDUAL_CODING_METHOD_PARTITIONED_RICE2 {
+	FLAC_RESIDUAL_CODING_METHOD_PARTITIONED_RICE2(void) { return; }
+	~FLAC_RESIDUAL_CODING_METHOD_PARTITIONED_RICE2(void) { return; }
 };
 
-struct _RESIDUAL {
-	_RESIDUAL(void) { return; }
-	~_RESIDUAL(void) { return; }
+struct FLAC_RESIDUAL {
+	FLAC_RESIDUAL(void) { return; }
+	~FLAC_RESIDUAL(void) { return; }
 };
 
-struct _SUBFRAME_HEADER {
-	_SUBFRAME_HEADER(void) { return; }
-	~_SUBFRAME_HEADER(void) { return; }
+struct FLAC_SUBFRAME_HEADER {
+	BYTE SubFrameType_WastedBitsFlag;
+	BYTE *WastedBits;
+	FLAC_SUBFRAME_HEADER(void) { WastedBits = NULL; return; }
+	~FLAC_SUBFRAME_HEADER(void) { free(WastedBits); return; }
 };
 
-struct _SUBFRAME_CONSTANT {
-	_SUBFRAME_CONSTANT(void) { return; }
-	~_SUBFRAME_CONSTANT(void) { return; }
+struct FLAC_SUBFRAME_CONSTANT {
+	FLAC_SUBFRAME_CONSTANT(void) { return; }
+	~FLAC_SUBFRAME_CONSTANT(void) { return; }
 };
 
-struct _SUBFRAME_FIXED {
-	_SUBFRAME_FIXED(void) { return; }
-	~_SUBFRAME_FIXED(void) { return; }
+struct FLAC_SUBFRAME_FIXED {
+	FLAC_SUBFRAME_FIXED(void) { return; }
+	~FLAC_SUBFRAME_FIXED(void) { return; }
 };
 
-struct _SUBFRAME_LPC {
-	_SUBFRAME_LPC(void) { return; }
-	~_SUBFRAME_LPC(void) { return; }
+struct FLAC_SUBFRAME_LPC {
+	FLAC_SUBFRAME_LPC(void) { return; }
+	~FLAC_SUBFRAME_LPC(void) { return; }
 };
 
-struct _SUBFRAME_VERBATIM {
-	_SUBFRAME_VERBATIM(void) { return; }
-	~_SUBFRAME_VERBATIM(void) { return; }
+struct FLAC_SUBFRAME_VERBATIM {
+	FLAC_SUBFRAME_VERBATIM(void) { return; }
+	~FLAC_SUBFRAME_VERBATIM(void) { return; }
 };
 
-struct _FRAME_FOOTER {
-	_FRAME_FOOTER(void) { return; }
-	~_FRAME_FOOTER(void) { return; }
+struct FLAC_SUBFRAME {
+	FLAC_SUBFRAME(void) { return; }
+	~FLAC_SUBFRAME(void) { return; }
 };
 
-struct _FRAME {
-	_FRAME(void) { return; }
-	~_FRAME(void) { return; }
+struct FLAC_FRAME_FOOTER {
+	SHORT CRC16;
+	FLAC_FRAME_FOOTER(void) { return; }
+	~FLAC_FRAME_FOOTER(void) { return; }
 };
 
-struct _METADATA_BLOCK_HEADER {
-	_METADATA_BLOCK_HEADER(void) { return; }
-	~_METADATA_BLOCK_HEADER(void) { return; }
+struct FLAC_FRAME {
+	FLAC_FRAME_HEADER FrameHeader;
+	FLAC_SUBFRAME *Subframe;
+	BYTE *Padding;
+	FLAC_FRAME_FOOTER FrameFooter;
+	FLAC_FRAME(void) { Subframe = NULL; Padding = NULL; return; }
+	~FLAC_FRAME(void) { free(Subframe); free(Padding); return; }
 };
 
-struct _METADATA_BLOCK_DATA {
-	_METADATA_BLOCK_DATA(void) { return; }
-	~_METADATA_BLOCK_DATA(void) { return; }
+struct FLAC_METADATA_BLOCK_HEADER {
+	BYTE BlockType;
+	DWORD DataLength;
+	FLAC_METADATA_BLOCK_HEADER(void) { return; }
+	~FLAC_METADATA_BLOCK_HEADER(void) { return; }
 };
 
-struct _METADATA_BLOCK {
-	_METADATA_BLOCK(void) { return; }
-	~_METADATA_BLOCK(void) { return; }
+union FLAC_METADATA_BLOCK_DATA {
+	FLAC_METADATA_BLOCK_STREAMINFO StreamInfo;
+	FLAC_METADATA_BLOCK_PADDING Padding;
+	FLAC_METADATA_BLOCK_APPLICATION Application;
+	FLAC_METADATA_BLOCK_SEEKTABLE SeekTable;
+	FLAC_METADATA_BLOCK_VORBIS_COMMENT Comment;
+	FLAC_METADATA_BLOCK_CUESHEET Cuesheet;
+	FLAC_METADATA_BLOCK_PICTURE Picture;
 };
 
-struct _STREAM {
-	_STREAM(void) { return; }
-	~_STREAM(void) { return; }
+struct FLAC_METADATA_BLOCK {
+	FLAC_METADATA_BLOCK_HEADER Header;
+	FLAC_METADATA_BLOCK_DATA Data;
+	FLAC_METADATA_BLOCK(void) { return; }
+	~FLAC_METADATA_BLOCK(void) { return; }
+};
+
+struct FLAC_STREAM {
+	BYTE StreamMarker[5]; // "fLaC"
+	FLAC_METADATA_BLOCK StreamInfo;
+	FLAC_METADATA_BLOCK *ExtraInfo;
+	FLAC_FRAME *AudioFrames;
+	FLAC_STREAM(void) { StreamMarker[4] = 0; ExtraInfo = NULL; AudioFrames = NULL; return; }
+	~FLAC_STREAM(void) { free(ExtraInfo); free(AudioFrames); return; }
 };
 
 #endif

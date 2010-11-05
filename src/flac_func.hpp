@@ -16,16 +16,71 @@
 #ifndef __flac_func_hpp__
 #define __flac_func_hpp__
 #include "global.hpp"
-#include "flac.hpp"
+#include "flac_struct.hpp"
+#include "flac_func.hpp"
 #include "logger.hpp"
 #include <stdio.h>
 #include <string.h>
 
+/**********************Function Prototypes***********************/
 
+// read
+template <class T>
+int FLACread(FILE *, T *);
+template <class T>
+int FLACreadSTREAM(FILE *, T *);
+
+/***************************Functions****************************/
+
+/****************************************************************/
+/* function: FLACread											*/
+/* purpose: reads a flac file into memory						*/
+/* args: FILE *, T *											*/
+/* returns: int													*/
+/*		1 = read correctly										*/
+/*		0 = read incorrectly or did not read					*/
+/****************************************************************/
+template <class T>
+int FLACread(FILE *inFile, T *input) {
+	int ret_val;
+
+	// read riff chunk
+	ret_val = FLACreadSTREAM(inFile, input);
+	if (!ret_val) {
+		return ret_val;
+	}
+
+	return FLAC_SUCCESS;
+}
+
+/****************************************************************/
+/* function: FLACreadSTREAM										*/
+/* purpose: reads the stream chunk from a flac file				*/
+/* args: FILE *, T *											*/
+/* returns: int													*/
+/*		1 = read correctly										*/
+/*		0 = read incorrectly or did not read					*/
+/****************************************************************/
+template <class T>
+int FLACreadSTREAM(FILE *inFile, T *input) {
+	// read
+	if (fread(input->stream.StreamMarker, sizeof(BYTE), 4, inFile)) {
+		LOG_DEBUG("S: Read STREAM header\n");
+	} else {
+		LOG_DEBUG("E: Failed to read STREAM header: Could not read bytes\n");
+		return FLAC_READ_FAIL;
+	}
+	// basic validation
+	if (memcmp(input->stream.StreamMarker, "fLaC", 4) != 0) {
+		LOG_DEBUG("E: Invalid STREAM header: StreamMarker != 'fLaC'\n");
+		LOG_DEBUG("\tStreamMarker == %s\n", (char*)input->stream.StreamMarker);
+		return FLAC_VALID_FAIL;
+	}
+	return FLAC_SUCCESS;
+}
 
 #endif
 
 /****************************************************************/
 /****************************************************************/
 /****************************************************************/
-
