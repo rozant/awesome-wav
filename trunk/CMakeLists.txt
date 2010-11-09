@@ -32,6 +32,7 @@ IF(WIN32)
 	SET(ZLIB_INC ${LIBDIR}/src/win32/include)
 ENDIF(WIN32)
 
+#targets
 ADD_EXECUTABLE(awesome-wav 
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util.cpp
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
@@ -48,7 +49,86 @@ ${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
 ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
-
 target_link_libraries (awesome-wav z)
 
+ADD_EXECUTABLE(awesome-wav-test
+${CMAKE_SOURCE_DIR}/src/compression/compress_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
+${CMAKE_SOURCE_DIR}/src/util.cpp
+${CMAKE_SOURCE_DIR}/src/main.cpp
+${CMAKE_SOURCE_DIR}/src/arg_processor.cpp
+${CMAKE_SOURCE_DIR}/src/flac.cpp
+${CMAKE_SOURCE_DIR}/src/wav.cpp
+${CMAKE_SOURCE_DIR}/src/logger.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/sha2_util.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/aes_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/file_compression.c
+${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
+${CMAKE_SOURCE_DIR}/src/crypt/aes.c
+${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
+)
+target_link_libraries (awesome-wav-test z)
+
+ADD_EXECUTABLE(awesome-wav-debug
+${CMAKE_SOURCE_DIR}/src/compression/compress_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
+${CMAKE_SOURCE_DIR}/src/util.cpp
+${CMAKE_SOURCE_DIR}/src/main.cpp
+${CMAKE_SOURCE_DIR}/src/arg_processor.cpp
+${CMAKE_SOURCE_DIR}/src/flac.cpp
+${CMAKE_SOURCE_DIR}/src/wav.cpp
+${CMAKE_SOURCE_DIR}/src/logger.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/sha2_util.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/aes_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/file_compression.c
+${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
+${CMAKE_SOURCE_DIR}/src/crypt/aes.c
+${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
+)
+target_link_libraries (awesome-wav-debug z)
+
+ADD_EXECUTABLE(awesome-wav-nzlib 
+${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
+${CMAKE_SOURCE_DIR}/src/util.cpp
+${CMAKE_SOURCE_DIR}/src/main.cpp
+${CMAKE_SOURCE_DIR}/src/arg_processor.cpp
+${CMAKE_SOURCE_DIR}/src/flac.cpp
+${CMAKE_SOURCE_DIR}/src/wav.cpp
+${CMAKE_SOURCE_DIR}/src/logger.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/sha2_util.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/aes_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
+${CMAKE_SOURCE_DIR}/src/crypt/aes.c
+${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
+)
+
+ADD_EXECUTABLE(awesome-wav-test-nzlib
+${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
+${CMAKE_SOURCE_DIR}/src/util.cpp
+${CMAKE_SOURCE_DIR}/src/main.cpp
+${CMAKE_SOURCE_DIR}/src/arg_processor.cpp
+${CMAKE_SOURCE_DIR}/src/flac.cpp
+${CMAKE_SOURCE_DIR}/src/wav.cpp
+${CMAKE_SOURCE_DIR}/src/logger.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/sha2_util.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/aes_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
+${CMAKE_SOURCE_DIR}/src/crypt/aes.c
+${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
+)
+
+ADD_EXECUTABLE(awesome-wav-debug-nzlib
+${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
+${CMAKE_SOURCE_DIR}/src/util.cpp
+${CMAKE_SOURCE_DIR}/src/main.cpp
+${CMAKE_SOURCE_DIR}/src/arg_processor.cpp
+${CMAKE_SOURCE_DIR}/src/flac.cpp
+${CMAKE_SOURCE_DIR}/src/wav.cpp
+${CMAKE_SOURCE_DIR}/src/logger.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/sha2_util.cpp
+${CMAKE_SOURCE_DIR}/src/crypt/aes_util.cpp
+${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
+${CMAKE_SOURCE_DIR}/src/crypt/aes.c
+${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
+)
 
