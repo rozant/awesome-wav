@@ -52,6 +52,7 @@ bool close(FILE *aFile) {
 			LOG_DEBUG("E: Failed to close file\n");
 			return false;
 		} else {
+			aFile = NULL;
 			LOG_DEBUG("S: Closed file\n");
 			return true;
 		}
