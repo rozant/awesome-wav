@@ -6,8 +6,11 @@ set (awesome-wav_VERSION_MAJOR 1)
 set (awesome-wav_VERSION_MINOR 0)
 set (awesome-wav_VERSION_SUB_MINOR 0)
 
+#output directory
+SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+
 #flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -lz -D_FILE_OFFSET_BITS=64")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -D_FILE_OFFSET_BITS=64")
 
 #Platform specifics
 IF(UNIX AND NOT APPLE)
@@ -22,6 +25,8 @@ IF(APPLE)
 ENDIF(APPLE)
 
 IF(WIN32)
+	SET(ZLIB ${LIBDIR}/src/win32/lib)
+	SET(ZLIB_INC ${LIBDIR}/src/win32/include)
 ENDIF(WIN32)
 
 ADD_EXECUTABLE(awesome-wav 
@@ -40,5 +45,7 @@ ${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
 ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
+
+target_link_libraries (awesome-wav z)
 
 
