@@ -39,7 +39,7 @@
 	typedef unsigned __int8 BYTE;
 #else
 	#include <stdint.h>
-	typedef uint32_t DWORD; 
+	typedef uint32_t DWORD;
 	typedef uint16_t SHORT;
 	typedef uint8_t BYTE;
 #endif
