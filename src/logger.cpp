@@ -63,6 +63,7 @@ void logger::clean(void) {
 		FREE(entries[i].message);
 	FREE(entries);
 	numEntries = maxEntries = lastPrinted = 0;
+	entries = NULL;
 	return;
 }
 
