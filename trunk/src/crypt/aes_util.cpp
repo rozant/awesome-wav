@@ -193,7 +193,7 @@ int encrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 	off_t filesize, offset;
 	#endif
 
-	LOG("Encrypting file %s with AES ECB\n", filename);
+	LOG("Encrypting file %s with AES CBC\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
@@ -303,6 +303,7 @@ int encrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 
 	// return sucessfully
 	secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
+
 	if (fclose(fout)) {
 		LOG_DEBUG("E: AES - Failed to close encrypted file\n");
 	}
@@ -501,7 +502,7 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 	off_t filesize, offset;
 	#endif
 
-	LOG("Decrypting file %s encrypted with AES ECB\n", filename);
+	LOG("Decrypting file %s encrypted with AES CBC\n", filename);
 
 	// open our files
 	fin = fopen(filename, "rb");
@@ -579,8 +580,8 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 	aes_setkey_dec(&aes_ctx, digest, 256);
 	sha2_hmac_starts(&sha_ctx, digest, 32, 0);
 
-	for (offset = 0; offset < filesize; offset += 16) {
-		if (fread(buffer, 1, 16, fin) != 16) {
+	for (offset = 0; offset < filesize; offset += n) {
+		if (fread(buffer, 1, n, fin) != (size_t)n) {
 			LOG_DEBUG("E: AES - Failed to read encrypted data\n");
 			LOG("Failed to decrypt file %s\n", filename);
 			secure_exit(buffer, digest, IV, &aes_ctx, &sha_ctx);
@@ -589,7 +590,7 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 		    return AES_READ_FAIL;
 		}
 
-		sha2_hmac_update(&sha_ctx, buffer, 16);
+		sha2_hmac_update(&sha_ctx, buffer, n);
 		aes_crypt_cbc(&aes_ctx, AES_DECRYPT, n , IV, buffer, buffer);
 
 		if (fwrite(buffer, 1, n, fout) != (size_t)n) {
