@@ -182,7 +182,7 @@ int encrypt_file_ecb(const char *filename, const char *destfile, const unsigned 
 /* notes: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
 int encrypt_file_cbc(const char *filename, const char *destfile, const unsigned char *key) {
-		unsigned char buffer[1024], digest[32], IV[16];
+	unsigned char buffer[1024], digest[32], IV[16];
 	unsigned int foo = 0, keylen = sizeof(key);
 	FILE *fout = NULL, *fin = NULL;
 	aes_context aes_ctx;
@@ -285,7 +285,6 @@ int encrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 			safeRemove(destfile);
 			return AES_WRITE_FAIL;
 		}
-		memcpy( IV, buffer, 16 );
 	}
 	LOG_DEBUG("S: AES - Wrote encrypted data\n");
 	// finalize everything and write to the file
@@ -491,8 +490,8 @@ int decrypt_file_ecb(const char *filename, const char *destfile, const unsigned 
 /* notes: IV = SHA-256( filesize || filename )[0..15]			*/
 /****************************************************************/
 int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned char *key) {
-	unsigned char buffer[1024], digest[32], IV[16], tmp[16];
-	int foo = 0, keylen = sizeof(key), n = 0, lastn = 0;
+	unsigned char buffer[1024], digest[32], IV[16];
+	int foo = 0, keylen = sizeof(key), n = 16;
 	FILE *fout = NULL, *fin = NULL;
 	aes_context aes_ctx;
 	sha2_context sha_ctx;
@@ -534,7 +533,6 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 	}
 	LOG_DEBUG("S: AES - Filesize is %ld\n", filesize);
 
-
 	// make sure that the file could possibly be what it is supposed to be
 	if (filesize < 48) {
 		LOG_DEBUG("E: AES - File too short to be encrypted\n");
@@ -566,7 +564,6 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 	}
 	LOG_DEBUG("S: AES - Read the IV\n");
 	memcpy(IV, buffer, 16);
-	lastn = IV[15] & 0x0F;
 
 	// hash the IV and the key together for setting up the aes context + hmac
 	memset(digest, 0,  32);
@@ -591,14 +588,9 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 			fclose(fin);
 		    return AES_READ_FAIL;
 		}
-		memcpy(tmp, buffer, 16);
 
 		sha2_hmac_update(&sha_ctx, buffer, 16);
 		aes_crypt_cbc(&aes_ctx, AES_DECRYPT, n , IV, buffer, buffer);
-
-		memcpy(IV, tmp, 16);
-
-		n = (lastn > 0 && offset == filesize - 16) ? lastn : 16;
 
 		if (fwrite(buffer, 1, n, fout) != (size_t)n) {
 			LOG_DEBUG("E: AES - Failed to write decrypted data\n");
@@ -609,6 +601,7 @@ int decrypt_file_cbc(const char *filename, const char *destfile, const unsigned 
 		    return AES_WRITE_FAIL;
 		}
 	}
+
 	// finish up
 	sha2_hmac_finish(&sha_ctx, digest );
 
