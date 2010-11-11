@@ -130,12 +130,24 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// in encryption is enabled
-			if (options.enc_key != NULL) {
+			if (options.enc_key != NULL && options.enc_method != 0) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
-				if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
-					if (options.comp > 0) { safeRemove(options.data); }
+				if(options.enc_method == ECB) {
+					if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+						if (options.comp > 0) { safeRemove(options.data); }
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else if (options.enc_method == CBC) {
+					if (encrypt_file_cbc(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+						if (options.comp > 0) { safeRemove(options.data); }
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else {
+					LOG("Error: invalid encryption method.\n");
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -182,10 +194,25 @@ int main(int argc, char* argv[]) {
 				exit(EXIT_FAILURE);
 			}
 			// if encryption is enabled
-			if (options.enc_key != NULL) {
+			if (options.enc_key != NULL && options.enc_method != 0) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.output_file; }
-				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+				if (options.enc_method == ECB) {
+					if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+						safeRemove(data_aes);
+						safeRemove(temp_str);
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else if (options.enc_method == CBC) {
+					if (decrypt_file_cbc(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+						safeRemove(data_aes);
+						safeRemove(temp_str);
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else {
+					LOG("Error: invalid encryption method.\n");
 					safeRemove(data_aes);
 					safeRemove(temp_str);
 					opt_clean(&options);
@@ -254,12 +281,24 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// in encryption is enabled
-			if (options.enc_key != NULL) {
+			if (options.enc_key != NULL && options.enc_method != 0) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
-				if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
-					if (options.comp > 0) { safeRemove(options.data); }
+				if(options.enc_method == ECB) {
+					if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+						if (options.comp > 0) { safeRemove(options.data); }
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else if (options.enc_method == CBC) {
+					if (encrypt_file_cbc(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+						if (options.comp > 0) { safeRemove(options.data); }
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else {
+					LOG("Error: invalid encryption method.\n");
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -304,17 +343,33 @@ int main(int argc, char* argv[]) {
 			}
 
 			// if encryption is enabled
-			if (options.enc_key != NULL) {
+			if (options.enc_key != NULL && options.enc_method != 0) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.test_out; }
-				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+				if (options.enc_method == ECB) {
+					if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+						safeRemove(data_aes);
+						safeRemove(temp_str);
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else if (options.enc_method == CBC) {
+					if (decrypt_file_cbc(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
+						safeRemove(data_aes);
+						safeRemove(temp_str);
+						opt_clean(&options);
+						exit(EXIT_FAILURE);
+					}
+				} else {
+					LOG("Error: invalid encryption method.\n");
 					safeRemove(data_aes);
 					safeRemove(temp_str);
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
-				safeRemove(data_aes);
+				safeRemove("data.aes");
 			}
+
 			// if compression is enabled
 			if (options.comp > 0) {
 				#ifndef _NZLIB
