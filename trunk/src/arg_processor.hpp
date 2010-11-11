@@ -32,12 +32,19 @@ enum opt_modes {
 	VERSION
 };
 
+// defines for all of the formats the program supports
+enum enc_methods {
+	ECB = 1,
+	CBC = 2
+};
+
 // structure for holding options
 struct opts {
 	char *input_file;						// input song name
 	char *output_file;						// output song name
 	char *data;								// data file name
 	char *test_out;							// test data output
+	unsigned char enc_method;				// encryption method
 	unsigned char *enc_key;					// encryption key
 	opt_formats format;						// song file format
 	opt_modes mode;							// encode or decode

@@ -72,6 +72,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 			} else if (strcmp(argv[foo], "-aes") == 0) {		// encrypt with AES
 				if (++foo >= argc) { return EXIT_FAILURE; }
 				LOG_DEBUG("S: Setting AES encryption\n");
+				options->enc_method = ECB;
 				options->enc_key = sha2_key(argv[foo]);
 			} else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
@@ -140,6 +141,7 @@ void opt_clean(opts *foo) {
 	}
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
+	foo->comp = foo->enc_method = 0;
 	return;
 }
 
@@ -156,6 +158,7 @@ void opt_init(opts *foo) {
 	foo->format = UNKNOWN;
 	foo->mode = NONE; 
 	foo->comp = 0;
+	foo->enc_method = 0;
 	return;
 }
 
