@@ -74,29 +74,39 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				LOG_DEBUG("S: Setting AES encryption\n");
 				options->enc_method = ECB;
 				options->enc_key = sha2_key(argv[foo]);
+			} else if (strcmp(argv[foo], "-aes-ecb") == 0) {	// encrypt with AES
+				if (++foo >= argc) { return EXIT_FAILURE; }
+				LOG_DEBUG("S: Setting AES encryption\n");
+				options->enc_method = ECB;
+				options->enc_key = sha2_key(argv[foo]);
+			} else if (strcmp(argv[foo], "-aes-cbc") == 0) {	// encrypt with AES
+				if (++foo >= argc) { return EXIT_FAILURE; }
+				LOG_DEBUG("S: Setting AES encryption\n");
+				options->enc_method = CBC;
+				options->enc_key = sha2_key(argv[foo]);
 			} else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 				return EXIT_FAILURE;
 			}
-		} else {										// otherwise assume it is a file name
+		} else {												// otherwise assume it is a file name
 			switch(arg_count) {
-				case 0:									// arg 1
+				case 0:											// arg 1
 					options->input_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->input_file, argv[foo], strlen(argv[foo]));
 					break;
-				case 1:									// arg 2
+				case 1:											// arg 2
 					options->output_file = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->output_file, argv[foo], strlen(argv[foo]));
 					break;
-				case 2:									// arg 3
+				case 2:											// arg 3
 					options->data = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->data, argv[foo], strlen(argv[foo]));
 					break;
-				case 3:									// arg 4
+				case 3:											// arg 4
 					options->test_out = (char *)calloc(strlen(argv[foo])+1,sizeof(char));
 					memcpy(options->test_out, argv[foo], strlen(argv[foo]));
 					break;
-				default:								// others
+				default:										// others
 					break;
 			}
 			++arg_count;
@@ -120,7 +130,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 		}
 	}
 
-	return EXIT_SUCCESS;								// its over
+	return EXIT_SUCCESS;										// its over
 }
 
 /****************************************************************/
