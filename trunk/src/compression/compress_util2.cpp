@@ -66,6 +66,11 @@ int qlz_compress_file(const char *filename, const char *destfile) {
 		fwrite(com_buff, com, 1, fout);
 	}
 
+	// memory cleanup
+	FREE(in_buff);
+	FREE(com_buff);
+	FREE(scratch);
+
 	// close files and exit
 	if (fclose(fout)) {
 		LOG_DEBUG("E: QLZ - Failed to close encrypted file\n");
@@ -128,6 +133,11 @@ int qlz_decompress_file(const char *filename, const char *destfile) {
 		decom = qlz_decompress(in_buff, decom_buff, scratch);
 		fwrite(decom_buff, decom, 1, fout);
 	}
+
+	// memory cleanup
+	FREE(in_buff);
+	FREE(decom_buff);
+	FREE(scratch);
 
 	// close files and exit
 	if (fclose(fout)) {
