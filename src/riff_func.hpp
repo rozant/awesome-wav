@@ -122,9 +122,9 @@ int RIFFread(FILE *inFile, T *input) {
 template <class T>
 int RIFFreadRIFF(FILE *inFile, T *input) {
 	// read
-	if (fread(input->riff.ChunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&input->riff.ChunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(input->riff.Format, sizeof(BYTE), 4, inFile))
+	if (fread(input->riff.ChunkID, sizeof(int8), 4, inFile) &&
+		fread(&input->riff.ChunkSize, sizeof(int32), 1, inFile) &&
+		fread(input->riff.Format, sizeof(int8), 4, inFile))
 	{
 		LOG_DEBUG("S: Read RIFF header\n");
 	} else {
@@ -153,14 +153,14 @@ int RIFFreadRIFF(FILE *inFile, T *input) {
 /****************************************************************/
 template <class T>
 int RIFFreadFMT(FILE *inFile, T *input) {
-	if (fread(input->fmt.SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&input->fmt.SubchunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(&input->fmt.AudioFormat, sizeof(SHORT), 1, inFile) &&
-		fread(&input->fmt.NumChannels, sizeof(SHORT), 1, inFile) &&
-		fread(&input->fmt.SampleRate, sizeof(DWORD), 1, inFile) &&
-		fread(&input->fmt.ByteRate, sizeof(DWORD), 1, inFile) &&
-		fread(&input->fmt.BlockAlign, sizeof(SHORT), 1, inFile) &&
-		fread(&input->fmt.BitsPerSample, sizeof(SHORT), 1, inFile))
+	if (fread(input->fmt.SubchunkID, sizeof(int8), 4, inFile) &&
+		fread(&input->fmt.SubchunkSize, sizeof(int32), 1, inFile) &&
+		fread(&input->fmt.AudioFormat, sizeof(int16), 1, inFile) &&
+		fread(&input->fmt.NumChannels, sizeof(int16), 1, inFile) &&
+		fread(&input->fmt.SampleRate, sizeof(int32), 1, inFile) &&
+		fread(&input->fmt.ByteRate, sizeof(int32), 1, inFile) &&
+		fread(&input->fmt.BlockAlign, sizeof(int16), 1, inFile) &&
+		fread(&input->fmt.BitsPerSample, sizeof(int16), 1, inFile))
 	{
 		// basic validation
 		if (memcmp(input->fmt.SubchunkID, "fmt ", 4) != 0) {
@@ -173,11 +173,11 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 		}
 		// Need to read extra stuff
 		if (input->fmt.SubchunkSize-16 != 0) {
-			fread(&input->fmt.ExtraFormatBytes, sizeof(SHORT), 1, inFile);
+			fread(&input->fmt.ExtraFormatBytes, sizeof(int16), 1, inFile);
 			if (input->fmt.ExtraFormatBytes == 22) {
-				if (!(fread(&input->fmt.ValidBitsPerSample, sizeof(SHORT), 1, inFile) &&
-					fread(&input->fmt.ChannelMask, sizeof(DWORD), 1, inFile) &&
-					fread(input->fmt.SubFormat, sizeof(BYTE), 16, inFile)))
+				if (!(fread(&input->fmt.ValidBitsPerSample, sizeof(int16), 1, inFile) &&
+					fread(&input->fmt.ChannelMask, sizeof(int32), 1, inFile) &&
+					fread(input->fmt.SubFormat, sizeof(int8), 16, inFile)))
 				{
 					LOG_DEBUG("E: Failed to read FMT header: Could not read bytes\n");
 					return RIFF_READ_FAIL;
@@ -208,9 +208,9 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 /****************************************************************/
 template <class T>
 int RIFFreadFACT(FILE *inFile, T *input) {
-	if (fread(input->fact->SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&input->fact->SubchunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(&input->fact->SampleLength, sizeof(DWORD), 1, inFile))
+	if (fread(input->fact->SubchunkID, sizeof(int8), 4, inFile) &&
+		fread(&input->fact->SubchunkSize, sizeof(int32), 1, inFile) &&
+		fread(&input->fact->SampleLength, sizeof(int32), 1, inFile))
 	{
 		LOG_DEBUG("S: Read FACT header\n");
 	} else {
@@ -240,14 +240,14 @@ int RIFFreadFACT(FILE *inFile, T *input) {
 template <class T>
 int RIFFreadPEAK(FILE *inFile, T *input) {
 	unsigned int foo = 0;
-	if (fread(input->peak->SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&input->peak->SubchunkSize, sizeof(DWORD), 1, inFile) &&
-		fread(&input->peak->Version, sizeof(DWORD), 1, inFile) &&
-		fread(&input->peak->timestamp, sizeof(DWORD), 1, inFile)) 
+	if (fread(input->peak->SubchunkID, sizeof(int8), 4, inFile) &&
+		fread(&input->peak->SubchunkSize, sizeof(int32), 1, inFile) &&
+		fread(&input->peak->Version, sizeof(int32), 1, inFile) &&
+		fread(&input->peak->timestamp, sizeof(int32), 1, inFile)) 
 	{
 		// make sure peak size is valid
-		if (input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
-			input->peak->SubchunkSize != (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT)))
+		if (input->peak->SubchunkSize != (2*sizeof(int32) + input->fmt.NumChannels * sizeof(_PPEAK)) &&
+			input->peak->SubchunkSize != (2*sizeof(int32) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(int16)))
 		{
 			LOG_DEBUG("E: Invalid PEAK chunk size\n");
 			return RIFF_VALID_FAIL;
@@ -261,7 +261,7 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 		}
 		for (foo = 0; foo < input->fmt.NumChannels; ++foo) {
 			if (!(fread(&input->peak->peak[foo].Value, sizeof(float), 1, inFile) &&
-				fread(&input->peak->peak[foo].Position, sizeof(DWORD), 1, inFile)))
+				fread(&input->peak->peak[foo].Position, sizeof(int32), 1, inFile)))
 			{
 				LOG_DEBUG("E: Failed to read PEAK header: Could not read bytes\n");
 				return RIFF_READ_FAIL;
@@ -269,13 +269,13 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 		}
 
 		// read the 64-bit align if it exists
-		if (input->peak->SubchunkSize == (2*sizeof(DWORD) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(SHORT))) {
-			input->peak->bit_align = (SHORT *)malloc(sizeof(SHORT));
+		if (input->peak->SubchunkSize == (2*sizeof(int32) + input->fmt.NumChannels * sizeof(_PPEAK) + sizeof(int16))) {
+			input->peak->bit_align = (int16 *)malloc(sizeof(int16));
 			if (input->peak->bit_align == NULL) {
 				LOG_DEBUG("E: Failed to read PEAK header: Could not allocate memory\n");
 				return RIFF_READ_FAIL;
 			}
-			if (!fread(input->peak->bit_align, sizeof(SHORT), 1, inFile)) {
+			if (!fread(input->peak->bit_align, sizeof(int16), 1, inFile)) {
 				LOG_DEBUG("E: Failed to read PEAK header: Could not read bytes\n");
 				return RIFF_READ_FAIL;
 			}
@@ -299,8 +299,8 @@ int RIFFreadPEAK(FILE *inFile, T *input) {
 /****************************************************************/
 template <class T>
 int RIFFreadDATA(FILE *inFile, T *input) {
-	if (fread(input->data.SubchunkID, sizeof(BYTE), 4, inFile) &&
-		fread(&input->data.SubchunkSize, sizeof(DWORD), 1, inFile))
+	if (fread(input->data.SubchunkID, sizeof(int8), 4, inFile) &&
+		fread(&input->data.SubchunkSize, sizeof(int32), 1, inFile))
 	{
 		LOG_DEBUG("S: Read DATA header\n");
 	} else {
@@ -308,7 +308,7 @@ int RIFFreadDATA(FILE *inFile, T *input) {
 		return RIFF_READ_FAIL;
 	}
 	// basic validation
-	if (memcmp(input->data.SubchunkID, (BYTE*)"data", 4) != 0) {
+	if (memcmp(input->data.SubchunkID, (int8*)"data", 4) != 0) {
 		LOG_DEBUG("E: Invalid DATA header: SubchunkID != 'data'\n");
 		LOG_DEBUG("\tSubchunkID == %s\n", (char*)input->data.SubchunkID);
 		return RIFF_VALID_FAIL;
@@ -378,9 +378,9 @@ int RIFFwriteRIFF(FILE *outFile, const T *input) {
 		return RIFF_FILE_CLOSED;
 	}
 
-	if (fwrite(input->riff.ChunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&input->riff.ChunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(input->riff.Format, sizeof(BYTE), 4, outFile))
+	if (fwrite(input->riff.ChunkID, sizeof(int8), 4, outFile) &&
+		fwrite(&input->riff.ChunkSize, sizeof(int32), 1, outFile) &&
+		fwrite(input->riff.Format, sizeof(int8), 4, outFile))
 	{
 		LOG_DEBUG("S: Wrote RIFF header\n");
 		return RIFF_SUCCESS;
@@ -404,22 +404,22 @@ int RIFFwriteFMT(FILE *outFile, const T *input) {
 		return RIFF_FILE_CLOSED;
 	}
 
-	if (fwrite(input->fmt.SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&input->fmt.SubchunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->fmt.AudioFormat, sizeof(SHORT), 1, outFile) &&
-		fwrite(&input->fmt.NumChannels, sizeof(SHORT), 1, outFile) &&
-		fwrite(&input->fmt.SampleRate, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->fmt.ByteRate, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->fmt.BlockAlign, sizeof(SHORT), 1, outFile) &&
-		fwrite(&input->fmt.BitsPerSample, sizeof(SHORT), 1, outFile))
+	if (fwrite(input->fmt.SubchunkID, sizeof(int8), 4, outFile) &&
+		fwrite(&input->fmt.SubchunkSize, sizeof(int32), 1, outFile) &&
+		fwrite(&input->fmt.AudioFormat, sizeof(int16), 1, outFile) &&
+		fwrite(&input->fmt.NumChannels, sizeof(int16), 1, outFile) &&
+		fwrite(&input->fmt.SampleRate, sizeof(int32), 1, outFile) &&
+		fwrite(&input->fmt.ByteRate, sizeof(int32), 1, outFile) &&
+		fwrite(&input->fmt.BlockAlign, sizeof(int16), 1, outFile) &&
+		fwrite(&input->fmt.BitsPerSample, sizeof(int16), 1, outFile))
 	{
 		// Need to write extra stuff
 		if (input->fmt.SubchunkSize-16 != 0) {
-			fwrite(&input->fmt.ExtraFormatBytes, sizeof(SHORT), 1, outFile);
+			fwrite(&input->fmt.ExtraFormatBytes, sizeof(int16), 1, outFile);
 			if (input->fmt.ExtraFormatBytes > 0) {
-				fwrite(&input->fmt.ValidBitsPerSample, sizeof(SHORT), 1, outFile);
-				fwrite(&input->fmt.ChannelMask, sizeof(DWORD), 1, outFile);
-				fwrite(input->fmt.SubFormat, sizeof(BYTE), 16, outFile);
+				fwrite(&input->fmt.ValidBitsPerSample, sizeof(int16), 1, outFile);
+				fwrite(&input->fmt.ChannelMask, sizeof(int32), 1, outFile);
+				fwrite(input->fmt.SubFormat, sizeof(int8), 16, outFile);
 			}
 		}
 		LOG_DEBUG("S: Wrote FMT header\n");
@@ -444,9 +444,9 @@ int RIFFwriteFACT(FILE *outFile, const T *input) {
 		return RIFF_FILE_CLOSED;
 	}
 
-	if (fwrite(input->fact->SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&input->fact->SubchunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->fact->SampleLength, sizeof(DWORD), 1, outFile))
+	if (fwrite(input->fact->SubchunkID, sizeof(int8), 4, outFile) &&
+		fwrite(&input->fact->SubchunkSize, sizeof(int32), 1, outFile) &&
+		fwrite(&input->fact->SampleLength, sizeof(int32), 1, outFile))
 	{
 		LOG_DEBUG("S: Wrote FACT header\n");
 		return RIFF_SUCCESS;
@@ -471,15 +471,15 @@ int RIFFwritePEAK(FILE *outFile, const T *input) {
 	}
 
 	// write the peak chunk
-	if (fwrite(input->peak->SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&input->peak->SubchunkSize, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->peak->Version, sizeof(DWORD), 1, outFile) &&
-		fwrite(&input->peak->timestamp, sizeof(DWORD), 1, outFile) &&
+	if (fwrite(input->peak->SubchunkID, sizeof(int8), 4, outFile) &&
+		fwrite(&input->peak->SubchunkSize, sizeof(int32), 1, outFile) &&
+		fwrite(&input->peak->Version, sizeof(int32), 1, outFile) &&
+		fwrite(&input->peak->timestamp, sizeof(int32), 1, outFile) &&
 		fwrite(input->peak->peak, sizeof(_PPEAK), input->fmt.NumChannels,outFile))
 	{
 		// if 64-bit align was used, write it
 		if(input->peak->bit_align != NULL) {
-			if(fwrite(&input->peak->bit_align, sizeof(SHORT), 1, outFile)) {
+			if(fwrite(&input->peak->bit_align, sizeof(int16), 1, outFile)) {
 				LOG_DEBUG("S: Wrote PEAK header\n");
 				return RIFF_SUCCESS;
 			} else {
@@ -509,8 +509,8 @@ int RIFFwriteDATA(FILE *outFile, const T *input) {
 		return RIFF_FILE_CLOSED;
 	}
 
-	if (fwrite(input->data.SubchunkID, sizeof(BYTE), 4, outFile) &&
-		fwrite(&input->data.SubchunkSize, sizeof(DWORD), 1, outFile))
+	if (fwrite(input->data.SubchunkID, sizeof(int8), 4, outFile) &&
+		fwrite(&input->data.SubchunkSize, sizeof(int32), 1, outFile))
 	{
 		LOG_DEBUG("S: Wrote DATA header\n");
 		return RIFF_SUCCESS;

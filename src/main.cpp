@@ -183,9 +183,9 @@ int main(int argc, char* argv[]) {
 			if (options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
 			// decode
 			if (options.format == WAV) {
-				temp = in_wav.decode(options.input_file, temp_str, (DWORD)atol(options.data));
+				temp = in_wav.decode(options.input_file, temp_str, (int32)atol(options.data));
 			} else if (options.format == FLAC) {
-				temp = in_flac.decode(options.input_file, temp_str, (DWORD)atol(options.data));
+				temp = in_flac.decode(options.input_file, temp_str, (int32)atol(options.data));
 			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");

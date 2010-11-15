@@ -70,7 +70,7 @@ bool close(FILE *aFile) {
 /****************************************************************/
 int safeRemove(const char *filename) {
 	long int fileSize = 0, bufferSize = 128 * BUFFER_MULT;
-	BYTE buffer[128 * BUFFER_MULT];
+	int8 buffer[128 * BUFFER_MULT];
 	int result = 1;
 	FILE *aFile;
 
@@ -91,7 +91,7 @@ int safeRemove(const char *filename) {
 				fileSize = 0;
 			}
 
-			fwrite(buffer, sizeof(BYTE), bufferSize, aFile);
+			fwrite(buffer, sizeof(int8), bufferSize, aFile);
 		}
 
 		fclose(aFile);
