@@ -33,7 +33,8 @@ ProgramName [-edcs(aes key)] arg1 arg2 arg3
    -c     Enable data compression.  If decoding, assume retrieved data is compressed.
               Defaults to -c6. Valid options are -c1 through -c9, from low to high compression.
    -aes   Enable data encryption.  Must be followed by the key.
-   
+   --version	print version information and exit
+
    
 =================================================================================================
 Known Issues:
