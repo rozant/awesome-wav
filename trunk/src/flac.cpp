@@ -73,10 +73,10 @@ unsigned long int flac::encode(const char inputWAV[], const char inputDATA[], co
 /****************************************************************/
 /* function: decode												*/
 /* purpose: open the files ment for decoding				 	*/
-/* args: const char[], const char[], const DWORD&				*/
+/* args: const char[], const char[], const int32&				*/
 /* returns: bool												*/
 /****************************************************************/
-bool flac::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize) {
+bool flac::decode(const char inputWAV[], const char outputDATA[], const int32& fileSize) {
 	return false;
 }
 

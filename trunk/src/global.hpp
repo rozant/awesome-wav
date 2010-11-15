@@ -34,14 +34,14 @@
 
 // typedefs to make things look nice
 #ifdef _WIN32
-	typedef unsigned __int32 DWORD; 
-	typedef unsigned __int16 SHORT;
-	typedef unsigned __int8 BYTE;
+	typedef unsigned __int32 int32; 
+	typedef unsigned __int16 int16;
+	typedef unsigned __int8 int8;
 #else
 	#include <stdint.h>
-	typedef uint32_t DWORD;
-	typedef uint16_t SHORT;
-	typedef uint8_t BYTE;
+	typedef uint32_t int32;
+	typedef uint16_t int16;
+	typedef uint8_t int8;
 #endif
 
 // make freeing easier

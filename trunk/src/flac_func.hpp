@@ -63,7 +63,7 @@ int FLACread(FILE *inFile, T *input) {
 template <class T>
 int FLACreadSTREAM(FILE *inFile, T *input) {
 	// read
-	if (fread(input->stream.StreamMarker, sizeof(BYTE), 4, inFile)) {
+	if (fread(input->stream.StreamMarker, sizeof(int8), 4, inFile)) {
 		LOG_DEBUG("S: Read STREAM header\n");
 	} else {
 		LOG_DEBUG("E: Failed to read STREAM header: Could not read bytes\n");

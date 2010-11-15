@@ -27,9 +27,9 @@ int safeRemove(const char *filename);
 /****************************************************************/
 /* function: setBit												*/
 /* purpose: sets the bit at a specific position					*/
-/* args: BYTE&, const BYTE, const bool							*/
+/* args: int8&, const int8, const bool							*/
 /****************************************************************/
-inline void setBit(BYTE &b, const BYTE index, const bool torf) {
+inline void setBit(int8 &b, const int8 index, const bool torf) {
 	if (torf) // Set bit to 1
 		b |= (1 << index); 
 	else // Set bit to 0
@@ -39,50 +39,50 @@ inline void setBit(BYTE &b, const BYTE index, const bool torf) {
 /****************************************************************/
 /* function: getBit												*/
 /* purpose: gets the bit at a specific position					*/
-/* args: const BYTE, const BYTE									*/
+/* args: const int8, const int8									*/
 /* returns: bool												*/
 /*		1 = bit is a 1											*/
 /*		0 = bit is a 0											*/
 /****************************************************************/
-inline bool getBit(const BYTE b, const BYTE index) {
+inline bool getBit(const int8 b, const int8 index) {
 	return (bool)((1 << index) & b);
 }
 
 /****************************************************************/
 /* function: clearLower2Bits									*/
-/* purpose: clears the 2 lower bits in a BYTE					*/
-/* args: BYTE&													*/
+/* purpose: clears the 2 lower bits in a int8					*/
+/* args: int8&													*/
 /****************************************************************/
-inline void clearLower2Bits(BYTE &b) {
+inline void clearLower2Bits(int8 &b) {
 	b &= 0xFC; // 252
 }
 
 /****************************************************************/
 /* function: clearLower4Bits									*/
-/* purpose: clears the 4 lower bits in a BYTE					*/
-/* args: BYTE&													*/
+/* purpose: clears the 4 lower bits in a int8					*/
+/* args: int8&													*/
 /****************************************************************/
-inline void clearLower4Bits(BYTE &b) {
+inline void clearLower4Bits(int8 &b) {
 	b &= 0xF0; // 240
 }
 
 /****************************************************************/
 /* function: clearUpper4Bits									*/
-/* purpose: clears the 4 upper bits in a BYTE					*/
-/* args: BYTE&													*/
+/* purpose: clears the 4 upper bits in a int8					*/
+/* args: int8&													*/
 /****************************************************************/
-inline void clearUpper4Bits(BYTE &b) {
+inline void clearUpper4Bits(int8 &b) {
 	b &= 0x0F; // 15
 }
 
 /****************************************************************/
 /* function: byteToMB											*/
 /* purpose: convers bytes to megabytes							*/
-/* args: const DWORD											*/
+/* args: const int32											*/
 /* returns: double												*/
 /****************************************************************/
 #ifdef _DEBUGOUTPUT
-inline double byteToMB(const DWORD bytes) {
+inline double byteToMB(const int32 bytes) {
 	return bytes / 1048576.0;
 }
 #endif

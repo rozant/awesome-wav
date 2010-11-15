@@ -62,11 +62,11 @@ struct FLAC_METADATA_BLOCK_PICTURE {
 };
 
 struct FLAC_FRAME_HEADER {
-	SHORT SyncCode_BlockingStrategy;
-	BYTE BlockSize_SampleRate;
-	BYTE ChannelAssignment_SampleSize;
-	BYTE *Extra;
-	BYTE CRC8;
+	int16 SyncCode_BlockingStrategy;
+	int8 BlockSize_SampleRate;
+	int8 ChannelAssignment_SampleSize;
+	int8 *Extra;
+	int8 CRC8;
 	FLAC_FRAME_HEADER(void) { Extra = NULL; return; }
 	~FLAC_FRAME_HEADER(void) { free(Extra); return; }
 };
@@ -97,8 +97,8 @@ struct FLAC_RESIDUAL {
 };
 
 struct FLAC_SUBFRAME_HEADER {
-	BYTE SubFrameType_WastedBitsFlag;
-	BYTE *WastedBits;
+	int8 SubFrameType_WastedBitsFlag;
+	int8 *WastedBits;
 	FLAC_SUBFRAME_HEADER(void) { WastedBits = NULL; return; }
 	~FLAC_SUBFRAME_HEADER(void) { free(WastedBits); return; }
 };
@@ -129,7 +129,7 @@ struct FLAC_SUBFRAME {
 };
 
 struct FLAC_FRAME_FOOTER {
-	SHORT CRC16;
+	int16 CRC16;
 	FLAC_FRAME_FOOTER(void) { return; }
 	~FLAC_FRAME_FOOTER(void) { return; }
 };
@@ -137,15 +137,15 @@ struct FLAC_FRAME_FOOTER {
 struct FLAC_FRAME {
 	FLAC_FRAME_HEADER FrameHeader;
 	FLAC_SUBFRAME *Subframe;
-	BYTE *Padding;
+	int8 *Padding;
 	FLAC_FRAME_FOOTER FrameFooter;
 	FLAC_FRAME(void) { Subframe = NULL; Padding = NULL; return; }
 	~FLAC_FRAME(void) { free(Subframe); free(Padding); return; }
 };
 
 struct FLAC_METADATA_BLOCK_HEADER {
-	BYTE BlockType;
-	DWORD DataLength;
+	int8 BlockType;
+	int32 DataLength;
 	FLAC_METADATA_BLOCK_HEADER(void) { return; }
 	~FLAC_METADATA_BLOCK_HEADER(void) { return; }
 };
@@ -168,7 +168,7 @@ struct FLAC_METADATA_BLOCK {
 };
 
 struct FLAC_STREAM {
-	BYTE StreamMarker[5]; // "fLaC"
+	int8 StreamMarker[5]; // "fLaC"
 	FLAC_METADATA_BLOCK StreamInfo;
 	FLAC_METADATA_BLOCK *ExtraInfo;
 	FLAC_FRAME *AudioFrames;

@@ -249,9 +249,9 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /****************************************************************/
 unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	unsigned long int dataSize = 0, currentSize = 0, maxSize = 0;
-	DWORD bytesPerSample = (fmt.BitsPerSample >> 3);
-	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	BYTE bitsUsed = 0;
+	int32 bytesPerSample = (fmt.BitsPerSample >> 3);
+	int8 *wavBuffer = NULL, *dataBuffer = NULL;
+	int8 bitsUsed = 0;
 	size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
 	bool endOfDataFile = false;
 
@@ -287,13 +287,13 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	maxDataBufferSize = BUFFER_MULT * (128 * bitsUsed);
 
 	// Get memory for our buffers
-	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
+	if ((wavBuffer = (int8*)calloc(maxWavBufferSize, sizeof(int8))) == NULL) {
 		LOG_DEBUG("E: Failed to get memory for WAV buffer\n");
 		return false;
 	}
 	LOG_DEBUG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
 
-	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize, sizeof(BYTE))) == NULL) {
+	if ((dataBuffer = (int8*)calloc(maxDataBufferSize, sizeof(int8))) == NULL) {
 		LOG_DEBUG("E: Failed to get memory for DATA buffer\n");
 		free(wavBuffer);
 		return false;
@@ -308,14 +308,14 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	// while there is data in the buffer encode and write to the file
 	while (true) {
 		// get the next chunk of song
- 		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
+ 		wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
 		if (wavBufferSize == 0) {
 			break;
 		}
 
 		// get the next chunk of data
 		if (!endOfDataFile) {
-			dataBufferSize = fread(dataBuffer, sizeof(BYTE), maxDataBufferSize, fInputDATA);
+			dataBufferSize = fread(dataBuffer, sizeof(int8), maxDataBufferSize, fInputDATA);
 			if ( dataBufferSize < maxDataBufferSize ) {
 				endOfDataFile = true;
 				// seed the random number generator
@@ -325,7 +325,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 
 		// no more data so generate random stuff
 		if (endOfDataFile) {
-			BYTE* currPos_DataBuffer = dataBuffer;
+			int8* currPos_DataBuffer = dataBuffer;
 			size_t count = 0x00, offset = 0, increment = sizeof(int);
 
 			// copy music data to the data buffer
@@ -357,7 +357,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 			return false;
 		}
 		// write the changes to the file
-		fwrite(wavBuffer, sizeof(BYTE), wavBufferSize, fOutputWAV);
+		fwrite(wavBuffer, sizeof(int8), wavBufferSize, fOutputWAV);
 
 		currentSize += maxDataBufferSize;
 	}
@@ -371,15 +371,15 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 /****************************************************************/
 /* function: encode												*/
 /* purpose: encode data into the audio file using a buffer	 	*/
-/* args: const BYTE, const DWORD, BYTE*, const size_t, BYTE*,	*/
+/* args: const int8, const int32, int8*, const size_t, int8*,	*/
 /*		const size_t											*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffer, const size_t wavBufferSize, BYTE *dataBuffer, const size_t dataBufferSize) {
-	BYTE tempByte = 0x00;
+bool wav::encode(const int8 bitsUsed, const int32 bytesPerSample, int8 *wavBuffer, const size_t wavBufferSize, int8 *dataBuffer, const size_t dataBufferSize) {
+	int8 tempByte = 0x00;
 	size_t count = 0x00;
-	BYTE* currPos_WavBuffer = wavBuffer;
-	BYTE* currPos_DataBuffer = dataBuffer;
+	int8* currPos_WavBuffer = wavBuffer;
+	int8* currPos_DataBuffer = dataBuffer;
 
 	if (wavBufferSize == 0) {
 		LOG_DEBUG("E: Invalid WAV buffer size\n");
@@ -592,10 +592,10 @@ bool wav::encode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 /****************************************************************/
 /* function: decode												*/
 /* purpose: open the files ment for decoding				 	*/
-/* args: const char[], const char[], const DWORD&				*/
+/* args: const char[], const char[], const int32&				*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fileSize) {
+bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fileSize) {
 	FILE *fInputWAV, *fOutputDATA;
 	bool ret_val = 0;
 
@@ -626,13 +626,13 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const DWORD& fi
 /* function: decode												*/
 /* purpose: do all necessary calculations and handle buffering 	*/
 /* prerequisites: files are open; header data has been read		*/
-/* args: const char[], const char[], const DWORD&				*/
+/* args: const char[], const char[], const int32&				*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
-	BYTE *wavBuffer = NULL, *dataBuffer = NULL;
-	DWORD maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3);
-	BYTE bitsUsed = 0x00;
+bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
+	int8 *wavBuffer = NULL, *dataBuffer = NULL;
+	int32 maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3);
+	int8 bitsUsed = 0x00;
 	size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
 	// get the maximum number of bytes the wav file could hold
@@ -656,13 +656,13 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	maxDataBufferSize = BUFFER_MULT * (128 * bitsUsed);
 
 	// Get memory for our buffers
-	if ((wavBuffer = (BYTE*)calloc(maxWavBufferSize, sizeof(BYTE))) == NULL) {
+	if ((wavBuffer = (int8*)calloc(maxWavBufferSize, sizeof(int8))) == NULL) {
 		LOG_DEBUG("E: Failed to get memory for WAV buffer\n");
 		return false;
 	}
 	LOG_DEBUG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
 
-	if ((dataBuffer = (BYTE*)calloc(maxDataBufferSize, sizeof(BYTE))) == NULL) {
+	if ((dataBuffer = (int8*)calloc(maxDataBufferSize, sizeof(int8))) == NULL) {
 		LOG_DEBUG("E: Failed to get memory for DATA buffer\n");
 		free(wavBuffer);
 		return false;
@@ -673,7 +673,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 	#endif
 
 	// read into the buffers, process, and write
-	wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
+	wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
 	count = 0;
 
 	while ( true ) {
@@ -690,12 +690,12 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 			return false;
 		}
 
-		fwrite(dataBuffer, sizeof(BYTE), dataBufferSize, fOutputDATA);
+		fwrite(dataBuffer, sizeof(int8), dataBufferSize, fOutputDATA);
 
 		if (count == fileSize)
 			break;
 	
- 		wavBufferSize = fread(wavBuffer, sizeof(BYTE), maxWavBufferSize, fInputWAV);
+ 		wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
 	}
 
 	LOG_DEBUG("S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
@@ -707,15 +707,15 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const DWORD& fileSize) {
 /****************************************************************/
 /* function: decode												*/
 /* purpose: decode data from the audio file that is in ram	 	*/
-/* args: const BYTE, const DWORD, BYTE*, const size_t, BYTE*,	*/
+/* args: const int8, const int32, int8*, const size_t, int8*,	*/
 /*		const size_t											*/
 /* returns: bool												*/
 /****************************************************************/
-bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffer, const size_t wavBufferSize, BYTE *dataBuffer, const size_t dataBufferSize) {
-	BYTE tempByte = 0x00;
+bool wav::decode(const int8 bitsUsed, const int32 bytesPerSample, int8 *wavBuffer, const size_t wavBufferSize, int8 *dataBuffer, const size_t dataBufferSize) {
+	int8 tempByte = 0x00;
 	size_t count = 0x00;
-	BYTE* currPos_WavBuffer = wavBuffer;
-	BYTE* currPos_DataBuffer = dataBuffer;
+	int8* currPos_WavBuffer = wavBuffer;
+	int8* currPos_DataBuffer = dataBuffer;
 
 	if (wavBufferSize == 0) {
 		LOG_DEBUG("E: Invalid WAV buffer size\n");
@@ -926,11 +926,11 @@ bool wav::decode(const BYTE bitsUsed, const DWORD bytesPerSample, BYTE *wavBuffe
 /****************************************************************/
 /* function: getMaxBytesEncoded									*/
 /* purpose: calculate max number of bytes a WAV can encode	 	*/
-/* args: const SHORT, const DWORD								*/
-/* returns: DWORD												*/
+/* args: const int16, const int32								*/
+/* returns: int32												*/
 /****************************************************************/
-DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSize) {
-	DWORD maxSize, bytesPerSample = (bitsPerSample >> 3);
+int32 wav::getMaxBytesEncoded(const int16 bitsPerSample, const int32 subchunkSize) {
+	int32 maxSize, bytesPerSample = (bitsPerSample >> 3);
 
 	// allows the use of only the bottom half of the bits per sample
 	switch (bitsPerSample) {
@@ -962,10 +962,10 @@ DWORD wav::getMaxBytesEncoded(const SHORT bitsPerSample, const DWORD subchunkSiz
 /* function: getMinBitsEncodedPS								*/
 /* purpose: calculate min number of bits possibly encoded		*/
 /*			per sample					 						*/
-/* args: const SHORT, const DWORD, const DWORD					*/
-/* returns: BYTE												*/
+/* args: const int16, const int32, const int32					*/
+/* returns: int8												*/
 /****************************************************************/
-BYTE wav::getMinBitsEncodedPS(const SHORT bitsPerSample, const DWORD fileSize, const DWORD maxSize) {
+int8 wav::getMinBitsEncodedPS(const int16 bitsPerSample, const int32 fileSize, const int32 maxSize) {
 	double d_MinBPS = 0.0;
 	int i_MinBPS = 0;
 

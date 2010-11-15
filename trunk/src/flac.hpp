@@ -41,7 +41,7 @@ class flac {
 		~flac(void);
 		// manipulation
 		unsigned long int encode(const char[], const char[], const char[]);
-		bool decode(const char[], const char[], const DWORD&);
+		bool decode(const char[], const char[], const int32&);
 };
 
 #endif
