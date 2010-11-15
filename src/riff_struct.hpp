@@ -19,6 +19,16 @@
 #include <stdlib.h>
 
 /****************************************************************/
+/* struct: _RIFF_UNKNOWN_CHUNKS									*/
+/* purpose: store unknown chunks here							*/
+/****************************************************************/
+struct _RIFF_UNKNOWN_CHUNKS {
+	char *data;
+	_RIFF_UNKNOWN_CHUNKS(void) { data = NULL; return; }
+	~_RIFF_UNKNOWN_CHUNKS(void) { free(data); data = NULL; }
+};
+
+/****************************************************************/
 /* struct: _RIFF												*/
 /* purpose: define a structure to make it easy to look at the 	*/
 /* first chunk in RIFF formatted files.							*/

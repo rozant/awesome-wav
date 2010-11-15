@@ -31,6 +31,7 @@
 // include the parts of riff
 #include "riff_struct.hpp"
 #include "riff_func.hpp"
+#include <stdlib.h>
 
 #endif
 

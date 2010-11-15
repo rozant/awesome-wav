@@ -72,11 +72,21 @@ int RIFFread(FILE *inFile, T *input) {
 	if (ret_val != RIFF_SUCCESS) {
 		return ret_val;
 	}
-	// read fmt chunk
+	
+	// until the fmt chunk appears, store the data somewhere for
+	// later output
+//	fgetpos(inFile, &pos);
+//	fread(temp, sizeof(char), 4, inFile);
+//	while (memcmp(temp, "fmt ", 4) != 0) {
+//		
+//	}
+
+	// read fmt chunk when it appears
 	ret_val = RIFFreadFMT(inFile, input);
 	if (ret_val != RIFF_SUCCESS) {
 		return ret_val;
 	}
+
 	// read fact chunk if needed
 	fgetpos(inFile, &pos);
 	fread(temp, sizeof(char), 4, inFile);
