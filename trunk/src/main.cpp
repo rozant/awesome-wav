@@ -50,6 +50,7 @@ void usage(const char prog_name[]) {
 	LOG("\t -Valid options are -zlib1 through -zlib9, from low to high compression\n");
 #endif
 	LOG("  -aes\tenable data encryption.  must be followed by the key.\n");
+	LOG("  --version\tprint version information and exit\n");
 	return;
 }
 
