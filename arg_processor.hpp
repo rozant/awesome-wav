@@ -21,7 +21,8 @@ enum opt_modes {
 	NONE = 0,	
 	ENCODE = 1,
 	DECODE = 2,
-	TEST = 3
+	TEST = 3,
+	VERSION = 4
 };
 
 // structure for holding options

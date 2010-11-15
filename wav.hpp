@@ -61,12 +61,12 @@ class wav {
 		bool validFACT(void) const;
 		bool validDATA(void) const;
 		// data operations
-		DWORD getMaxBytesEncoded(const SHORT, const DWORD);
-		BYTE getMinBitsEncodedPS(const SHORT, const DWORD, const DWORD);
+		int32 getMaxBytesEncoded(const int16, const int32);
+		int8 getMinBitsEncodedPS(const int16, const int32, const int32);
 		unsigned long int encode(FILE*, FILE*, FILE*);
-		bool encode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
-		bool decode(FILE*, FILE*, const DWORD&);
-		bool decode(const BYTE, const DWORD, BYTE *, const size_t, BYTE *, const size_t);
+		bool encode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
+		bool decode(FILE*, FILE*, const int32&);
+		bool decode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
 		// other things
 		void clean(void);
 	public:
@@ -76,7 +76,7 @@ class wav {
 		~wav(void);
 		// manipulation
 		unsigned long int encode(const char[], const char[], const char[]);
-		bool decode(const char[], const char[], const DWORD&);
+		bool decode(const char[], const char[], const int32&);
 };
 
 #endif

@@ -34,42 +34,38 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 
 	// for all of the argumets
 	for (int foo = 1; foo < argc; foo++) {
-		// if it is an option do stuff
-		if (argv[foo][0] == '-') {
-			if (strlen(argv[foo]) == 2 || (argv[foo][1] == 'c' && strlen(argv[foo]) == 3) || (argv[foo][1] == 'a' && strlen(argv[foo]) == 4) ) {
-				switch(argv[foo][1]) {
-					case 'e':				// encode (default)
-						options->mode = ENCODE;
-						break;
-					case 'd':				// decode
-						options->mode = DECODE;
-						break;
-					case 't':				// testing
-						options->mode = TEST;
-						break;
-					case 'c':				// data compression
-						if ( strlen(argv[foo]) == 3 ) {
-							if (isdigit(argv[foo][2])) {
-								options->comp = (char)atoi(&argv[foo][2]);
-							} else {
-								options->comp = 6;
-							}
-						} else {
-							options->comp = 6;
-						}
-						break;
-					case 'a':			 	// data encryption
-						if (strcmp(argv[foo], "-aes") == 0) {
-							if (++foo >= argc) { return EXIT_FAILURE; }
-							options->enc_key = sha2_key(argv[foo]);
-						}
-						break;
-					default:				// invalid option
-						LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
-						return EXIT_FAILURE;
-						break;
+		if (argv[foo][0] == '-') {								// if it is an option do stuff
+			if (strcmp(argv[foo],"-e") == 0) {					// if encoding, set the mode to encode
+				LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
+				options->mode = ENCODE;
+			} else if (strcmp(argv[foo],"-d") == 0) {			// if decoding, set the mode to decode
+				LOG_DEBUG("S: Setting mode to 'DECODE'\n");
+				options->mode = DECODE;
+			} else if (strcmp(argv[foo],"-t") == 0) {			// if testing, set the mode to test
+				LOG_DEBUG("S: Setting mode to 'TEST'\n");
+				options->mode = TEST;
+			} else if (strcmp(argv[foo],"--version") == 0) {	// if wanting to display version number
+				LOG_DEBUG("S: Setting mode to 'VERSION'\n");
+				options->mode = VERSION;
+				break;
+			} else if (strncmp(argv[foo],"-c",2) == 0) {			// compress with qlz
+				if ( strlen(argv[foo]) == 3 ) {
+					if (isdigit(argv[foo][2])) {
+						LOG_DEBUG("S: Setting ZLIB compression level %d\n",atoi(&argv[foo][2]));
+						options->comp = (char)atoi(&argv[foo][2]);
+					} else {
+						LOG_DEBUG("S: Setting ZLIB compression level 6\n");
+						options->comp = 6;
+					}
+				} else {
+					LOG_DEBUG("S: Setting ZLIB compression level 6\n");
+					options->comp = 6;
 				}
-			} else {						// more invalid option
+			} else if (strcmp(argv[foo], "-aes") == 0) {		// encrypt with AES
+				if (++foo >= argc) { return EXIT_FAILURE; }
+				LOG_DEBUG("S: Setting AES encryption\n");
+				options->enc_key = sha2_key(argv[foo]);
+			} else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 				return EXIT_FAILURE;
 			}
@@ -99,9 +95,11 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 		}
 	}
 	// check for arguemnt errors that have not been caught yet
-	if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
-		LOG_DEBUG("E: Incorrect number of arguments.\n");
-		return EXIT_FAILURE;
+	if (options->mode != VERSION) {
+		if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
+			LOG_DEBUG("E: Incorrect number of arguments.\n");
+			return EXIT_FAILURE;
+		}
 	}
 	// its over
 	return EXIT_SUCCESS;
@@ -120,8 +118,7 @@ void opt_clean(opts *foo) {
 	FREE(foo->test_out);
 	if (foo->enc_key != NULL) {
 		memset(foo->enc_key,0,sizeof(foo->enc_key));
-		free(foo->enc_key);
-		foo->enc_key = NULL;
+		FREE(foo->enc_key);
 	}
 	return;
 }

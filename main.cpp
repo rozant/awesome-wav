@@ -42,6 +42,18 @@ void usage(const char prog_name[]) {
 }
 
 /****************************************************************/
+/* function: version_info										*/
+/* purpose: display the known version information			 	*/
+/* args: void													*/
+/* returns: void												*/
+/****************************************************************/
+void version_info(void) {
+	LOG("awesome-wav version: %s\n",AWESOME_VER);
+	LOG("polarssl version: %s\n",POLARSSL_VER);
+	return;
+}
+
+/****************************************************************/
 /* function: main												*/
 /* purpose: initial function for program.					 	*/
 /* args: int, char**											*/
@@ -67,6 +79,9 @@ int main(int argc, char* argv[]) {
 
 	// if we are encoding or decoding, do the right thing
 	switch(options.mode) {
+		case VERSION:
+			version_info();
+			break;
 		case ENCODE:
 			// if compression is enabled
 			if (options.comp > 0) {
@@ -120,7 +135,7 @@ int main(int argc, char* argv[]) {
 			// if neither is enabled
 			if (options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
 			// decode
-			temp = in_wav.decode(options.input_file, temp_str, (DWORD)atol(options.data));
+			temp = in_wav.decode(options.input_file, temp_str, (int32)atol(options.data));
 			if (!temp) {
 				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
