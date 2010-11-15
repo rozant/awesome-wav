@@ -29,6 +29,7 @@ class wav {
 		_FACT *fact;
 		_PEAK *peak;
 		_DATA data;
+		_RIFF_UNKNOWN_CHUNKS unknown0;
 		// file operations
 		template <class T>
 		friend int RIFFread(FILE*,T *);

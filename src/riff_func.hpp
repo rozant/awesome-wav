@@ -63,8 +63,10 @@ int RIFFwriteDATA(FILE *, const T *);
 /****************************************************************/
 template <class T>
 int RIFFread(FILE *inFile, T *input) {
+//	unsigned int size, loc;
 	int ret_val;
 	char temp[4];
+//	char *tmp = NULL;
 	fpos_t pos;
 
 	// read riff chunk
@@ -75,12 +77,33 @@ int RIFFread(FILE *inFile, T *input) {
 	
 	// until the fmt chunk appears, store the data somewhere for
 	// later output
-//	fgetpos(inFile, &pos);
-//	fread(temp, sizeof(char), 4, inFile);
-//	while (memcmp(temp, "fmt ", 4) != 0) {
-//		
-//	}
-
+/*	fgetpos(inFile, &pos);
+	fread(temp, sizeof(char), 4, inFile);
+	if (memcmp(temp, "fmt ", 4) != 0) {
+		size = 0;
+		loc = -1;
+		fsetpos(inFile, &pos);
+		temp[0] = temp[1] = temp[2] = temp[3] = 0;
+		while (memcmp(temp, "fmt ", 4) != 0) {
+			if(++loc > 3) { temp[0] = temp[1]; temp[1] = temp[2]; temp[2] = temp[3]; temp[3] = 0; loc = 3; }
+			++size;
+			if(size > input->unknown0.ram) {
+				tmp = (char*)calloc(size + 31,sizeof(char));
+				if( input->unknown0.data != NULL) {
+					for(ret_val = 0; (unsigned int)ret_val < size - 1; ++ret_val) {
+						tmp[ret_val] = input->unknown0.data[ret_val];
+					}
+					free(input->unknown0.data);
+					input->unknown0.ram = size+31;
+				}
+				input->unknown0.data = tmp;
+			}
+			input->unknown0.data_size = size;
+			fread(&temp[loc], sizeof(char),1,inFile);
+			input->unknown0.data[size-1] = temp[loc];
+		}
+	}
+*/
 	// read fmt chunk when it appears
 	ret_val = RIFFreadFMT(inFile, input);
 	if (ret_val != RIFF_SUCCESS) {
