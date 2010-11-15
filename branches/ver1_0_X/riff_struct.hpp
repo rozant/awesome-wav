@@ -25,9 +25,9 @@
 /* notes: be warned - the ChunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _RIFF {
-	BYTE ChunkID[5]; // "RIFF"
-	DWORD ChunkSize; // file size - 8
-	BYTE Format[5];
+	int8 ChunkID[5]; // "RIFF"
+	int32 ChunkSize; // file size - 8
+	int8 Format[5];
 	_RIFF(void) { ChunkID[4] = 0; Format[4] = 0; return; }
 	~_RIFF(void) { return; }
 };
@@ -38,18 +38,18 @@ struct _RIFF {
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _FMT {
-	BYTE SubchunkID[5]; // "fmt "
-	DWORD SubchunkSize; // 16 + extra format bytes
-	SHORT AudioFormat;
-	SHORT NumChannels;
-	DWORD SampleRate;
-	DWORD ByteRate;
-	SHORT BlockAlign;
-	SHORT BitsPerSample;
-	SHORT ExtraFormatBytes;
-	SHORT ValidBitsPerSample;
-	DWORD ChannelMask;
-	BYTE SubFormat[17];
+	int8 SubchunkID[5]; // "fmt "
+	int32 SubchunkSize; // 16 + extra format bytes
+	int16 AudioFormat;
+	int16 NumChannels;
+	int32 SampleRate;
+	int32 ByteRate;
+	int16 BlockAlign;
+	int16 BitsPerSample;
+	int16 ExtraFormatBytes;
+	int16 ValidBitsPerSample;
+	int32 ChannelMask;
+	int8 SubFormat[17];
 	_FMT(void) { SubchunkID[4] = 0; SubFormat[16] = 0; return; }
 	~_FMT(void) { return; }
 };
@@ -61,9 +61,9 @@ struct _FMT {
 /*		this chunk will not exist in PCM wav files.				*/
 /****************************************************************/
 struct _FACT {
-	BYTE SubchunkID[5]; // "fact"
-	DWORD SubchunkSize;	// 4
-	DWORD SampleLength; // per channel
+	int8 SubchunkID[5]; // "fact"
+	int32 SubchunkSize;	// 4
+	int32 SampleLength; // per channel
 	_FACT(void) { SubchunkID[4] = 0; return; }
 	~_FACT(void) { return; }
 };
@@ -76,7 +76,7 @@ struct _FACT {
 /****************************************************************/
 struct _PPEAK {
 	float Value;		// peak value
-	DWORD Position;		// sample frame for peak
+	int32 Position;		// sample frame for peak
 };
 /****************************************************************/
 /* struct: _PEAK												*/
@@ -86,12 +86,12 @@ struct _PPEAK {
 /*		this chunk will not exist in PCM wav files.				*/
 /****************************************************************/
 struct _PEAK {
-	BYTE SubchunkID[5]; // "PEAK"
-	DWORD SubchunkSize;
-	DWORD Version;		// peak chunk version
-	DWORD timestamp;	// UNIX timestamp of creation
+	int8 SubchunkID[5]; // "PEAK"
+	int32 SubchunkSize;
+	int32 Version;		// peak chunk version
+	int32 timestamp;	// UNIX timestamp of creation
 	_PPEAK *peak;		// one for each channel
-	SHORT *bit_align;	// space for the 64-bit alignment variable
+	int16 *bit_align;	// space for the 64-bit alignment variable
 	_PEAK(void) { bit_align = NULL; peak = NULL; SubchunkID[4] = 0; return; }
 	~_PEAK(void) { free(peak); free(bit_align); return; }
 };
@@ -102,9 +102,9 @@ struct _PEAK {
 /* notes: be warned - the SubchunkID may not be NULL terminated	*/
 /****************************************************************/
 struct _DATA {
-	BYTE SubchunkID[5];	// "data"
-	DWORD SubchunkSize;	// size of the byte array
-	BYTE *Data;
+	int8 SubchunkID[5];	// "data"
+	int32 SubchunkSize;	// size of the byte array
+	int8 *Data;
 	_DATA(void) { Data = NULL; SubchunkID[4] = 0; return; }
 	~_DATA(void) { free(Data); return; }
 };
