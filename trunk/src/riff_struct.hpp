@@ -24,8 +24,10 @@
 /****************************************************************/
 struct _RIFF_UNKNOWN_CHUNKS {
 	char *data;
-	_RIFF_UNKNOWN_CHUNKS(void) { data = NULL; return; }
-	~_RIFF_UNKNOWN_CHUNKS(void) { free(data); data = NULL; }
+	int32 data_size;
+	int32 ram;
+	_RIFF_UNKNOWN_CHUNKS(void) { data = NULL; data_size = ram = 0; return; }
+	~_RIFF_UNKNOWN_CHUNKS(void) { free(data); data_size = ram = 0; data = NULL; }
 };
 
 /****************************************************************/
