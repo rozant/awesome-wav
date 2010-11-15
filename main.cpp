@@ -38,6 +38,7 @@ void usage(const char prog_name[]) {
 	LOG("  -c\tenable data compression.  If decoding, assume retrieved data is compressed\n");
 	LOG("\tdefaults to -c6. valid options are -c1 through -c9, from low to high compression\n");
 	LOG("  -aes\tenable data encryption.  must be followed by the key.\n");
+	LOG("  --version\tprint version information and exit\n");
 	return;
 }
 
