@@ -69,12 +69,12 @@ int RIFFread(FILE *inFile, T *input) {
 
 	// read riff chunk
 	ret_val = RIFFreadRIFF(inFile, input);
-	if (!ret_val) {
+	if (ret_val != RIFF_SUCCESS) {
 		return ret_val;
 	}
 	// read fmt chunk
 	ret_val = RIFFreadFMT(inFile, input);
-	if (!ret_val) {
+	if (ret_val != RIFF_SUCCESS) {
 		return ret_val;
 	}
 	// read fact chunk if needed
@@ -84,7 +84,7 @@ int RIFFread(FILE *inFile, T *input) {
 		fsetpos(inFile, &pos);
 		input->fact = (_FACT *)calloc(1, sizeof(_FACT));
 		ret_val = RIFFreadFACT(inFile, input);
-		if (!ret_val) {
+		if (ret_val != RIFF_SUCCESS) {
 			return ret_val;
 		}
 	} else {
@@ -97,7 +97,7 @@ int RIFFread(FILE *inFile, T *input) {
 		fsetpos(inFile, &pos);
 		input->peak = (_PEAK *)calloc(1, sizeof(_PEAK));
 		ret_val = RIFFreadPEAK(inFile, input);
-		if (!ret_val) {
+		if (ret_val != RIFF_SUCCESS) {
 			return ret_val;
 		}
 	} else {
@@ -105,7 +105,7 @@ int RIFFread(FILE *inFile, T *input) {
 	}
 	// read data chunk
 	ret_val = RIFFreadDATA(inFile, input);
-	if (!ret_val) {
+	if (ret_val != RIFF_SUCCESS) {
 		return ret_val;
 	}
 	return RIFF_SUCCESS;
@@ -162,6 +162,15 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 		fread(&input->fmt.BlockAlign, sizeof(SHORT), 1, inFile) &&
 		fread(&input->fmt.BitsPerSample, sizeof(SHORT), 1, inFile))
 	{
+		// basic validation
+		if (memcmp(input->fmt.SubchunkID, "fmt ", 4) != 0) {
+			LOG_DEBUG("E: Invalid FMT header: SubchunkID != 'fmt '\n");
+			LOG_DEBUG("\tSubchunkID == %s\n", (char*)input->fmt.SubchunkID);
+			return RIFF_VALID_FAIL;
+		} else if (input->fmt.SubchunkSize != 16 && input->fmt.SubchunkSize != 18 && input->fmt.SubchunkSize != 40) {
+			LOG_DEBUG("E: Invalid FMT header: invalid SubchunkSize\n");
+			return RIFF_VALID_FAIL;
+		}
 		// Need to read extra stuff
 		if (input->fmt.SubchunkSize-16 != 0) {
 			fread(&input->fmt.ExtraFormatBytes, sizeof(SHORT), 1, inFile);
@@ -185,15 +194,6 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 	} else {
 		LOG_DEBUG("E: Failed to read FMT header: Could not read bytes\n");
 		return RIFF_READ_FAIL;
-	}
-	// basic validation
-	if (memcmp(input->fmt.SubchunkID, "fmt ", 4) != 0) {
-		LOG_DEBUG("E: Invalid FMT header: SubchunkID != 'fmt '\n");
-		LOG_DEBUG("\tSubchunkID == %s\n", (char*)input->fmt.SubchunkID);
-		return RIFF_VALID_FAIL;
-	} else if (input->fmt.SubchunkSize != 16 && input->fmt.SubchunkSize != 18 && input->fmt.SubchunkSize != 40) {
-		LOG_DEBUG("E: Invalid FMT header: invalid SubchunkSize\n");
-		return RIFF_VALID_FAIL;
 	}
 	return RIFF_SUCCESS;
 }
