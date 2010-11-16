@@ -68,6 +68,7 @@ ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
 target_link_libraries (awesome-wav-test z)
+set_target_properties(awesome-wav-test PROPERTIES COMPILE_FLAGS "-D _DEBUG -D _DEBUGOUTPUT")
 
 ADD_EXECUTABLE(awesome-wav-debug
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util.cpp
@@ -86,6 +87,8 @@ ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
 target_link_libraries (awesome-wav-debug z)
+set_target_properties(awesome-wav-debug PROPERTIES COMPILE_FLAGS "-g -D _DEBUG -D _DEBUGOUTPUT")
+
 
 ADD_EXECUTABLE(awesome-wav-nzlib 
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
@@ -116,6 +119,7 @@ ${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
 ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
+set_target_properties(awesome-wav-test-nzlib PROPERTIES COMPILE_FLAGS "-D _DEBUG -D _DEBUGOUTPUT")
 
 ADD_EXECUTABLE(awesome-wav-debug-nzlib
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
@@ -131,4 +135,4 @@ ${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
 ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
-
+set_target_properties(awesome-wav-debug-nzlib PROPERTIES COMPILE_FLAGS "-g -D _DEBUG -D _DEBUGOUTPUT")
