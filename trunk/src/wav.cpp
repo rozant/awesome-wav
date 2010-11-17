@@ -219,7 +219,7 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 
 	LOG("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
-	if ((RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV())) { close(fInputWAV); return false; }
+	if (RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV()) { close(fInputWAV); return false; }
 
 	LOG("Opening input data file...\n");
 	// Open up our input data file
@@ -344,7 +344,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 				currPos_DataBuffer += offset;
 				count += offset;
 				while (count <= dataBufferSize - increment) {
-					*currPos_DataBuffer = (int8)rand();
+					*currPos_DataBuffer = rand() & 0xFF;
 					currPos_DataBuffer += increment;
 					count += increment;
 				}
@@ -606,7 +606,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fi
 
 	LOG("Validating input wave file...\n");
 	// read and validate wave header (RIFF Chunk), and format chunk
-	if (!(RIFFread(fInputWAV, this) && validWAV())) { close(fInputWAV);  return false; }
+	if (RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV()) { close(fInputWAV);  return false; }
 
 	LOG("Opening output data file...\n");
 	// open up our output file
