@@ -64,7 +64,7 @@ int RIFFwriteDATA(FILE *, const T *);
 /****************************************************************/
 template <class T>
 int RIFFread(FILE *inFile, T *input) {
-	fpos_t f_pos = 0, f_data_pos;
+	fpos_t f_pos, f_data_pos;
 	long int l_pos, l_data_pos = 0, l_end_pos;
 	bool read_fmt_chunk = false;
 	char chunk_type[5];
@@ -123,7 +123,7 @@ int RIFFread(FILE *inFile, T *input) {
 			ret_val = RIFFreadDATA(inFile, input);
 			fgetpos(inFile, &f_pos);
 			l_pos = ftell(inFile);
-			if (ret_val != RIFF_SUCCESS || input->data.SubchunkSize < 0 || l_pos + (long int)input->data.SubchunkSize > l_end_pos) {
+			if (ret_val != RIFF_SUCCESS || l_pos + (long int)input->data.SubchunkSize > l_end_pos) {
 				LOG("Invalid data chunk size.\n");
 				return ret_val;
 			}
@@ -141,7 +141,7 @@ int RIFFread(FILE *inFile, T *input) {
 			l_pos = ftell(inFile);
 
 			// skip over the unknown chunk	
-			if (chunk_size < 0 || l_pos + (long int)chunk_size > l_end_pos) {
+			if (l_pos + (long int)chunk_size > l_end_pos) {
 				LOG("Invalid unknown chunk size.\n");
 				return RIFF_READ_FAIL;
 			}
