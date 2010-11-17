@@ -64,8 +64,8 @@ int RIFFwriteDATA(FILE *, const T *);
 /****************************************************************/
 template <class T>
 int RIFFread(FILE *inFile, T *input) {
-	fpos_t f_pos = 0, data_pos = 0;
-	long int l_pos, l_end_pos;
+	fpos_t f_pos = 0, f_data_pos;
+	long int l_pos, l_data_pos, l_end_pos;
 	bool read_fmt_chunk = false;
 	char chunk_type[5];
 	int32 chunk_size;
@@ -129,7 +129,8 @@ int RIFFread(FILE *inFile, T *input) {
 			}
 
 			 // skip over the data chunk
-			data_pos = f_pos;			
+			f_data_pos = f_pos;	
+			l_data_pos = ftell(inFile);
 			fseek(inFile, (long int)input->data.SubchunkSize, SEEK_CUR);
 		} else {
 			LOG_DEBUG("W: Found unknown header '%s'\n", chunk_type);
@@ -157,12 +158,12 @@ int RIFFread(FILE *inFile, T *input) {
 		return RIFF_READ_FAIL;
 	}
 
-	if (data_pos == 0) {
+	if (l_data_pos == 0) {
 		LOG("Never found the data chunk.\n");
 		return RIFF_READ_FAIL;
 	}
 
-	fsetpos(inFile, &data_pos);
+	fsetpos(inFile, &f_data_pos);
 
 	return RIFF_SUCCESS;
 }
