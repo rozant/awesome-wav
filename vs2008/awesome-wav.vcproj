@@ -275,6 +275,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\flac.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\logger.cpp"
 				>
 			</File>
@@ -322,11 +326,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\compression\quicklz.c"
+					RelativePath="..\src\compression\file_compression.c"
 					>
 				</File>
 				<File
-					RelativePath="..\src\compression\file_compression.c"
+					RelativePath="..\src\compression\quicklz.c"
 					>
 				</File>
 			</Filter>
@@ -338,6 +342,18 @@
 			>
 			<File
 				RelativePath="..\src\arg_processor.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\flac.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\flac_func.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\flac_struct.hpp"
 				>
 			</File>
 			<File
@@ -404,11 +420,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\compression\quicklz.h"
+					RelativePath="..\src\compression\file_compression.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\compression\file_compression.h"
+					RelativePath="..\src\compression\quicklz.h"
 					>
 				</File>
 			</Filter>
