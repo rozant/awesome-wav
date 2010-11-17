@@ -65,7 +65,7 @@ int RIFFwriteDATA(FILE *, const T *);
 template <class T>
 int RIFFread(FILE *inFile, T *input) {
 	fpos_t f_pos = 0, f_data_pos;
-	long int l_pos, l_data_pos, l_end_pos;
+	long int l_pos, l_data_pos = 0, l_end_pos;
 	bool read_fmt_chunk = false;
 	char chunk_type[5];
 	int32 chunk_size;
