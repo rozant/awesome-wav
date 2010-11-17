@@ -20,6 +20,7 @@
 #include "logger.hpp"
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 /**********************Function Prototypes***********************/
 
@@ -63,84 +64,103 @@ int RIFFwriteDATA(FILE *, const T *);
 /****************************************************************/
 template <class T>
 int RIFFread(FILE *inFile, T *input) {
-//	unsigned int size, loc;
+	fpos_t pos = 0, end_pos, data_pos = 0;
+	bool read_fmt_chunk = false;
+	char chunk_type[5];
+	int32 chunk_size;
 	int ret_val;
-	char temp[4];
-//	char *tmp = NULL;
-	fpos_t pos;
+
+	chunk_type[4] = NULL;
+
+	// figure out the file size
+	fseek(inFile, 0L, SEEK_END);
+	end_pos = ftell(inFile);
+	fseek(inFile, 0L, SEEK_SET);
 
 	// read riff chunk
 	ret_val = RIFFreadRIFF(inFile, input);
 	if (ret_val != RIFF_SUCCESS) {
 		return ret_val;
 	}
-	
-	// until the fmt chunk appears, store the data somewhere for
-	// later output
-/*	fgetpos(inFile, &pos);
-	fread(temp, sizeof(char), 4, inFile);
-	if (memcmp(temp, "fmt ", 4) != 0) {
-		size = 0;
-		loc = -1;
-		fsetpos(inFile, &pos);
-		temp[0] = temp[1] = temp[2] = temp[3] = 0;
-		while (memcmp(temp, "fmt ", 4) != 0) {
-			if(++loc > 3) { temp[0] = temp[1]; temp[1] = temp[2]; temp[2] = temp[3]; temp[3] = 0; loc = 3; }
-			++size;
-			if(size > input->unknown0.ram) {
-				tmp = (char*)calloc(size + 31,sizeof(char));
-				if( input->unknown0.data != NULL) {
-					for(ret_val = 0; (unsigned int)ret_val < size - 1; ++ret_val) {
-						tmp[ret_val] = input->unknown0.data[ret_val];
-					}
-					free(input->unknown0.data);
-					input->unknown0.ram = size+31;
-				}
-				input->unknown0.data = tmp;
-			}
-			input->unknown0.data_size = size;
-			fread(&temp[loc], sizeof(char),1,inFile);
-			input->unknown0.data[size-1] = temp[loc];
+
+	fgetpos(inFile, &pos); // get the current file position
+
+	while (pos < end_pos) {
+		if (!fread(chunk_type, sizeof(char), 4, inFile)) { // read the header type
+			LOG_DEBUG("E: Failed to read header: Could not read bytes\n");
+			return RIFF_READ_FAIL;
 		}
-	}
-*/
-	// read fmt chunk when it appears
-	ret_val = RIFFreadFMT(inFile, input);
-	if (ret_val != RIFF_SUCCESS) {
-		return ret_val;
+
+		if (memcmp(chunk_type, "fact", 4) == 0) { // read fact chunk if needed
+			fsetpos(inFile, &pos);
+			input->fact = (_FACT *)calloc(1, sizeof(_FACT));
+			ret_val = RIFFreadFACT(inFile, input);
+			if (ret_val != RIFF_SUCCESS) {
+				return ret_val;
+			}
+		} else if (memcmp(chunk_type, "PEAK", 4) == 0) { // read peak chunk if needed
+			fsetpos(inFile, &pos);
+			input->peak = (_PEAK *)calloc(1, sizeof(_PEAK));
+			ret_val = RIFFreadPEAK(inFile, input);
+			if (ret_val != RIFF_SUCCESS) {
+				return ret_val;
+			}
+		} else if (memcmp(chunk_type, "fmt ", 4) == 0) { // read fmt chunk
+			fsetpos(inFile, &pos);
+			ret_val = RIFFreadFMT(inFile, input);
+			if (ret_val != RIFF_SUCCESS) {
+				return ret_val;
+			}
+			read_fmt_chunk = true;
+		} else if (memcmp(chunk_type, "data", 4) == 0) { // read data chunk
+			if (!read_fmt_chunk) {
+				break;
+			}
+
+			fsetpos(inFile, &pos);
+			ret_val = RIFFreadDATA(inFile, input);
+			fgetpos(inFile, &pos);
+			if (ret_val != RIFF_SUCCESS || input->data.SubchunkSize < 0 || pos + input->data.SubchunkSize > end_pos) {
+				LOG("Invalid data chunk size.\n");
+				return ret_val;
+			}
+
+			 // skip over the data chunk
+			data_pos = pos;
+			pos += input->data.SubchunkSize;
+			fsetpos(inFile, &pos);
+		} else {
+			LOG_DEBUG("W: Found unknown header '%s'\n", chunk_type);
+			if (!fread(&chunk_size, sizeof(int32), 1, inFile)) {
+				return RIFF_READ_FAIL;
+			}
+			fgetpos(inFile, &pos);
+
+			// skip over the unknown chunk	
+			if (chunk_size < 0 || pos + chunk_size > end_pos) {
+				LOG("Invalid unknown chunk size.\n");
+				return RIFF_READ_FAIL;
+			}
+			
+			pos += chunk_size;
+			fsetpos(inFile, &pos);
+		}
+
+		fgetpos(inFile, &pos); // get the current file position
 	}
 
-	// read fact chunk if needed
-	fgetpos(inFile, &pos);
-	fread(temp, sizeof(char), 4, inFile);
-	if (memcmp(temp, "fact", 4) == 0) {
-		fsetpos(inFile, &pos);
-		input->fact = (_FACT *)calloc(1, sizeof(_FACT));
-		ret_val = RIFFreadFACT(inFile, input);
-		if (ret_val != RIFF_SUCCESS) {
-			return ret_val;
-		}
-	} else {
-		fsetpos(inFile, &pos);
+	if (!read_fmt_chunk) {
+		LOG("Never found the fmt chunk.\n");
+		return RIFF_READ_FAIL;
 	}
-	// read peak chunk if needed
-	fgetpos(inFile, &pos);
-	fread(temp, sizeof(char), 4, inFile);
-	if (memcmp(temp, "PEAK", 4) == 0) {
-		fsetpos(inFile, &pos);
-		input->peak = (_PEAK *)calloc(1, sizeof(_PEAK));
-		ret_val = RIFFreadPEAK(inFile, input);
-		if (ret_val != RIFF_SUCCESS) {
-			return ret_val;
-		}
-	} else {
-		fsetpos(inFile, &pos);
+
+	if (data_pos == 0) {
+		LOG("Never found the data chunk.\n");
+		return RIFF_READ_FAIL;
 	}
-	// read data chunk
-	ret_val = RIFFreadDATA(inFile, input);
-	if (ret_val != RIFF_SUCCESS) {
-		return ret_val;
-	}
+
+	fsetpos(inFile, &data_pos);
+
 	return RIFF_SUCCESS;
 }
 
