@@ -312,6 +312,10 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 			break;
 		}
  		wavBufferSize = fread(wavBuffer, sizeof(int8), (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, fInputWAV);
+		if (wavBufferSize == 0) {
+			LOG_DEBUG("E: Data subchunk size is bigger than the file\n");
+			return false;
+		}
 		wavDataLeft -= wavBufferSize;
 
 		// get the next chunk of data
