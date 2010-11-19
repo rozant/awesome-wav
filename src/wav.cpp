@@ -249,7 +249,7 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /****************************************************************/
 unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
 	unsigned long int dataSize = 0, currentSize = 0, maxSize = 0;
-	int32 bytesPerSample = (fmt.BitsPerSample >> 3);
+	int32 bytesPerSample = (fmt.BitsPerSample >> 3), wavDataLeft = 0;
 	int8 *wavBuffer = NULL, *dataBuffer = NULL;
 	int8 bitsUsed = 0;
 	size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
@@ -303,15 +303,16 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	clock_t start = clock();
 	#endif
 
-	wavBufferSize = 1;
+	wavDataLeft = data.SubchunkSize;
 
 	// while there is data in the buffer encode and write to the file
 	while (true) {
 		// get the next chunk of song
- 		wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
-		if (wavBufferSize == 0) {
+		if (wavDataLeft <= 0) {
 			break;
 		}
+ 		wavBufferSize = fread(wavBuffer, sizeof(int8), (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, fInputWAV);
+		wavDataLeft -= wavBufferSize;
 
 		// get the next chunk of data
 		if (!endOfDataFile) {
