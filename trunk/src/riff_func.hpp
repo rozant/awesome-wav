@@ -20,7 +20,6 @@
 #include "logger.hpp"
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
 
 /**********************Function Prototypes***********************/
 
