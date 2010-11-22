@@ -17,7 +17,7 @@ OFLAGS= -O2
 CFLAGS= -Wall -Wextra -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
 LDFLAGS =
-FILES = ./src/main.cpp ./src/wav.cpp ./src/flac.cpp ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/quicklz.c ./src/compression/compress_util2.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
+FILES = ./src/main.cpp ./src/wav.cpp ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/quicklz.c ./src/compression/compress_util2.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
 ZFILES = ./src/compression/file_compression.c ./src/compression/compress_util.cpp
 
 all:

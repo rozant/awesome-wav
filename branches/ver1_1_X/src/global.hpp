@@ -18,7 +18,7 @@
 
 //version numbers for software
 #define POLARSSL_VER	"0.14.0-gpl"
-#define AWESOME_VER		"1.5.0 alpha"
+#define AWESOME_VER		"1.1.0"
 #define QLZ_VER			"1.4.1"
 
 // buffer multipliers

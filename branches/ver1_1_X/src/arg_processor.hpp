@@ -19,8 +19,7 @@
 // defines for all of the formats the program supports
 enum opt_formats {
 	UNKNOWN,
-	WAV,
-	FLAC
+	WAV
 };
 
 // defines for all of the modes the program supports
@@ -34,8 +33,7 @@ enum opt_modes {
 
 // defines for all of the formats the program supports
 enum enc_methods {
-	ECB = 1,
-	CBC = 2
+	ECB = 1
 };
 
 // structure for holding options

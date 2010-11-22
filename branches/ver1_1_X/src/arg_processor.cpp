@@ -34,13 +34,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 
 	for (int foo = 1; foo < argc; foo++) {			// for all of the argumets
 		if (argv[foo][0] == '-') {						// if it is an option do stuff
-			if (strcmp(argv[foo],"-wav") == 0) {				// its a wav file
-				LOG_DEBUG("S: Setting format to 'WAV'\n");
-				options->format = WAV;
-			} else if (strcmp(argv[foo],"-flac") == 0) {		// its a flac file
-				LOG_DEBUG("S: Setting format to 'FLAC'\n");
-				options->format = FLAC;
-			} else if (strcmp(argv[foo],"-e") == 0) {			// if encoding, set the mode to encode
+			if (strcmp(argv[foo],"-e") == 0) {			// if encoding, set the mode to encode
 				LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
 				options->mode = ENCODE;
 			} else if (strcmp(argv[foo],"-d") == 0) {			// if decoding, set the mode to decode
@@ -73,16 +67,6 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				if (++foo >= argc) { return EXIT_FAILURE; }
 				LOG_DEBUG("S: Setting AES encryption\n");
 				options->enc_method = ECB;
-				options->enc_key = sha2_key(argv[foo]);
-			} else if (strcmp(argv[foo], "-aes-ecb") == 0) {	// encrypt with AES
-				if (++foo >= argc) { return EXIT_FAILURE; }
-				LOG_DEBUG("S: Setting AES encryption\n");
-				options->enc_method = ECB;
-				options->enc_key = sha2_key(argv[foo]);
-			} else if (strcmp(argv[foo], "-aes-cbc") == 0) {	// encrypt with AES
-				if (++foo >= argc) { return EXIT_FAILURE; }
-				LOG_DEBUG("S: Setting AES encryption\n");
-				options->enc_method = CBC;
 				options->enc_key = sha2_key(argv[foo]);
 			} else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
@@ -120,10 +104,6 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 
 	// check for arguemnt errors that have not been caught yet
 	if (options->mode != VERSION) {
-		if ((options->format != WAV) && (options->format != FLAC)) {
-			LOG_DEBUG("E: Must specify a song file format.\n");
-			return EXIT_FAILURE;
-		}
 		if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
 			LOG_DEBUG("E: Incorrect number of arguments.\n");
 			return EXIT_FAILURE;
@@ -162,7 +142,7 @@ void opt_init(opts *foo) {
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
 	foo->enc_key = NULL;
-	foo->format = UNKNOWN;
+	foo->format = WAV;
 	foo->mode = NONE; 
 	foo->comp = 0;
 	foo->enc_method = 0;
