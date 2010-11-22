@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// in encryption is enabled
-			if (options.enc_key != NULL && options.enc_method != 0) {
+			if (options.enc_key != NULL) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
 				exit(EXIT_FAILURE);
 			}
 			// if encryption is enabled
-			if (options.enc_key != NULL && options.enc_method != 0) {
+			if (options.enc_key != NULL) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.output_file; }
 				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// in encryption is enabled
-			if (options.enc_key != NULL && options.enc_method != 0) {
+			if (options.enc_key != NULL) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
@@ -285,7 +285,7 @@ int main(int argc, char* argv[]) {
 			}
 
 			// if encryption is enabled
-			if (options.enc_key != NULL && options.enc_method != 0) {
+			if (options.enc_key != NULL) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.test_out; }
 				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {

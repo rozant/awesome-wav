@@ -66,7 +66,6 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 			} else if (strcmp(argv[foo], "-aes") == 0) {		// encrypt with AES
 				if (++foo >= argc) { return EXIT_FAILURE; }
 				LOG_DEBUG("S: Setting AES encryption\n");
-				options->enc_method = ECB;
 				options->enc_key = sha2_key(argv[foo]);
 			} else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
@@ -97,11 +96,6 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 		}
 	}
 
-	// change to check for file extension
-	if (options->format == UNKNOWN) {
-		options->format = WAV;
-	}
-
 	// check for arguemnt errors that have not been caught yet
 	if (options->mode != VERSION) {
 		if ((options->mode != TEST && arg_count != 3) || (options->mode == TEST && arg_count != 4)) {
@@ -128,7 +122,7 @@ void opt_clean(opts *foo) {
 		memset(foo->enc_key,0,sizeof(foo->enc_key));
 		FREE(foo->enc_key);
 	}
-	foo->comp = foo->enc_method = 0;
+	foo->comp = 0;
 	return;
 }
 
@@ -142,10 +136,8 @@ void opt_init(opts *foo) {
 	foo->input_file = foo->output_file = NULL;
 	foo->data = foo->test_out = NULL;
 	foo->enc_key = NULL;
-	foo->format = WAV;
 	foo->mode = NONE; 
 	foo->comp = 0;
-	foo->enc_method = 0;
 	return;
 }
 
