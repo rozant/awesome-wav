@@ -275,10 +275,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\flac.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\logger.cpp"
 				>
 			</File>
@@ -342,18 +338,6 @@
 			>
 			<File
 				RelativePath="..\src\arg_processor.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\flac.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\flac_func.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\flac_struct.hpp"
 				>
 			</File>
 			<File
