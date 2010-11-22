@@ -16,7 +16,6 @@
 #include "arg_processor.hpp"
 #include "global.hpp"
 #include "wav.hpp"
-#include "flac.hpp"
 #include "logger.hpp"
 #include "util.hpp"
 #ifndef _NZLIB
@@ -37,8 +36,6 @@
 void usage(const char prog_name[]) {
 	LOG("Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n", prog_name);
 	LOG("Encode data into a wav file, or decode data from a wav file.\n\n");
-	LOG("  -wav\tsong is a wav file\n");
-	LOG("  -flac\tsong is a flac file\n");
 	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
 	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");
 	LOG("  -c\tenable data compression with qlz\n");
@@ -82,7 +79,6 @@ int main(int argc, char* argv[]) {
 	char *data_aes = (char *)"data.aes";
 	opts options;
 	wav in_wav; // wav file definition
-	flac in_flac; // flac file definition
 
 	opt_init(&options); // set up the options struct
 
@@ -135,20 +131,8 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
-				if(options.enc_method == ECB) {
-					if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
-						if (options.comp > 0) { safeRemove(options.data); }
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else if (options.enc_method == CBC) {
-					if (encrypt_file_cbc(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
-						if (options.comp > 0) { safeRemove(options.data); }
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else {
-					LOG("Error: invalid encryption method.\n");
+				if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+					if (options.comp > 0) { safeRemove(options.data); }
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -158,11 +142,7 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// encode
-			if (options.format == WAV) {
-				size = in_wav.encode(options.input_file, options.data, options.output_file);
-			} else if (options.format == FLAC) {
-				size = in_flac.encode(options.input_file, options.data, options.output_file);
-			}
+			size = in_wav.encode(options.input_file, options.data, options.output_file);
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
 			// if failed, cleanup
@@ -183,11 +163,7 @@ int main(int argc, char* argv[]) {
 			// if neither is enabled
 			if (options.comp == 0 && options.enc_key == NULL) { temp_str = options.output_file; }
 			// decode
-			if (options.format == WAV) {
-				temp = in_wav.decode(options.input_file, temp_str, (int32)atol(options.data));
-			} else if (options.format == FLAC) {
-				temp = in_flac.decode(options.input_file, temp_str, (int32)atol(options.data));
-			}
+			temp = in_wav.decode(options.input_file, temp_str, (int32)atol(options.data));
 			if (!temp) {
 				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
@@ -198,22 +174,7 @@ int main(int argc, char* argv[]) {
 			if (options.enc_key != NULL && options.enc_method != 0) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.output_file; }
-				if (options.enc_method == ECB) {
-					if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
-						safeRemove(data_aes);
-						safeRemove(temp_str);
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else if (options.enc_method == CBC) {
-					if (decrypt_file_cbc(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
-						safeRemove(data_aes);
-						safeRemove(temp_str);
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else {
-					LOG("Error: invalid encryption method.\n");
+				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
 					safeRemove(data_aes);
 					safeRemove(temp_str);
 					opt_clean(&options);
@@ -286,20 +247,8 @@ int main(int argc, char* argv[]) {
 				file_name = (char *)calloc((strlen(options.data)+5), sizeof(char));
 				memcpy(file_name, options.data, strlen(options.data));
 				strcat(file_name, ".aes");
-				if(options.enc_method == ECB) {
-					if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
-						if (options.comp > 0) { safeRemove(options.data); }
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else if (options.enc_method == CBC) {
-					if (encrypt_file_cbc(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
-						if (options.comp > 0) { safeRemove(options.data); }
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else {
-					LOG("Error: invalid encryption method.\n");
+				if (encrypt_file_ecb(options.data, file_name, options.enc_key) != AES_SUCCESS) {	
+					if (options.comp > 0) { safeRemove(options.data); }
 					opt_clean(&options);
 					exit(EXIT_FAILURE);
 				}
@@ -309,11 +258,7 @@ int main(int argc, char* argv[]) {
 				file_name = NULL;
 			}
 			// encode
-			if (options.format == WAV) {
-				size = in_wav.encode(options.input_file, options.data, options.output_file);
-			} else if (options.format == FLAC) {
-				size = in_flac.encode(options.input_file, options.data, options.output_file);
-			}
+			size = in_wav.encode(options.input_file, options.data, options.output_file);
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
 			// if failed, cleanup
@@ -331,11 +276,7 @@ int main(int argc, char* argv[]) {
 			// if neither is enabled
 			if (options.comp == 0 && options.enc_key == NULL) { temp_str = options.test_out; }
 			// decode
-			if (options.format == WAV) {
-				temp = in_wav.decode(options.output_file, temp_str, size);
-			} else if (options.format == FLAC) {
-				temp = in_flac.decode(options.output_file, temp_str, size);
-			}
+			temp = in_wav.decode(options.output_file, temp_str, size);
 			if (!temp) {
 				LOG("Failed to decode data.\n");
 				safeRemove(temp_str);
@@ -347,22 +288,7 @@ int main(int argc, char* argv[]) {
 			if (options.enc_key != NULL && options.enc_method != 0) {
 				if (options.comp > 0) { temp_str = data_z;
 				} else { temp_str = options.test_out; }
-				if (options.enc_method == ECB) {
-					if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
-						safeRemove(data_aes);
-						safeRemove(temp_str);
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else if (options.enc_method == CBC) {
-					if (decrypt_file_cbc(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
-						safeRemove(data_aes);
-						safeRemove(temp_str);
-						opt_clean(&options);
-						exit(EXIT_FAILURE);
-					}
-				} else {
-					LOG("Error: invalid encryption method.\n");
+				if (decrypt_file_ecb(data_aes, temp_str, options.enc_key) != AES_SUCCESS) {
 					safeRemove(data_aes);
 					safeRemove(temp_str);
 					opt_clean(&options);
