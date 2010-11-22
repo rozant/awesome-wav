@@ -20,6 +20,7 @@ Data files:  Any
 =================================================================================================
 Compilation Instructions:
 =================================================================================================
+Obtain source from the google code project (http://code.google.com/p/awesome-wav/)
 Windows: Open the Visual Studio project and build it in release mode.
 Linux: Just run make with no options to build, or make install to install to /usr/local/bin
 
@@ -28,12 +29,16 @@ Linux: Just run make with no options to build, or make install to install to /us
 Program Usage:
 =================================================================================================
 ProgramName [-edcs(aes key)] arg1 arg2 arg3
-   -e     Encode data from arg3 into music file arg1 and save as arg2
-   -d     Decode data from music file arg1 using key arg3 and save as arg2
-   -c     Enable data compression.  If decoding, assume retrieved data is compressed.
-              Defaults to -c6. Valid options are -c1 through -c9, from low to high compression.
-   -aes   Enable data encryption.  Must be followed by the key.
-   --version	print version information and exit
+	-e	encode arg3 into arg1 and store in arg2
+	-d	decode arg2 from arg1 using key arg3
+	-c	enable data compression with qlz
+		-If decoding, assume retrieved data is compressed
+	-zlib	enable data compression with zlib
+		-If decoding, assume retrieved data is compressed
+		-Defaults to -zlib6
+		-Valid options are -zlib1 through -zlib9, from low to high compression
+	-aes	enable data encryption.  must be followed by the key.
+	--version	print version information and exit
 
    
 =================================================================================================
