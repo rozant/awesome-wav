@@ -306,7 +306,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	wavDataLeft = data.SubchunkSize;
 
 	// while there is data in the buffer encode and write to the file
-	while (true) {
+	for(;;) {
 		// get the next chunk of song
 		if (wavDataLeft <= 0) {
 			break;
@@ -681,7 +681,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 	wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
 	count = 0;
 
-	while (true) {
+	for(;;) {
 		if (count + maxDataBufferSize > fileSize) {
 			dataBufferSize = fileSize - count;
 			count = fileSize;
