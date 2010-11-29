@@ -660,10 +660,10 @@ FLAC__bool FLAC__bitreader_read_byte_block_aligned_no_crc(FLAC__BitReader *br, F
 		if(br->consumed_words < br->words) {
 			const brword word = br->buffer[br->consumed_words++];
 #if FLAC__BYTES_PER_WORD == 4
-			val[0] = (FLAC__byte)(word >> 24);
-			val[1] = (FLAC__byte)(word >> 16);
-			val[2] = (FLAC__byte)(word >> 8);
-			val[3] = (FLAC__byte)word;
+			val[0] = (FLAC__byte)((word >> 24) & 0xff);
+			val[1] = (FLAC__byte)((word >> 16) & 0xff);
+			val[2] = (FLAC__byte)((word >> 8) & 0xff);
+			val[3] = (FLAC__byte)(word & 0xff);
 #elif FLAC__BYTES_PER_WORD == 8
 			val[0] = (FLAC__byte)(word >> 56);
 			val[1] = (FLAC__byte)(word >> 48);
