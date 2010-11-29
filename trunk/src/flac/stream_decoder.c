@@ -547,13 +547,16 @@ static FLAC__StreamDecoderInitStatus init_FILE_internal_(
 {
 	FLAC__ASSERT(0 != decoder);
 	FLAC__ASSERT(0 != file);
-
-	if(decoder->protected_->state != FLAC__STREAM_DECODER_UNINITIALIZED)
-		return decoder->protected_->state = FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
+// these have been angrilly fixed
+	if(decoder->protected_->state != FLAC__STREAM_DECODER_UNINITIALIZED) {
+		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
+		return FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
+	}
 
 	if(0 == write_callback || 0 == error_callback)
-		return decoder->protected_->state = FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
-
+		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
+		return FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
+// end angry fixes
 	/*
 	 * To make sure that our file does not go unclosed after an error, we
 	 * must assign the FILE pointer before any further error can occur in
@@ -622,11 +625,15 @@ static FLAC__StreamDecoderInitStatus init_file_internal_(
 	 * have to do the same entrance checks here that are later performed
 	 * in FLAC__stream_decoder_init_FILE() before the FILE* is assigned.
 	 */
-	if(decoder->protected_->state != FLAC__STREAM_DECODER_UNINITIALIZED)
-		return decoder->protected_->state = FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
+	if(decoder->protected_->state != FLAC__STREAM_DECODER_UNINITIALIZED) {
+		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
+		return FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
+	}
 
-	if(0 == write_callback || 0 == error_callback)
-		return decoder->protected_->state = FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
+	if(0 == write_callback || 0 == error_callback) {
+		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
+		return FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
+	}
 
 	file = filename? fopen(filename, "rb") : stdin;
 
