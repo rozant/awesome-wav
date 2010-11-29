@@ -59,12 +59,15 @@
 /* VERSION should come from configure */
 FLAC_API const char *FLAC__VERSION_STRING = "1";
 
-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINW32__
-/* yet one more hack because of MSVC6: */
 FLAC_API const char *FLAC__VENDOR_STRING = "reference libFLAC 1.2.1 20070917";
-#else
-FLAC_API const char *FLAC__VENDOR_STRING = "reference libFLAC " VERSION " 20070917";
-#endif
+
+// AWESOME-WAV MODIFICATION - old version thing, depends on version being in config.h but its not.
+//#if defined _MSC_VER || defined __BORLANDC__ || defined __MINW32__
+/* yet one more hack because of MSVC6: */
+//FLAC_API const char *FLAC__VENDOR_STRING = "reference libFLAC 1.2.1 20070917";
+//#else
+//FLAC_API const char *FLAC__VENDOR_STRING = "reference libFLAC " VERSION " 20070917";
+//#endif
 
 FLAC_API const FLAC__byte FLAC__STREAM_SYNC_STRING[4] = { 'f','L','a','C' };
 FLAC_API const unsigned FLAC__STREAM_SYNC = 0x664C6143;
