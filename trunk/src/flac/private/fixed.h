@@ -36,8 +36,8 @@
 #include <config.h>
 #endif
 
-#include "private/float.h"
-#include "FLAC/format.h"
+#include "../private/float.h"
+#include "../FLAC/format.h"
 
 /*
  *	FLAC__fixed_compute_best_predictor()

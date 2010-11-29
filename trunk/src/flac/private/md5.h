@@ -26,7 +26,7 @@
  * Still in the public domain, with no warranty.
  */
 
-#include "FLAC/ordinals.h"
+#include "../FLAC/ordinals.h"
 
 typedef struct {
 	FLAC__uint32 in[16];
