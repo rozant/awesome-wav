@@ -33,7 +33,7 @@
 #endif
 
 // typedefs to make things look nice
-#ifdef _WIN32
+#if defined _WIN32 || defined __MINGW32__ || defined __CYGWIN__
 	typedef unsigned __int32 int32; 
 	typedef unsigned __int16 int16;
 	typedef unsigned __int8 int8;
