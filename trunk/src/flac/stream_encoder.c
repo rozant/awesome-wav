@@ -2448,7 +2448,7 @@ FLAC__StreamEncoderWriteStatus write_frame_(FLAC__StreamEncoder *encoder, const 
 	 * Watch for the STREAMINFO block and first SEEKTABLE block to go by and store their offsets.
 	 */
 	if(samples == 0) {
-		FLAC__MetadataType type = (buffer[0] & 0x7f);
+		FLAC__MetadataType type = (FLAC__MetadataType)(buffer[0] & 0x7f);
 		if(type == FLAC__METADATA_TYPE_STREAMINFO)
 			encoder->protected_->streaminfo_offset = output_position;
 		else if(type == FLAC__METADATA_TYPE_SEEKTABLE && encoder->protected_->seektable_offset == 0)

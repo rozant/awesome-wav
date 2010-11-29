@@ -20,7 +20,7 @@ LDFLAGS =
 FILES = ./src/main.cpp ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/quicklz.c ./src/compression/compress_util2.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
 WAV_FILES = ./src/wav.cpp
 FLAC_FILES = ./src/flac.cpp ./src/flac/window.c ./src/flac/stream_encoder_framing.c ./src/flac/stream_encoder.c ./src/flac/stream_decoder.c ./src/flac/metadata_object.c ./src/flac/memory.c ./src/flac/md5.c ./src/flac/lpc.c ./src/flac/format.c ./src/flac/fixed.c ./src/flac/crc.c ./src/flac/cpu.c ./src/flac/bitwriter.c ./src/flac/bitreader.c ./src/flac/bitmath.c
-FLAC_FLAGS = -D __STDC_LIMIT_MACROS 1
+FLAC_FLAGS = -D __STDC_LIMIT_MACROS=1
 ZFILES = ./src/compression/file_compression.c ./src/compression/compress_util.cpp
 
 all:
