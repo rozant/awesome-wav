@@ -546,16 +546,17 @@ static FLAC__StreamDecoderInitStatus init_FILE_internal_(
 )
 {
 	FLAC__ASSERT(0 != decoder);
-	FLAC__ASSERT(0 != file);
+	FLAC__ASSERT(0 != file);z
 // these have been angrilly fixed
 	if(decoder->protected_->state != FLAC__STREAM_DECODER_UNINITIALIZED) {
 		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
 		return FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
 	}
 
-	if(0 == write_callback || 0 == error_callback)
+	if(0 == write_callback || 0 == error_callback) {
 		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
 		return FLAC__STREAM_DECODER_INIT_STATUS_INVALID_CALLBACKS;
+	}
 // end angry fixes
 	/*
 	 * To make sure that our file does not go unclosed after an error, we
