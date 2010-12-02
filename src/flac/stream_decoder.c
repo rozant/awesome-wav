@@ -546,7 +546,7 @@ static FLAC__StreamDecoderInitStatus init_FILE_internal_(
 )
 {
 	FLAC__ASSERT(0 != decoder);
-	FLAC__ASSERT(0 != file);z
+	FLAC__ASSERT(0 != file);
 // these have been angrilly fixed
 	if(decoder->protected_->state != FLAC__STREAM_DECODER_UNINITIALIZED) {
 		decoder->protected_->state = (FLAC__StreamDecoderState)FLAC__STREAM_DECODER_INIT_STATUS_ALREADY_INITIALIZED;
