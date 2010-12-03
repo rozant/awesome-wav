@@ -30,16 +30,15 @@
 
 
 static FLAC__uint64 total_samples;
-static unsigned sample_rate;
-static unsigned channels;
-static unsigned bps;
+static unsigned sample_rate, channels, bps;
 
 /****************************************************************/
 /* class: flac													*/
-/* purpose: contain an entire flac file in ram.					*/
+/* purpose: allow encoding and decoding of flac files			*/
 /****************************************************************/
 class flac {
 	private:
+
 	public:
 		// constructors
 		flac(void);
@@ -50,17 +49,24 @@ class flac {
 		bool decode(const char[], const char[], const int32&);
 		bool wavToFlac(const char[], const char[]);
 		bool flacToWav(const char[], const char[]);
+
 };
-
-FLAC__bool write_little_endian_uint16(FILE *f, FLAC__uint16 x);
-FLAC__bool write_little_endian_int16(FILE *f, FLAC__int16 x);
-FLAC__bool write_little_endian_uint32(FILE *f, FLAC__uint32 x);
-
 
 FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data);
 void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data);
 void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data);
 
+inline FLAC__bool write_little_endian_uint16(FILE *f, FLAC__uint16 x) {
+	return fputc(x, f) != EOF && fputc(x >> 8, f) != EOF;
+}
+
+inline FLAC__bool write_little_endian_int16(FILE *f, FLAC__int16 x) {
+	return write_little_endian_uint16(f, (FLAC__uint16)x);
+}
+
+inline FLAC__bool write_little_endian_uint32(FILE *f, FLAC__uint32 x) {
+	return fputc(x, f) != EOF && fputc(x >> 8, f) != EOF && fputc(x >> 16, f) != EOF && fputc(x >> 24, f) != EOF;
+}
 
 #endif
 
