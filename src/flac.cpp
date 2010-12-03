@@ -106,7 +106,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 	FLAC__StreamDecoder *decoder = NULL;
 	FLAC__StreamDecoderInitStatus init_status;
 	FILE *foutputWAV;
-	bool torf;
+	bool torf = true;
 
 	LOG("Converting from FLAC to WAV...\n");
 
@@ -121,7 +121,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 
 	(void)FLAC__stream_decoder_set_md5_checking(decoder, true);
 
-	init_status = FLAC__stream_decoder_init_file(decoder, inputFLAC, write_callback, &metadata_callback, &error_callback, foutputWAV);
+	init_status = FLAC__stream_decoder_init_file(decoder, inputFLAC, &write_callback, &metadata_callback, &error_callback, foutputWAV);
 	if (init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
 		LOG_DEBUG("E: FLAC decoder initialization failed: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
 		torf = false;
