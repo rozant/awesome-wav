@@ -35,7 +35,6 @@
 #include <stdio.h> /* for FILE */
 #include "export.h"
 #include "format.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
