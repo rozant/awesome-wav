@@ -116,6 +116,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 	decoder = FLAC__stream_decoder_new();
 	if (decoder == NULL) {
 		LOG_DEBUG("E: Failed to allocate memory for FLAC decoder\n");
+		close(foutputWAV);
 		return false;
 	}
 
