@@ -112,7 +112,7 @@ bool wav::validFMT(void) const {
 		return false;
 	}
 	// check encoding method
-	if (fmt.AudioFormat != WAVE_FORMAT_PCM && fmt.AudioFormat != WAVE_FORMAT_IEEE_FLOAT) {
+	if (fmt.AudioFormat != WAVE_FORMAT_PCM && fmt.AudioFormat != WAVE_FORMAT_IEEE_FLOAT && fmt.AudioFormat != WAV_FORMAT_EXTENSIBLE) {
 		LOG_DEBUG("E: Invalid FMT header: AudioFormat != '%d' (PCM) or '%d' (IEEE FLOAT)\n", WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT);
 		LOG_DEBUG("\tAudioFormat == %u\n", (unsigned int)fmt.AudioFormat);
 		return false;

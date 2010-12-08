@@ -20,6 +20,7 @@
 #define WAVE_FORMAT_UNKNOWN    	0x0000
 #define	WAVE_FORMAT_PCM			0x0001	
 #define WAVE_FORMAT_IEEE_FLOAT 	0x0003
+#define WAV_FORMAT_EXTENSIBLE	0xFFFE
 
 // error code defines
 #define RIFF_SUCCESS		 1
