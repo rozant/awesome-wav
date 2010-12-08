@@ -27,13 +27,15 @@
 FILE* open(const char *filename, const char *mode) {
 	FILE* aFile = fopen(filename, mode);
 
-	#ifdef _DEBUGOUTPUT
 	if (aFile == NULL) {
+		#ifdef _DEBUGOUTPUT
 		LOG_DEBUG("E: Failed to open %s with mode %s\n", filename, mode);
+		#else
+		LOG("Failed to open %s with mode %s\n", filename, mode);
+		#endif
 	} else {
 		LOG_DEBUG("S: Opened %s with mode %s\n", filename, mode);
 	}
-	#endif
 
 	return aFile;
 }
