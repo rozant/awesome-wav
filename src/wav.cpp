@@ -260,6 +260,10 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	dataSize = ftell(fInputDATA);
 	fseek(fInputDATA, 0, SEEK_SET);
 	LOG_DEBUG("S: Determined input data file size (%.*f MB)\n", 3, byteToMB(dataSize));
+	if (dataSize == 0) {
+		LOG("Data file is empty\n");
+		return false;
+	}
 
 	// get the maximum number of bytes the wav file could hold
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
@@ -272,7 +276,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 	// get the minimum number of bits the wav file could encode per sample
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, dataSize, maxSize);
 	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
-		LOG_DEBUG("E: This should never happen %d\n", (int)bitsUsed);
+		LOG_DEBUG("E: This should never happen... bitsused %d\n", (int)bitsUsed);
 		return false;
 	}
 	LOG_DEBUG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
@@ -640,6 +644,11 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 	int8 bitsUsed = 0x00;
 	size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
 
+	if (fileSize == 0) {
+		LOG("File size is 0\n");
+		return false;
+	}
+
 	// get the maximum number of bytes the wav file could hold
 	maxSize = getMaxBytesEncoded(fmt.BitsPerSample, data.SubchunkSize);
 	if (fileSize > maxSize) {
@@ -651,7 +660,7 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 	// get the minimum number of bits the wav file could encode per sample
 	bitsUsed = getMinBitsEncodedPS(fmt.BitsPerSample, fileSize, maxSize);
 	if (bitsUsed == 0 || bitsUsed > (fmt.BitsPerSample >> 1)) {
-		LOG_DEBUG("E: This should never happen %d\n", (int)bitsUsed);
+		LOG_DEBUG("E: This should never happen... bitsused %d\n", (int)bitsUsed);
 		return false;
 	}
 	LOG_DEBUG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
