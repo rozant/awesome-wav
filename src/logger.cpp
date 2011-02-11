@@ -97,7 +97,7 @@ bool logger::record(const char* msg) {
 /****************************************************************/
 void logger::print(void) {
 	for (unsigned int i = 0; i < numEntries; i++)
-		printf(entries[i].message);
+		printf("%s",entries[i].message);
 
 	return;
 }
@@ -112,7 +112,7 @@ void logger::flush(void) {
 	unsigned int i = 0;
 
 	for (i = lastPrinted; i < numEntries; i++) {
-		printf(entries[i].message);
+		printf("%s",entries[i].message);
 		FREE(entries[i].message);
 	}
 
