@@ -16,7 +16,9 @@
 #include "arg_processor.hpp"
 #include "global.hpp"
 #include "wav.hpp"
+#ifndef _NFLAC
 #include "flac.hpp"
+#endif
 #include "logger.hpp"
 #include "util.hpp"
 #ifndef _NZLIB
@@ -38,7 +40,9 @@ void usage(const char prog_name[]) {
 	LOG("Useage: %s [-edcs(aes key)] arg1 arg2 arg3\n", prog_name);
 	LOG("Encode data into a wav file, or decode data from a wav file.\n\n");
 	LOG("  -wav\tsong is a wav file\n");
+#ifndef _NFLAC
 	LOG("  -flac\tsong is a flac file\n");
+#endif
 	LOG("  -e\tencode arg3 into arg1 and store in arg2\n");
 	LOG("  -d\tdecode arg2 from arg1 using key arg3\n");
 	LOG("  -c\tenable data compression with qlz\n");
@@ -82,7 +86,9 @@ int main(int argc, char* argv[]) {
 	char *data_aes = (char *)"data.aes";
 	opts options;
 	wav in_wav; // wav file definition
+#ifndef _NFLAC
 	flac in_flac; // flac file definition
+#endif
 
 	opt_init(&options); // set up the options struct
 
@@ -161,7 +167,9 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				size = in_wav.encode(options.input_file, options.data, options.output_file);
 			} else if (options.format == FLAC) {
+				#ifndef _NFLAC
 				size = in_flac.encode(options.input_file, options.data, options.output_file);
+				#endif
 			}
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
@@ -186,7 +194,9 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				temp = in_wav.decode(options.input_file, temp_str, (int32)atol(options.data));
 			} else if (options.format == FLAC) {
+				#ifndef _NFLAC
 				temp = in_flac.decode(options.input_file, temp_str, (int32)atol(options.data));
+				#endif
 			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");
@@ -312,7 +322,9 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				size = in_wav.encode(options.input_file, options.data, options.output_file);
 			} else if (options.format == FLAC) {
+				#ifndef _NFLAC
 				size = in_flac.encode(options.input_file, options.data, options.output_file);
+				#endif
 			}
 			// cleanup
 			if (options.enc_key != NULL || options.comp > 0) { safeRemove(options.data); }
@@ -334,7 +346,9 @@ int main(int argc, char* argv[]) {
 			if (options.format == WAV) {
 				temp = in_wav.decode(options.output_file, temp_str, size);
 			} else if (options.format == FLAC) {
+				#ifndef _NFLAC
 				temp = in_flac.decode(options.output_file, temp_str, size);
+				#endif
 			}
 			if (!temp) {
 				LOG("Failed to decode data.\n");

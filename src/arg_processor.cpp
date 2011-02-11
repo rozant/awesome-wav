@@ -38,8 +38,10 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				LOG_DEBUG("S: Setting format to 'WAV'\n");
 				options->format = WAV;
 			} else if (strcmp(argv[foo],"-flac") == 0) {		// its a flac file
+				#ifndef _NFLAC
 				LOG_DEBUG("S: Setting format to 'FLAC'\n");
 				options->format = FLAC;
+				#endif
 			} else if (strcmp(argv[foo],"-e") == 0) {			// if encoding, set the mode to encode
 				LOG_DEBUG("S: Setting mode to 'ENCODE'\n");
 				options->mode = ENCODE;
@@ -57,6 +59,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				LOG_DEBUG("S: Setting QLZ compression\n");
 				options->comp = 10;
 			} else if (strncmp(argv[foo],"-zlib",5) == 0) {		// compress with zlib
+				#ifndef _NZLIB
 				if ( strlen(argv[foo]) == 6 ) {
 					if (isdigit(argv[foo][5])) {
 						LOG_DEBUG("S: Setting ZLIB compression level %d\n",atoi(&argv[foo][5]));
@@ -69,6 +72,7 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 					LOG_DEBUG("S: Setting ZLIB compression level 6\n");
 					options->comp = 6;
 				}
+				#endif
 			} else if (strcmp(argv[foo], "-aes") == 0) {		// encrypt with AES
 				if (++foo >= argc) { return EXIT_FAILURE; }
 				LOG_DEBUG("S: Setting AES encryption\n");
