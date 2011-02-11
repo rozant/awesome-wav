@@ -229,21 +229,24 @@ int RIFFreadFMT(FILE *inFile, T *input) {
 		}
 		// Need to read extra stuff
 		if (input->fmt.SubchunkSize-16 != 0) {
-			fread(&input->fmt.ExtraFormatBytes, sizeof(int16), 1, inFile);
-			if (input->fmt.ExtraFormatBytes == 22) {
-				if (!(fread(&input->fmt.ValidBitsPerSample, sizeof(int16), 1, inFile) &&
-					fread(&input->fmt.ChannelMask, sizeof(int32), 1, inFile) &&
-					fread(input->fmt.SubFormat, sizeof(int8), 16, inFile)))
-				{
-					LOG_DEBUG("E: Failed to read FMT header: Could not read bytes\n");
-					return RIFF_READ_FAIL;
+			if(fread(&input->fmt.ExtraFormatBytes, sizeof(int16), 1, inFile)) {
+				if (input->fmt.ExtraFormatBytes == 22) {
+					if (!(fread(&input->fmt.ValidBitsPerSample, sizeof(int16), 1, inFile) &&
+						fread(&input->fmt.ChannelMask, sizeof(int32), 1, inFile) &&
+						fread(input->fmt.SubFormat, sizeof(int8), 16, inFile)))
+					{
+						LOG_DEBUG("E: Failed to read FMT header: Could not read bytes\n");
+						return RIFF_READ_FAIL;
+					}
+				} else if (input->fmt.ExtraFormatBytes != 0) {
+					LOG_DEBUG("E: Invalid FMT header. Incorrect number of extra format bits.\n");
+					LOG_DEBUG("\tExtra format bytes == %u\n", (unsigned int)input->fmt.ExtraFormatBytes);
+					return RIFF_VALID_FAIL;
 				}
-			} else if (input->fmt.ExtraFormatBytes != 0) {
-				LOG_DEBUG("E: Invalid FMT header. Incorrect number of extra format bits.\n");
-				LOG_DEBUG("\tExtra format bytes == %u\n", (unsigned int)input->fmt.ExtraFormatBytes);
-				return RIFF_VALID_FAIL;
+				LOG_DEBUG("S: Read Extended FMT header\n");
+			} else {
+				LOG_DEBUG("E: Failed to read Extended FMT header\n");
 			}
-			LOG_DEBUG("S: Read Extended FMT header\n");
 		} else {
 			LOG_DEBUG("S: Read FMT header\n");
 		}
