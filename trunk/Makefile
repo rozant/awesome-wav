@@ -26,6 +26,12 @@ ZFILES = ./src/compression/file_compression.c ./src/compression/compress_util.cp
 all:
 	g++ -lz $(CFLAGS) $(FLAC_FLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) $(ZFILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
 
+nzlib:
+	g++ -D _NZLIB $(CFLAGS) $(FLAC_FLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) -o ./bin/$(PROGNAME)-nzlib $(LDFLAGS)
+
+nflac:
+	g++ -D _NFLAC -lz $(CFLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-nflac $(LDFLAGS)
+
 test:
 	g++ -lz $(CFLAGS) $(FLAC_FLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-test $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-test ./test_suite/$(PROGNAME)-test
@@ -33,9 +39,6 @@ test:
 debug:
 	g++ -g -lz $(CFLAGS) $(FLAC_FLAGS) $(DBGFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-debug $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-debug ./test_suite/$(PROGNAME)-debug
-
-nzlib:
-	g++ -D _NZLIB $(CFLAGS) $(FLAC_FLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) -o ./bin/$(PROGNAME)-nzlib $(LDFLAGS)
 
 test-nzlib:
 	g++ -D _NZLIB $(CFLAGS) $(FLAC_FLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) -o ./bin/$(PROGNAME)-test-nzlib $(LDFLAGS)
@@ -45,7 +48,15 @@ debug-nzlib:
 	g++ -D _NZLIB -g $(CFLAGS) $(FLAC_FLAGS) $(DBGFLAGS) $(FILES) $(WAV_FILES) $(FLAC_FILES) -o ./bin/$(PROGNAME)-debug-nzlib $(LDFLAGS)
 	cp ./bin/$(PROGNAME)-debug-nzlib ./test_suite/$(PROGNAME)-debug-nzlib
 
-build-test: all test debug nzlib test-nzlib debug-nzlib clean-all 
+test-nflac:
+	g++ -D _NFLAC -lz $(CFLAGS) $(DBGFLAGS) $(OFLAGS) $(FILES) $(WAV_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-test-nflac $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-test-nflac ./test_suite/$(PROGNAME)-test-nflac
+
+debug-nflac:
+	g++ -D _NFLAC  -g -lz $(CFLAGS) $(DBGFLAGS) $(FILES) $(WAV_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-debug-nflac $(LDFLAGS)
+	cp ./bin/$(PROGNAME)-debug-nflac ./test_suite/$(PROGNAME)-debug-nflac
+
+build-test: all nzlib nflac test debug test-nzlib debug-nzlib test-nflac debug-nflac clean-all 
 
 install: all
 	cp ./bin/$(PROGNAME) $(INSTLOC)
