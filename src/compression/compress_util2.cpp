@@ -123,13 +123,19 @@ int qlz_decompress_file(const char *filename, const char *destfile) {
 	decom_buff = (char*)malloc(C_BUFF+400);
 	scratch = (char*)calloc(QLZ_SCRATCH_COMPRESS,sizeof(char));
 	if(in_buff == NULL || decom_buff == NULL || scratch == NULL) {
-		LOG_DEBUG("S: QLZ - Faild to allocate buffers.\n");
+		LOG_DEBUG("S: QLZ - Failed to allocate buffers.\n");
 		return QLZ_BUFF_MEM_FAIL;
 	}
 	// decompress the file
 	while((read = fread(in_buff, 1, 9, fin)) != 0) {
 		read = qlz_size_compressed(in_buff);
-		fread(in_buff + 9, 1, read - 9, fin);
+		if (fread(in_buff + 9, 1, read - 9, fin)==0 && ferror(fin)) {
+			LOG_DEBUG("S: QLZ - Unexpected error reading file.\n");
+			FREE(in_buff);
+			FREE(decom_buff);
+			FREE(scratch);
+			return QLZ_OFILE_FAIL;
+		}
 		decom = qlz_decompress(in_buff, decom_buff, scratch);
 		fwrite(decom_buff, decom, 1, fout);
 	}
