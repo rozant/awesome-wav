@@ -28,10 +28,6 @@
 
 #define READSIZE 1024
 
-
-static FLAC__uint64 total_samples;
-static unsigned sample_rate, channels, bps;
-
 /****************************************************************/
 /* class: flac													*/
 /* purpose: allow encoding and decoding of flac files			*/
