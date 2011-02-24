@@ -438,7 +438,7 @@ FLAC_API FLAC__StreamMetadata *FLAC__metadata_object_new(FLAC__MetadataType type
 {
 	FLAC__StreamMetadata *object;
 
-	if(type > FLAC__MAX_METADATA_TYPE_CODE)
+	if(type > (FLAC__MetadataType)FLAC__MAX_METADATA_TYPE_CODE)
 		return 0;
 
 	object = (FLAC__StreamMetadata*)calloc(1, sizeof(FLAC__StreamMetadata));
