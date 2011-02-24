@@ -22,6 +22,9 @@
 #include "logger.hpp"
 #include "wav.hpp"
 
+static FLAC__uint64 total_samples;
+static unsigned sample_rate, channels, bps;
+
 /****************************************************************/
 /* function: flac::flac											*/
 /* purpose: constructor for the flac class						*/
