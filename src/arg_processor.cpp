@@ -119,7 +119,14 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 
 	// change to check for file extension
 	if (options->format == UNKNOWN) {
-		options->format = WAV;
+		if(strcmp(&(options->input_file[strlen(options->input_file)-4]),".wav") == 0) {
+			options->format = WAV;
+		}
+		#ifndef _NFLAC
+		if(strcmp(&(options->input_file[strlen(options->input_file)-5]),".flac") == 0) {
+			options->format = FLAC;
+		}
+		#endif
 	}
 
 	// check for arguemnt errors that have not been caught yet
