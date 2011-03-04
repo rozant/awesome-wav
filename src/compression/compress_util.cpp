@@ -62,15 +62,18 @@ int compress_file(const char *filename, const char *destfile, const char level) 
 
 	// close files and exit
 	if (fclose(fout)) {
-		LOG_DEBUG("E: ZLIB - Failed to close encrypted file\n");
+		LOG_DEBUG("E: ZLIB - Failed to close compressed file\n");
+	} else {
+		LOG_DEBUG("S: ZLIB - Closed compressed file\n");
 	}
 	fout = NULL;
 	LOG_DEBUG("S: ZLIB - Closed output file\n");
 	if (fclose(fin)) {
 		LOG_DEBUG("E: ZLIB - Failed to close input file\n");
+	} else {
+		LOG_DEBUG("S: ZLIB - Closed input file\n");
 	}
 	fin = NULL;
-	LOG_DEBUG("S: ZLIB - Closed input file\n");
 	LOG_DEBUG("S: ZLIB - Compressed input data.\n");
 	LOG("File %s was compressed sucessfully.\n", filename);
 	return COMU_SUCCESS;
@@ -118,15 +121,16 @@ int decompress_file(const char *filename, const char *destfile) {
 
 	// close files and exit
 	if (fclose(fout)) {
-		LOG_DEBUG("E: ZLIB - Failed to close encrypted file\n");
+		LOG_DEBUG("E: ZLIB - Failed to close decompressed file\n");
 	}
 	fout = NULL;
 	LOG_DEBUG("S: ZLIB - Closed output file\n");
 	if (fclose(fin)) {
 		LOG_DEBUG("E: ZLIB - Failed to close input file\n");
+	} else {
+		LOG_DEBUG("S: ZLIB - Closed input file\n");
 	}
 	fin = NULL;
-	LOG_DEBUG("S: ZLIB - Closed input file\n");
 	LOG_DEBUG("S: ZLIB - Decompressed input data.\n");
 	if (safeRemove(filename) != 0) {
 		LOG_DEBUG("E: ZLIB - Could not remove temporary file data.z\n");
