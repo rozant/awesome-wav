@@ -59,6 +59,7 @@ void wav::clean(void) {
 		FREE(peak->bit_align);
 		FREE(peak);
 	}
+	peak = NULL;
 	return;
 }
 
