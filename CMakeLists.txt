@@ -154,7 +154,7 @@ ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 target_link_libraries (awesome-wav z)
 set_target_properties(awesome-wav-nflac PROPERTIES COMPILE_FLAGS "-D _NFLAC")
 
-ADD_EXECUTABLE(awesome-wav-nflac-test
+ADD_EXECUTABLE(awesome-wav-test-nflac
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util.cpp
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
 ${CMAKE_SOURCE_DIR}/src/util.cpp
@@ -169,10 +169,10 @@ ${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
 ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
-target_link_libraries (awesome-wav-nflac-test z)
-set_target_properties(awesome-wav-nflac-test PROPERTIES COMPILE_FLAGS "-D _NFLAC -D _DEBUG -D _DEBUGOUTPUT")
+target_link_libraries (awesome-wav-test-nflac z)
+set_target_properties(awesome-wav-test-nflac PROPERTIES COMPILE_FLAGS "-D _NFLAC -D _DEBUG -D _DEBUGOUTPUT")
 
-ADD_EXECUTABLE(awesome-wav-nflac-debug
+ADD_EXECUTABLE(awesome-wav-debug-nflac
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util.cpp
 ${CMAKE_SOURCE_DIR}/src/compression/compress_util2.cpp
 ${CMAKE_SOURCE_DIR}/src/util.cpp
@@ -187,5 +187,5 @@ ${CMAKE_SOURCE_DIR}/src/compression/quicklz.c
 ${CMAKE_SOURCE_DIR}/src/crypt/aes.c
 ${CMAKE_SOURCE_DIR}/src/crypt/sha2.c
 )
-target_link_libraries (awesome-wav-nflac-debug z)
-set_target_properties(awesome-wav-nflac-debug PROPERTIES COMPILE_FLAGS "-g -D _NFLAC -D _DEBUG -D _DEBUGOUTPUT")
+target_link_libraries (awesome-wav-debug-nflac z)
+set_target_properties(awesome-wav-debug-nflac PROPERTIES COMPILE_FLAGS "-g -D _NFLAC -D _DEBUG -D _DEBUGOUTPUT")
