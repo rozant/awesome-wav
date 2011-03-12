@@ -10,8 +10,8 @@ set (awesome-wav_VERSION_SUB_MINOR 0)
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 #flags
-set(CMAKE_CXX_FLAGS " -Wall -Wextra")
-set(CMAKE_C_FLAGS " -Wall -Wextra")
+set(CMAKE_CXX_FLAGS " -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function")
+set(CMAKE_C_FLAGS " -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function")
 
 #Platform specifics
 IF(UNIX AND NOT APPLE)

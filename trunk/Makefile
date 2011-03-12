@@ -17,7 +17,7 @@ CPP=g++
 PROGNAME=awesome-wav
 INSTLOC=/usr/bin
 OFLAGS= -O2
-CFLAGS= -Wall -Wextra -Wno-unused-function -D_FILE_OFFSET_BITS=64
+CFLAGS= -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
 GUIFLAGS = `wx-config --libs` `wx-config --cxxflags`
 LDFLAGS =
