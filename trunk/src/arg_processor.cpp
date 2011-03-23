@@ -30,6 +30,7 @@
 /* returns: int													*/
 /****************************************************************/
 int arg_processor(const int argc, const char **argv, opts *options) {
+	if (argc<=1) return EXIT_FAILURE;
 	int arg_count = 0;
 
 	for (int foo = 1; foo < argc; foo++) {			// for all of the argumets
