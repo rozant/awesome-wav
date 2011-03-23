@@ -19,11 +19,12 @@ INSTLOC=/usr/bin
 OFLAGS= -O2
 CFLAGS= -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function -D_FILE_OFFSET_BITS=64
 DBGFLAGS = -D _DEBUG -D _DEBUGOUTPUT
-GUIFLAGS = `wx-config --libs` `wx-config --cxxflags`
+#GUIFLAGS = `wx-config --libs` `wx-config --cxxflags`
+GUIFLAGS = `pkg-config --libs --cflags glib-2.0` `pkg-config --libs --cflags glibmm-2.4` `pkg-config --libs --cflags gtkmm-2.4`
 LDFLAGS =
 FILES = ./src/arg_processor.cpp ./src/util.cpp ./src/logger.cpp ./src/compression/quicklz.c ./src/compression/compress_util2.cpp ./src/crypt/sha2_util.cpp ./src/crypt/sha2.c ./src/crypt/aes_util.cpp ./src/crypt/aes.c
 CMDFILES = ./src/main.cpp
-GUIFILES = ./src/guimain.cpp
+GUIFILES = ./src/gtkmain.cpp ./src/execute.cpp
 WAV_FILES = ./src/wav.cpp
 FLAC_FILES = ./src/flac.cpp ./src/flac/window.c ./src/flac/stream_encoder_framing.c ./src/flac/stream_encoder.c ./src/flac/stream_decoder.c ./src/flac/metadata_object.c ./src/flac/memory.c ./src/flac/md5.c ./src/flac/lpc.c ./src/flac/format.c ./src/flac/fixed.c ./src/flac/crc.c ./src/flac/cpu.c ./src/flac/bitwriter.c ./src/flac/bitreader.c ./src/flac/bitmath.c
 FLAC_FLAGS = -D __STDC_LIMIT_MACROS=1
@@ -33,7 +34,7 @@ all:
 	$(CPP) -lz $(CFLAGS) $(FLAC_FLAGS) $(OFLAGS) $(CMDFILES) $(FILES) $(WAV_FILES) $(FLAC_FILES) $(ZFILES) -o ./bin/$(PROGNAME) $(LDFLAGS)
 
 gui:
-	$(CPP) -lz $(CFLAGS) $(OFLAGS) $(GUIFILES) $(FILES) $(WAV_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-gui $(LDFLAGS) $(GUIFLAGS)
+	$(CPP) -D _NFLAC -lz $(CFLAGS) $(OFLAGS) $(GUIFILES) $(FILES) $(WAV_FILES) $(ZFILES) -o ./bin/$(PROGNAME)-gui $(LDFLAGS) $(GUIFLAGS)
 
 nzlib:
 	$(CPP) -D _NZLIB $(CFLAGS) $(FLAC_FLAGS) $(OFLAGS) $(CMDFILES) $(FILES) $(WAV_FILES) $(FLAC_FILES) -o ./bin/$(PROGNAME)-nzlib $(LDFLAGS)
