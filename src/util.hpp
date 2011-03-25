@@ -58,6 +58,42 @@ inline void clearLower2Bits(int8 &b) {
 }
 
 /****************************************************************/
+/* function: clearLower2Bits_off								*/
+/* purpose: clears the 2 lower bits in a int8, with offset		*/
+/* args: int8&, const char										*/
+/* returns: int													*/
+/****************************************************************/
+inline int clearLower2Bits_off(int8 &b, const char off) {
+	switch (off) {
+		case 0:
+			b &= 0xFC; // 252
+			break;
+		case 1:
+			b &= 0xF9; // 249
+			break;
+		case 2:
+			b &= 0xF3; // 243
+			break;
+		case 3:
+			b &= 0xE7; // 231
+			break;
+		case 4:
+			b &= 0xCF; // 207
+			break;
+		case 5:
+			b &= 0x9F; // 159
+			break;
+		case 6:
+			b &= 0x3F; // 63
+			break;
+		default:
+			return -1;
+			break;
+	}
+	return 0;
+}
+
+/****************************************************************/
 /* function: clearLower4Bits									*/
 /* purpose: clears the 4 lower bits in a int8					*/
 /* args: int8&													*/
