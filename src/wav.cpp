@@ -600,6 +600,84 @@ bool wav::encode(const int8 bitsUsed, const int32 bytesPerSample, int8 *wavBuffe
 }
 
 /****************************************************************/
+/* function: encode_offset										*/
+/* purpose: encode data into the audio file using a buffer	 	*/
+/* args: const int8, const int32, int8*, const size_t, int8*,	*/
+/*		const size_t, const unsigned char						*/
+/* returns: bool												*/
+/****************************************************************/
+bool wav::encode_offset(const int8 bitsUsed, const int32 bytesPerSample, int8 *wavBuffer, const size_t wavBufferSize, int8 *dataBuffer, const size_t dataBufferSize, const unsigned char off) {
+	int8 tempByte = 0x00;
+	size_t count = 0x00;
+	int8* currPos_WavBuffer = wavBuffer;
+	int8* currPos_DataBuffer = dataBuffer;
+
+	if (wavBufferSize == 0) {
+		LOG_DEBUG("E: Invalid WAV buffer size\n");
+		return false;
+	}
+	if (dataBufferSize == 0) {
+		LOG_DEBUG("E: Invalid DATA buffer size\n");
+		return false;
+	}
+	if(off > 7) {
+		LOG_DEBUG("E: Invalid data offset specified\n");
+		return false;
+	}
+
+	switch (bitsUsed) {
+		case 1:	// change 0 to off to support the offset, yay easy one.
+			while (count < dataBufferSize) {
+				tempByte = *currPos_DataBuffer;
+				for (char i = 7; i >= 0; i--) {
+					setBit(*currPos_WavBuffer, off, getBit(tempByte,i));
+					currPos_WavBuffer += bytesPerSample;
+				}
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		case 2:
+			while (count < dataBufferSize) {	
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+				
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte <<= 2;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte <<= 4;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				clearLower2Bits(*currPos_WavBuffer);
+				tempByte = *currPos_DataBuffer;
+				tempByte <<= 6;
+				tempByte >>= 6;
+				*currPos_WavBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		default:
+			LOG_DEBUG("E: Invalid number of bits used (%hu)\n", (unsigned short)bitsUsed);
+			return false;
+	}
+	return true;
+}
+
+/****************************************************************/
 /* function: decode												*/
 /* purpose: open the files ment for decoding				 	*/
 /* args: const char[], const char[], const int32&				*/
@@ -929,6 +1007,84 @@ bool wav::decode(const int8 bitsUsed, const int32 bytesPerSample, int8 *wavBuffe
 						}
 					}
 				}
+			}
+			break;
+		default:
+			LOG_DEBUG("E: Invalid number of bits used (%hu)\n", (unsigned short)bitsUsed);
+			return false;
+	}
+	return true;
+}
+
+/****************************************************************/
+/* function: decode_offset										*/
+/* purpose: decode data from the audio file that is in ram	 	*/
+/* args: const int8, const int32, int8*, const size_t, int8*,	*/
+/*		const size_t, const unsigned char						*/
+/* returns: bool												*/
+/****************************************************************/
+bool wav::decode_offset(const int8 bitsUsed, const int32 bytesPerSample, int8 *wavBuffer, const size_t wavBufferSize, int8 *dataBuffer, const size_t dataBufferSize, const unsigned char off) {
+	int8 tempByte = 0x00;
+	size_t count = 0x00;
+	int8* currPos_WavBuffer = wavBuffer;
+	int8* currPos_DataBuffer = dataBuffer;
+
+	if (wavBufferSize == 0) {
+		LOG_DEBUG("E: Invalid WAV buffer size\n");
+		return false;
+	}
+	if (dataBufferSize == 0) {
+		LOG_DEBUG("E: Invalid DATA buffer size\n");
+		return false;
+	}
+	if(off > 7) {
+		LOG_DEBUG("E: Invalid data offset specified\n");
+		return false;
+	}
+
+	// Grab the bits from each sample, build a byte, and output the bytes to a file
+	switch (bitsUsed) {
+		case 1: // also yay easy one
+			while (count < dataBufferSize) {
+				for (char j = 7; j >= 0; j--) {
+					setBit(tempByte, j, getBit(*currPos_WavBuffer, off));
+					currPos_WavBuffer += bytesPerSample;
+					
+				}
+				*currPos_DataBuffer = tempByte;
+				currPos_DataBuffer++;
+				count++;
+			}
+			break;
+		case 2:
+			while (count < dataBufferSize) {
+				*currPos_DataBuffer = 0;
+
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+				
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				tempByte >>= 2;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				tempByte >>= 4;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				tempByte = *currPos_WavBuffer;
+				tempByte <<= 6;
+				tempByte >>= 6;
+				*currPos_DataBuffer += tempByte;
+				currPos_WavBuffer += bytesPerSample;
+
+				currPos_DataBuffer++;
+				count++;
 			}
 			break;
 		default:
