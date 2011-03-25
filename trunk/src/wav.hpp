@@ -66,8 +66,10 @@ class wav {
 		int8 getMinBitsEncodedPS(const int16, const int32, const int32);
 		unsigned long int encode(FILE*, FILE*, FILE*);
 		bool encode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
+		bool encode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
 		bool decode(FILE*, FILE*, const int32&);
 		bool decode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
+		bool decode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
 		// other things
 		void clean(void);
 	public:
