@@ -84,9 +84,6 @@ FLAC__bool FLAC__memory_alloc_aligned_int32_array(unsigned elements, FLAC__int32
 	FLAC__ASSERT(0 != aligned_pointer);
 	FLAC__ASSERT(unaligned_pointer != aligned_pointer);
 
-	if((size_t)elements > SIZE_MAX / sizeof(*pu)) /* overflow check */
-		return false;
-
 	pu = (FLAC__int32*)FLAC__memory_alloc_aligned(sizeof(*pu) * (size_t)elements, &u.pv);
 	if(0 == pu) {
 		return false;
@@ -112,9 +109,6 @@ FLAC__bool FLAC__memory_alloc_aligned_uint32_array(unsigned elements, FLAC__uint
 	FLAC__ASSERT(0 != unaligned_pointer);
 	FLAC__ASSERT(0 != aligned_pointer);
 	FLAC__ASSERT(unaligned_pointer != aligned_pointer);
-
-	if((size_t)elements > SIZE_MAX / sizeof(*pu)) /* overflow check */
-		return false;
 
 	pu = (FLAC__uint32*)FLAC__memory_alloc_aligned(sizeof(*pu) * elements, &u.pv);
 	if(0 == pu) {
@@ -142,9 +136,6 @@ FLAC__bool FLAC__memory_alloc_aligned_uint64_array(unsigned elements, FLAC__uint
 	FLAC__ASSERT(0 != aligned_pointer);
 	FLAC__ASSERT(unaligned_pointer != aligned_pointer);
 
-	if((size_t)elements > SIZE_MAX / sizeof(*pu)) /* overflow check */
-		return false;
-
 	pu = (FLAC__uint64*)FLAC__memory_alloc_aligned(sizeof(*pu) * elements, &u.pv);
 	if(0 == pu) {
 		return false;
@@ -170,9 +161,6 @@ FLAC__bool FLAC__memory_alloc_aligned_unsigned_array(unsigned elements, unsigned
 	FLAC__ASSERT(0 != unaligned_pointer);
 	FLAC__ASSERT(0 != aligned_pointer);
 	FLAC__ASSERT(unaligned_pointer != aligned_pointer);
-
-	if((size_t)elements > SIZE_MAX / sizeof(*pu)) /* overflow check */
-		return false;
 
 	pu = (unsigned*)FLAC__memory_alloc_aligned(sizeof(*pu) * elements, &u.pv);
 	if(0 == pu) {
@@ -201,10 +189,7 @@ FLAC__bool FLAC__memory_alloc_aligned_real_array(unsigned elements, FLAC__real *
 	FLAC__ASSERT(0 != unaligned_pointer);
 	FLAC__ASSERT(0 != aligned_pointer);
 	FLAC__ASSERT(unaligned_pointer != aligned_pointer);
-
-	if((size_t)elements > SIZE_MAX / sizeof(*pu)) /* overflow check */
-		return false;
-
+	
 	pu = (FLAC__real*)FLAC__memory_alloc_aligned(sizeof(*pu) * elements, &u.pv);
 	if(0 == pu) {
 		return false;

@@ -160,6 +160,9 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
 		channels = metadata->data.stream_info.channels;
 		bps = metadata->data.stream_info.bits_per_sample;
 	}
+	if (!decoder || !client_data) {
+		return;
+	}
 }
 
 /****************************************************************/
@@ -209,7 +212,9 @@ FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder
 			return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 		}
 	}
-
+	if (!decoder) {
+		decoder = NULL;
+	}
 	return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
@@ -222,6 +227,7 @@ FLAC__StreamDecoderWriteStatus write_callback(const FLAC__StreamDecoder *decoder
 /****************************************************************/
 void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data) {
 	LOG_DEBUG("E: Error callback: %s\n", FLAC__StreamDecoderErrorStatusString[status]);
+	if (!decoder||!status||!client_data) return;
 }
 
 /****************************************************************/
