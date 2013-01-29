@@ -824,17 +824,17 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 	#endif
 
 	// read into the buffers, process, and write
-    #ifdef _DEBUGOUTPUT
-    event_start = clock();
-    #endif
-	wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
-    #ifdef _DEBUGOUTPUT
-    event_end = clock();
-    reading_audio_data += event_end - event_start;
-    #endif
 	count = 0;
-
 	for(;;) {
+        #ifdef _DEBUGOUTPUT
+        event_start = clock();
+        #endif
+ 		wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
+        #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        reading_audio_data += event_end - event_start;
+        #endif
+
 		if (count + maxDataBufferSize > fileSize) {
 			dataBufferSize = fileSize - count;
 			count = fileSize;
@@ -866,15 +866,6 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 
 		if (count == fileSize)
 			break;
-
-        #ifdef _DEBUGOUTPUT
-        event_start = clock();
-        #endif
- 		wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
-        #ifdef _DEBUGOUTPUT
-        event_end = clock();
-        reading_audio_data += event_end - event_start;
-        #endif
 	}
 
 	LOG_DEBUG("S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
