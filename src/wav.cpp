@@ -303,20 +303,38 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 		free(wavBuffer);
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
 	LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
+	#ifdef _DEBUGOUTPUT
 	clock_t start = clock();
 	#endif
 
 	wavDataLeft = data.SubchunkSize;
 
 	// while there is data in the buffer encode and write to the file
+	#ifdef _DEBUGOUTPUT
+    clock_t event_start;
+    clock_t event_end;
+    unsigned long int reading_audio_data = 0;
+    unsigned long int reading_file_data = 0;
+    unsigned long int gen_rand_data = 0;
+    unsigned long int encoding_data = 0;
+    unsigned long int writing_data = 0;
+	#endif
 	for(;;) {
 		// get the next chunk of song
 		if (wavDataLeft <= 0) {
 			break;
 		}
+
+	    #ifdef _DEBUGOUTPUT
+        event_start = clock();
+	    #endif
  		wavBufferSize = fread(wavBuffer, sizeof(int8), (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, fInputWAV);
+	    #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        reading_audio_data += event_end - event_start;
+	    #endif
+
 		if (wavBufferSize == 0) {
 			LOG_DEBUG("E: Data subchunk size is bigger than the file\n");
 			return false;
@@ -325,7 +343,14 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 
 		// get the next chunk of data
 		if (!endOfDataFile) {
+	        #ifdef _DEBUGOUTPUT
+            event_start = clock();
+            #endif
 			dataBufferSize = fread(dataBuffer, sizeof(int8), maxDataBufferSize, fInputDATA);
+	        #ifdef _DEBUGOUTPUT
+            event_end = clock();
+            reading_file_data += event_end - event_start;
+	        #endif
 			if ( dataBufferSize < maxDataBufferSize ) {
 				endOfDataFile = true;
 				// seed the random number generator
@@ -338,6 +363,9 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 			int8* currPos_DataBuffer = dataBuffer;
 			size_t count = 0x00, offset = 0, increment = sizeof(int);
 
+            #ifdef _DEBUGOUTPUT
+            event_start = clock();
+	        #endif
 			// copy music data to the data buffer
 			if ( dataBufferSize < maxDataBufferSize ) {
 				// the buffer is partiallly full from a read... only overwrite some of the buffer
@@ -359,21 +387,45 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 					count += increment;
 				}
 			}
+	        #ifdef _DEBUGOUTPUT
+            event_end = clock();
+            gen_rand_data += event_end - event_start;
+	        #endif
 		}
 
 		// encode and error out if it fails
+	    #ifdef _DEBUGOUTPUT
+        event_start = clock();
+	    #endif
 		if (!encode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
 			free(wavBuffer); free(dataBuffer);
 			return false;
 		}
+	    #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        encoding_data += event_end - event_start;
+	    #endif
+
+	    #ifdef _DEBUGOUTPUT
+        event_start = clock();
+	    #endif
 		// write the changes to the file
 		fwrite(wavBuffer, sizeof(int8), wavBufferSize, fOutputWAV);
+	    #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        writing_data += event_end - event_start;
+	    #endif
 
 		currentSize += maxDataBufferSize;
 	}
 
 	LOG_DEBUG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
 	LOG_DEBUG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
+
+    LOG_DEBUG("S: Extended Time Data (in seconds)\nTime Reading Audio: %lf\tTime Reading Data: %lf\tTime Generating Data: %lf\nTime Encoding Data: %lf\tTime Writing Data: %lf\n",(double)reading_audio_data/CLOCKS_PER_SEC,(double)reading_file_data/CLOCKS_PER_SEC,(double)gen_rand_data/CLOCKS_PER_SEC,(double)encoding_data/CLOCKS_PER_SEC,(double)writing_data/CLOCKS_PER_SEC);
+    LOG_DEBUG("S: Extended Time Data (in clock_ticks)\nTime Reading Audio: %lu\tTime Reading Data: %lu\tTime Generating Data: %lu\nTime Encoding Data: %lu\tTime Writing Data: %lu\n",reading_audio_data,reading_file_data,gen_rand_data,encoding_data,writing_data);
+
+
 	free(wavBuffer); free(dataBuffer);
 	return dataSize;
 }
@@ -760,13 +812,26 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 		free(wavBuffer);
 		return false;
 	}
-	#ifdef _DEBUGOUTPUT
 	LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
+
+	#ifdef _DEBUGOUTPUT
 	clock_t start = clock();
+    clock_t event_start;
+    clock_t event_end;
+    unsigned long int reading_audio_data = 0;
+    unsigned long int decoding_data = 0;
+    unsigned long int writing_file_data = 0;
 	#endif
 
 	// read into the buffers, process, and write
+    #ifdef _DEBUGOUTPUT
+    event_start = clock();
+    #endif
 	wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
+    #ifdef _DEBUGOUTPUT
+    event_end = clock();
+    reading_audio_data += event_end - event_start;
+    #endif
 	count = 0;
 
 	for(;;) {
@@ -778,21 +843,46 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 			count += maxDataBufferSize;
 		}
 
+        #ifdef _DEBUGOUTPUT
+        event_start = clock();
+        #endif
 		if (!decode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
 			free(wavBuffer); free(dataBuffer);
 			return false;
 		}
+        #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        decoding_data += event_end - event_start;
+        #endif
 
+        #ifdef _DEBUGOUTPUT
+        event_start = clock();
+        #endif
 		fwrite(dataBuffer, sizeof(int8), dataBufferSize, fOutputDATA);
+        #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        writing_file_data += event_end - event_start;
+        #endif
 
 		if (count == fileSize)
 			break;
-	
+
+        #ifdef _DEBUGOUTPUT
+        event_start = clock();
+        #endif
  		wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
+        #ifdef _DEBUGOUTPUT
+        event_end = clock();
+        reading_audio_data += event_end - event_start;
+        #endif
 	}
 
 	LOG_DEBUG("S: Took %.3f seconds to decode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
 	LOG_DEBUG("S: Number of bytes retrieved: %u\n", (unsigned int)count);
+
+    LOG_DEBUG("S: Extended Time Data (in seconds)\nTime Reading Audio: %lf\tTime Decoding Data: %lf\tTime Writing Data: %lf\n",(double)reading_audio_data/CLOCKS_PER_SEC,(double)decoding_data/CLOCKS_PER_SEC,(double)writing_file_data/CLOCKS_PER_SEC);
+    LOG_DEBUG("S: Extended Time Data (in clock_ticks)\nTime Reading Audio: %lu\tTime Decoding Data: %lu\tTime Writing Data: %lu\n",reading_audio_data,decoding_data,writing_file_data);
+
 	free(wavBuffer); free(dataBuffer);
 	return true;
 }
