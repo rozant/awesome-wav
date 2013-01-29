@@ -70,7 +70,7 @@ int RIFFread(FILE *inFile, T *input) {
 	int32 chunk_size;
 	int ret_val;
 
-	chunk_type[4] = NULL;
+	chunk_type[4] = '\0';
 
 	// figure out the file size
 	fseek(inFile, 0L, SEEK_END);
