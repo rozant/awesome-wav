@@ -113,7 +113,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 
 	LOG("Converting from FLAC to WAV...\n");
 
-	foutputWAV = open(outputWAV, "wb");
+	foutputWAV = open_file(outputWAV, "wb");
 	if (foutputWAV == NULL) { return false; }
 
 	decoder = FLAC__stream_decoder_new();
@@ -247,7 +247,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 
 	LOG("Converting from WAV to FLAC...\n");
 
-	finputWAV = open(inputWAV, "rb");
+	finputWAV = open_file(inputWAV, "rb");
 	if (finputWAV == NULL) { return false; }
 
 	// read wav header and validate it
