@@ -249,12 +249,9 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /* returns: unsigned long int									*/
 /****************************************************************/
 unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
-	unsigned long int dataSize = 0, currentSize = 0, maxSize = 0;
-	int32 bytesPerSample = (fmt.BitsPerSample >> 3), wavDataLeft = 0;
-	int8 *wavBuffer = NULL, *dataBuffer = NULL;
+	unsigned long int dataSize = 0, maxSize = 0;
+	int32 bytesPerSample = (fmt.BitsPerSample >> 3);
 	int8 bitsUsed = 0;
-	size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
-	bool endOfDataFile = false;
 
 	// Get size of data file we want to encode
 	fseek(fInputDATA, 0, SEEK_END);
@@ -287,6 +284,36 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 		return false;
 	}
 
+	#ifdef _DEBUGOUTPUT
+	clock_t start = clock();
+	#endif
+
+    //--------------------- Parallel portion can start right here ---------------------
+    if (!parallel_encode(fInputWAV,fInputDATA,fOutputWAV,maxSize,bytesPerSample,bitsUsed)) {
+        return false;
+    }
+    //--------------------- Parallel portion can end right here -----------------------
+
+	LOG_DEBUG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
+	LOG_DEBUG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
+
+	return dataSize;
+}
+
+/****************************************************************/
+/* function: parallel_encode									*/
+/* purpose: encode data into the audio file using a buffer in   */
+/*  parallel	 	                                            */
+/* args:                                                        */
+/* returns: unsigned long int									*/
+/****************************************************************/
+bool wav::parallel_encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV, const unsigned long int &maxSize, const int32 &bytesPerSample, const int8 &bitsUsed) {
+	unsigned long int currentSize = 0;
+	size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
+    int32 wavDataLeft = 0;
+	int8 *wavBuffer = NULL, *dataBuffer = NULL;
+	bool endOfDataFile = false;
+
 	// Calculate the size of our buffers
 	maxWavBufferSize = BUFFER_MULT * (1024 * bytesPerSample);
 	maxDataBufferSize = BUFFER_MULT * (128 * bitsUsed);
@@ -304,9 +331,6 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 		return false;
 	}
 	LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
-	#ifdef _DEBUGOUTPUT
-	clock_t start = clock();
-	#endif
 
 	wavDataLeft = data.SubchunkSize;
 
@@ -419,15 +443,12 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 		currentSize += maxDataBufferSize;
 	}
 
-	LOG_DEBUG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
-	LOG_DEBUG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
-
     LOG_DEBUG("S: Extended Time Data (in seconds)\nTime Reading Audio: %lf\tTime Reading Data: %lf\tTime Generating Data: %lf\nTime Encoding Data: %lf\tTime Writing Data: %lf\n",(double)reading_audio_data/CLOCKS_PER_SEC,(double)reading_file_data/CLOCKS_PER_SEC,(double)gen_rand_data/CLOCKS_PER_SEC,(double)encoding_data/CLOCKS_PER_SEC,(double)writing_data/CLOCKS_PER_SEC);
     LOG_DEBUG("S: Extended Time Data (in clock_ticks)\nTime Reading Audio: %lu\tTime Reading Data: %lu\tTime Generating Data: %lu\nTime Encoding Data: %lu\tTime Writing Data: %lu\n",reading_audio_data,reading_file_data,gen_rand_data,encoding_data,writing_data);
 
-
-	free(wavBuffer); free(dataBuffer);
-	return dataSize;
+    /* cleanup and exit */
+    free(wavBuffer); free(dataBuffer);
+    return true;
 }
 
 /****************************************************************/
