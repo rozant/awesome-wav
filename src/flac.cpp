@@ -119,7 +119,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 	decoder = FLAC__stream_decoder_new();
 	if (decoder == NULL) {
 		LOG_DEBUG("E: Failed to allocate memory for FLAC decoder\n");
-		close(foutputWAV);
+		close_file(foutputWAV);
 		return false;
 	}
 
@@ -141,7 +141,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 	}
 
 	FLAC__stream_decoder_delete(decoder);
-	close(foutputWAV);
+	close_file(foutputWAV);
 
 	return torf;
 }
@@ -258,7 +258,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 
 	if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVEfmt \020\000\000\000\001\000\002\000", 16) || memcmp(buffer+32, "\004\000\020\000data", 8)) {
 		LOG_DEBUG("E: Invalid/unsupported WAVE file, only 16bps stereo\n");
-		close(finputWAV);
+		close_file(finputWAV);
 		return false;
 	}
 
@@ -270,7 +270,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 	// allocate the encoder
 	if ((encoder = FLAC__stream_encoder_new()) == NULL) {
 		LOG_DEBUG("E: Problem allocating the encoder\n");
-		close(finputWAV);
+		close_file(finputWAV);
 		return false;
 	}
 
@@ -321,7 +321,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 	}
 
 	FLAC__stream_encoder_delete(encoder);
-	close(finputWAV);
+	close_file(finputWAV);
 
 	return torf;
 }

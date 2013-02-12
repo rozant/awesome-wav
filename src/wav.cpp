@@ -220,21 +220,21 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 
     LOG("Validating input wave file...\n");
     // read and validate wave header (RIFF Chunk), and format chunk
-    if (RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV()) { close(fInputWAV); return false; }
+    if (RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV()) { close_file(fInputWAV); return false; }
 
     LOG("Opening input data file...\n");
     // Open up our input data file
     fInputDATA = open_file(inputDATA, "rb");
-    if (fInputDATA == NULL) { close(fInputWAV); return false; }
+    if (fInputDATA == NULL) { close_file(fInputWAV); return false; }
 
     LOG("Opening output wav file...\n");
     // open up output wav file
     fOutputWAV = open_file(outputWAV, "wb");
-    if (fOutputWAV == NULL) { close(fInputWAV); close(fInputDATA); return false; }
+    if (fOutputWAV == NULL) { close_file(fInputWAV); close_file(fInputDATA); return false; }
 
     LOG("Encoding data...\n");
     ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
-    close(fInputWAV); close(fInputDATA); close(fOutputWAV);
+    close_file(fInputWAV); close_file(fInputDATA); close_file(fOutputWAV);
 
     // clean up
     clean();
@@ -774,18 +774,18 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fi
 
     LOG("Validating input wave file...\n");
     // read and validate wave header (RIFF Chunk), and format chunk
-    if (RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV()) { close(fInputWAV);  return false; }
+    if (RIFFread(fInputWAV, this) != RIFF_SUCCESS || !validWAV()) { close_file(fInputWAV);  return false; }
 
     LOG("Opening output data file...\n");
     // open up our output file
     fOutputDATA = open_file(outputDATA, "wb");
-    if (fOutputDATA == NULL) { close(fInputWAV); return false; }
+    if (fOutputDATA == NULL) { close_file(fInputWAV); return false; }
 
     LOG("Decoding data...\n");
     ret_val = decode(fInputWAV, fOutputDATA, fileSize);
 
     // clean up
-    close(fInputWAV); close(fOutputDATA);
+    close_file(fInputWAV); close_file(fOutputDATA);
     clean();
     return ret_val;
 }
