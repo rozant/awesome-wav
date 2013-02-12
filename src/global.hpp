@@ -44,6 +44,25 @@
 	typedef uint8_t int8;
 #endif
 
+// pread and pwrite wrappers
+#if defined _WIN32 || defined __MINGW32__ || defined __CYGWIN__
+#include <io.h>
+int pread(const unsigned int fd, void *buf, size_t count, off_t offset) {
+    if (_lseek(fd, offset, SEEK_SET) != offset) {
+        return -1;
+    }
+    return read(fd, buf, count);
+}
+int pwrite(const unsigned int fd, const void *buf, size_t nbytes, off_t offset) {
+        if (_lseek(fd, offset, SEEK_SET) != offset) {
+                return(-1);
+        }
+        return(_write(fd, buf, nbytes));
+}
+#else
+    #include <unistd.h>
+#endif
+
 // make freeing easier
 #ifndef FREE
 #define FREE(p)	{ free(p); (p) = NULL; }
