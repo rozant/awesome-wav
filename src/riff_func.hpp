@@ -25,6 +25,8 @@
 
 // read
 template <class T>
+int RIFFread(int, T *);
+template <class T>
 int RIFFread(FILE *, T *);
 template <class T>
 int RIFFreadRIFF(FILE *, T *);
@@ -39,6 +41,8 @@ int RIFFreadDATA(FILE *, T *);
 
 // write
 template <class T>
+int RIFFwrite(int, const T *);
+template <class T>
 int RIFFwrite(FILE *, const T *);
 template <class T>
 int RIFFwriteRIFF(FILE *, const T *);
@@ -52,6 +56,20 @@ template <class T>
 int RIFFwriteDATA(FILE *, const T *);
 
 /***************************Functions****************************/
+
+/****************************************************************/
+/* function: RIFFread											*/
+/* purpose: reads a wav file into memory, using file descriptor */
+/* args: int, T *											    */
+/* returns: int													*/
+/*		1 = read correctly										*/
+/*		0 = read incorrectly or did not read					*/
+/****************************************************************/
+template <class T>
+int RIFFread(int inFile, T *input) {
+    FILE *inputFile = fdopen(inFile,"rb");
+	return RIFFread(inputFile,input);
+}
 
 /****************************************************************/
 /* function: RIFFread											*/
@@ -373,6 +391,20 @@ int RIFFreadDATA(FILE *inFile, T *input) {
 		return RIFF_VALID_FAIL;
 	}
 	return RIFF_SUCCESS;
+}
+
+/****************************************************************/
+/* function: RIFFwrite											*/
+/* purpose: writes a wav file to disk, using file descriptor    */
+/* args: int, T *											    */
+/* returns: int													*/
+/*		1 = read correctly										*/
+/*		0 = read incorrectly or did not read					*/
+/****************************************************************/
+template <class T>
+int RIFFwrite(int outFile, T *input) {
+    FILE *outputFile = fdopen(outFile,"rb");
+	return RIFFread(outputFile,input);
 }
 
 /****************************************************************/
