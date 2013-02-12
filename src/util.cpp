@@ -17,14 +17,14 @@
 #include "logger.hpp"
 
 /****************************************************************/
-/* function: open												*/
+/* function: open_file											*/
 /* purpose: open a file.										*/
 /* args: const char *, const char * 							*/
 /* returns: FILE *												*/
 /*		*	 = opened correctly									*/
 /*		NULL = opened incorrectly								*/
 /****************************************************************/
-FILE* open(const char *filename, const char *mode) {
+FILE* open_file(const char *filename, const char *mode) {
 	FILE* aFile = fopen(filename, mode);
 
 	if (aFile == NULL) {
