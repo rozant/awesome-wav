@@ -250,12 +250,11 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /****************************************************************/
 unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     unsigned long int dataSize = 0, maxSize = 0;
-    int32 bytesPerSample = (fmt.BitsPerSample >> 3);
+    int32 bytesPerSample = (fmt.BitsPerSample >> 3), off_initial = 0;
     int16 num_wav_buffers = data.SubchunkSize / (BUFFER_MULT * (1024 * bytesPerSample));
     int8 bitsUsed = 0, num_threads = 1;
 
     // Get size of data file we want to encode
-    lseek(fInputDATA, 0, SEEK_SET);
     dataSize = lseek(fInputDATA, 0, SEEK_END);
     lseek(fInputDATA, 0, SEEK_SET);
 
@@ -295,8 +294,11 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     clock_t start = clock();
     #endif
 
+    // set the initial offset
+    off_initial = lseek(fOutputWAV,0,SEEK_CUR);
+
     //--------------------- Parallel portion can start right here ---------------------
-    if (!parallel_encode(fInputWAV,fInputDATA,fOutputWAV,maxSize,bytesPerSample,bitsUsed)) {
+    if (!parallel_encode(fInputWAV,fInputDATA,fOutputWAV,maxSize,bytesPerSample,bitsUsed,off_initial)) {
         return false;
     }
     //--------------------- Parallel portion can end right here -----------------------
@@ -311,19 +313,16 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 /* function: parallel_encode                                    */
 /* purpose: encode data into the audio file using a buffer in   */
 /*  parallel                                                    */
-/* args: int , int , int , const unsigned long int,       */
-/*  const int32, const int8                                     */
+/* args: int , int , int , const unsigned long int,             */
+/*  const int32, const int8, const int32                        */
 /* returns: bool                                                */
 /****************************************************************/
-bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const unsigned long int &maxSize, const int32 &bytesPerSample, const int8 &bitsUsed) {
+bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const unsigned long int &maxSize, const int32 &bytesPerSample, const int8 &bitsUsed, const int32 &off_initial) {
     unsigned long int currentSize = 0;
     size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
-    int32 wavDataLeft = 0, wav_in_offset = 0, wav_out_offset, data_offset = 0;
+    int32 wavDataLeft = 0, wav_in_offset = 0, wav_out_offset = off_initial, data_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
     bool endOfDataFile = false;
-
-    // Set the wav_out_offset so we dont overwrite RIFF data
-    wav_out_offset = lseek(fOutputWAV,0,SEEK_CUR);
 
     // Calculate the size of our buffers
     maxWavBufferSize = BUFFER_MULT * (1024 * bytesPerSample);

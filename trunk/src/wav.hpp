@@ -65,7 +65,7 @@ class wav {
         int32 getMaxBytesEncoded(const int16, const int32);
         int8 getMinBitsEncodedPS(const int16, const int32, const int32);
         unsigned long int encode(int, int, int);
-        bool parallel_encode(int, int, int, const unsigned long int&, const int32&, const int8&);
+        bool parallel_encode(int, int, int, const unsigned long int&, const int32&, const int8&, const int32&);
         bool encode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
         bool encode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
 
