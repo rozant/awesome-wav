@@ -15,19 +15,28 @@
 *****************************************************************/
 #include "util.hpp"
 #include "logger.hpp"
+#include <fcntl.h>
 
 /****************************************************************/
 /* function: open_file                                          */
 /* purpose: open a file.                                        */
 /* args: const char *, const char *                             */
-/* returns: FILE *                                              */
-/*        *     = opened correctly                              */
-/*        NULL = opened incorrectly                             */
+/* returns: int                                                 */
+/*        fd     = opened correctly                             */
+/*        -1 = opened incorrectly                               */
 /****************************************************************/
-FILE* open_file(const char *filename, const char *mode) {
-    FILE* aFile = fopen(filename, mode);
+int open_file(const char *filename, const char *mode) {
+    int aFile;
 
-    if (aFile == NULL) {
+    if( mode[0] == 'r' ) {
+        aFile = open(filename, O_RDWR | O_CREAT);
+    } else if ( mode[0] == 'w' ) {
+        aFile = open(filename, O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+    } else {
+        aFile = -1;
+    }
+
+    if (aFile == -1) {
         #ifdef _DEBUGOUTPUT
         LOG_DEBUG("E: Failed to open %s with mode %s\n", filename, mode);
         #else
@@ -43,18 +52,17 @@ FILE* open_file(const char *filename, const char *mode) {
 /****************************************************************/
 /* function: close_file                                         */
 /* purpose: close an open file.                                 */
-/* args: FILE *                                                 */
+/* args: int                                                    */
 /* returns: bool                                                */
 /*        1 = closed correctly                                  */
 /*        0 = closed incorrectly, or already closed             */
 /****************************************************************/
-bool close_file(FILE *aFile) {
+bool close_file(int aFile) {
     if (aFile) {
-        if (fclose(aFile)) {
+        if (close(aFile)) {
             LOG_DEBUG("E: Failed to close file\n");
             return false;
         } else {
-            aFile = NULL;
             LOG_DEBUG("S: Closed file\n");
             return true;
         }

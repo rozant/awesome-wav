@@ -113,13 +113,13 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 
 	LOG("Converting from FLAC to WAV...\n");
 
-	foutputWAV = open_file(outputWAV, "wb");
+	foutputWAV = fopen(outputWAV, "wb");
 	if (foutputWAV == NULL) { return false; }
 
 	decoder = FLAC__stream_decoder_new();
 	if (decoder == NULL) {
 		LOG_DEBUG("E: Failed to allocate memory for FLAC decoder\n");
-		close_file(foutputWAV);
+		fclose(foutputWAV);
 		return false;
 	}
 
@@ -141,7 +141,7 @@ bool flac::flacToWav(const char inputFLAC[], const char outputWAV[]) {
 	}
 
 	FLAC__stream_decoder_delete(decoder);
-	close_file(foutputWAV);
+	fclose(foutputWAV);
 
 	return torf;
 }
@@ -247,7 +247,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 
 	LOG("Converting from WAV to FLAC...\n");
 
-	finputWAV = open_file(inputWAV, "rb");
+	finputWAV = fopen(inputWAV, "rb");
 	if (finputWAV == NULL) { return false; }
 
 	// read wav header and validate it
@@ -258,7 +258,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 
 	if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVEfmt \020\000\000\000\001\000\002\000", 16) || memcmp(buffer+32, "\004\000\020\000data", 8)) {
 		LOG_DEBUG("E: Invalid/unsupported WAVE file, only 16bps stereo\n");
-		close_file(finputWAV);
+		fclose(finputWAV);
 		return false;
 	}
 
@@ -270,7 +270,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 	// allocate the encoder
 	if ((encoder = FLAC__stream_encoder_new()) == NULL) {
 		LOG_DEBUG("E: Problem allocating the encoder\n");
-		close_file(finputWAV);
+		fclose(finputWAV);
 		return false;
 	}
 
@@ -321,7 +321,7 @@ bool flac::wavToFlac(const char inputWAV[], const char outputFLAC[]) {
 	}
 
 	FLAC__stream_encoder_delete(encoder);
-	close_file(finputWAV);
+	fclose(finputWAV);
 
 	return torf;
 }
