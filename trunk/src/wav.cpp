@@ -211,12 +211,12 @@ bool wav::validDATA(void) const {
 /****************************************************************/
 unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], const char outputWAV[]) {
     unsigned long int ret_val = 0;
-    FILE *fInputWAV, *fInputDATA, *fOutputWAV;
+    int fInputWAV, fInputDATA, fOutputWAV;
 
     LOG("Opening input wave file...\n");
     // Open up our input wav file
     fInputWAV = open_file(inputWAV, "rb");
-    if (fInputWAV == NULL) { return false; }
+    if (fInputWAV == -1) { return false; }
 
     LOG("Validating input wave file...\n");
     // read and validate wave header (RIFF Chunk), and format chunk
@@ -225,12 +225,12 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
     LOG("Opening input data file...\n");
     // Open up our input data file
     fInputDATA = open_file(inputDATA, "rb");
-    if (fInputDATA == NULL) { close_file(fInputWAV); return false; }
+    if (fInputDATA == -1) { close_file(fInputWAV); return false; }
 
     LOG("Opening output wav file...\n");
     // open up output wav file
     fOutputWAV = open_file(outputWAV, "wb");
-    if (fOutputWAV == NULL) { close_file(fInputWAV); close_file(fInputDATA); return false; }
+    if (fOutputWAV == -1) { close_file(fInputWAV); close_file(fInputDATA); return false; }
 
     LOG("Encoding data...\n");
     ret_val = encode(fInputWAV, fInputDATA, fOutputWAV);
@@ -245,19 +245,20 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /* function: encode                                             */
 /* purpose: do all necessary calculations and handle buffering  */
 /* prerequisites: files are open; header data has been read     */
-/* args: FILE* FILE* FILE*                                      */
+/* args: int int int                                      */
 /* returns: unsigned long int                                   */
 /****************************************************************/
-unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV) {
+unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     unsigned long int dataSize = 0, maxSize = 0;
     int32 bytesPerSample = (fmt.BitsPerSample >> 3);
     int16 num_wav_buffers = data.SubchunkSize / (BUFFER_MULT * (1024 * bytesPerSample));
     int8 bitsUsed = 0, num_threads = 1;
 
     // Get size of data file we want to encode
-    fseek(fInputDATA, 0, SEEK_END);
-    dataSize = ftell(fInputDATA);
-    fseek(fInputDATA, 0, SEEK_SET);
+    lseek(fInputDATA, 0, SEEK_SET);
+    dataSize = lseek(fInputDATA, 0, SEEK_END);
+    lseek(fInputDATA, 0, SEEK_SET);
+
     LOG_DEBUG("S: Determined input data file size (%.*f MB)\n", 3, byteToMB(dataSize));
     if (dataSize == 0) {
         LOG("Data file is empty\n");
@@ -281,7 +282,7 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
     LOG_DEBUG("S: Data file could fit at %d bits per sample\n", (int)bitsUsed);
 
     // Write our headers and how many bits used
-    if (!RIFFwrite(fOutputWAV,this)) {
+    if (RIFFwrite(fOutputWAV,this) != RIFF_SUCCESS) {
         return false;
     }
 
@@ -310,16 +311,19 @@ unsigned long int wav::encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWA
 /* function: parallel_encode                                    */
 /* purpose: encode data into the audio file using a buffer in   */
 /*  parallel                                                    */
-/* args: FILE *, FILE *, FILE *, const unsigned long int,       */
+/* args: int , int , int , const unsigned long int,       */
 /*  const int32, const int8                                     */
 /* returns: bool                                                */
 /****************************************************************/
-bool wav::parallel_encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV, const unsigned long int &maxSize, const int32 &bytesPerSample, const int8 &bitsUsed) {
+bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const unsigned long int &maxSize, const int32 &bytesPerSample, const int8 &bitsUsed) {
     unsigned long int currentSize = 0;
     size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
-    int32 wavDataLeft = 0;
+    int32 wavDataLeft = 0, wav_in_offset = 0, wav_out_offset, data_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
     bool endOfDataFile = false;
+
+    // Set the wav_out_offset so we dont overwrite RIFF data
+    wav_out_offset = lseek(fOutputWAV,0,SEEK_CUR);
 
     // Calculate the size of our buffers
     maxWavBufferSize = BUFFER_MULT * (1024 * bytesPerSample);
@@ -360,7 +364,7 @@ bool wav::parallel_encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV, c
         #ifdef _DEBUGOUTPUT
         event_start = clock();
         #endif
-        wavBufferSize = fread(wavBuffer, sizeof(int8), (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, fInputWAV);
+        wavBufferSize = pread(fInputWAV, wavBuffer, (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, wav_in_offset);
         #ifdef _DEBUGOUTPUT
         event_end = clock();
         reading_audio_data += event_end - event_start;
@@ -371,13 +375,14 @@ bool wav::parallel_encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV, c
             return false;
         }
         wavDataLeft -= wavBufferSize;
+        wav_in_offset += wavBufferSize;
 
         // get the next chunk of data
         if (!endOfDataFile) {
             #ifdef _DEBUGOUTPUT
             event_start = clock();
             #endif
-            dataBufferSize = fread(dataBuffer, sizeof(int8), maxDataBufferSize, fInputDATA);
+            dataBufferSize = pread(fInputDATA, dataBuffer, maxDataBufferSize, data_offset);
             #ifdef _DEBUGOUTPUT
             event_end = clock();
             reading_file_data += event_end - event_start;
@@ -387,6 +392,7 @@ bool wav::parallel_encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV, c
                 // seed the random number generator
                 srand((unsigned int)time(NULL));
             }
+            data_offset += dataBufferSize;
         }
 
         // no more data so generate random stuff
@@ -441,12 +447,12 @@ bool wav::parallel_encode(FILE *fInputWAV, FILE *fInputDATA, FILE *fOutputWAV, c
         event_start = clock();
         #endif
         // write the changes to the file
-        fwrite(wavBuffer, sizeof(int8), wavBufferSize, fOutputWAV);
+        pwrite(fOutputWAV, wavBuffer, wavBufferSize, wav_out_offset);
         #ifdef _DEBUGOUTPUT
         event_end = clock();
         writing_data += event_end - event_start;
         #endif
-
+        wav_out_offset += wavBufferSize;
         currentSize += maxDataBufferSize;
     }
 
@@ -764,13 +770,13 @@ bool wav::encode_offset(const int8 bitsUsed, const int32 bytesPerSample, int8 *w
 /* returns: bool                                                */
 /****************************************************************/
 bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fileSize) {
-    FILE *fInputWAV, *fOutputDATA;
+    int fInputWAV, fOutputDATA;
     bool ret_val = 0;
 
     LOG("Opening input wave file...\n");
     // Open up our input file
     fInputWAV = open_file(inputWAV, "rb");
-    if (fInputWAV == NULL) { return false; }
+    if (fInputWAV == -1) { return false; }
 
     LOG("Validating input wave file...\n");
     // read and validate wave header (RIFF Chunk), and format chunk
@@ -779,7 +785,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fi
     LOG("Opening output data file...\n");
     // open up our output file
     fOutputDATA = open_file(outputDATA, "wb");
-    if (fOutputDATA == NULL) { close_file(fInputWAV); return false; }
+    if (fOutputDATA == -1) { close_file(fInputWAV); return false; }
 
     LOG("Decoding data...\n");
     ret_val = decode(fInputWAV, fOutputDATA, fileSize);
@@ -797,7 +803,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fi
 /* args: const char[], const char[], const int32&               */
 /* returns: bool                                                */
 /****************************************************************/
-bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
+bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
     size_t count = 0;
     int32 maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3);
     int8 bitsUsed = 0x00;
@@ -843,12 +849,13 @@ bool wav::decode(FILE* fInputWAV, FILE* fOutputDATA, const int32& fileSize) {
 /* function: parallel_decode                                    */
 /* purpose: ddecode data from the audio file using a buffer in  */
 /*  parallel                                                    */
-/* args: FILE *, FILE *, const unsigned long int, const int32,  */
+/* args: int , int , const unsigned long int, const int32,  */
 /*  const int8                                                  */
 /* returns: bool                                                */
 /****************************************************************/
-size_t wav::parallel_decode(FILE *fInputWAV, FILE *fOutputDATA, const int32 &bytesPerSample, const int32& fileSize, const int8 &bitsUsed) {
+size_t wav::parallel_decode(int fInputWAV, int fOutputDATA, const int32 &bytesPerSample, const int32& fileSize, const int8 &bitsUsed) {
     size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
+    int32 wav_in_offset = 0, data_out_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
 
     // Calculate the size of our buffers
@@ -883,11 +890,12 @@ size_t wav::parallel_decode(FILE *fInputWAV, FILE *fOutputDATA, const int32 &byt
         #ifdef _DEBUGOUTPUT
         event_start = clock();
         #endif
-         wavBufferSize = fread(wavBuffer, sizeof(int8), maxWavBufferSize, fInputWAV);
+        wavBufferSize = pread(fInputWAV, wavBuffer, maxWavBufferSize, wav_in_offset);
         #ifdef _DEBUGOUTPUT
         event_end = clock();
         reading_audio_data += event_end - event_start;
         #endif
+        wav_in_offset += wavBufferSize; 
 
         if (count + maxDataBufferSize > fileSize) {
             dataBufferSize = fileSize - count;
@@ -912,11 +920,12 @@ size_t wav::parallel_decode(FILE *fInputWAV, FILE *fOutputDATA, const int32 &byt
         #ifdef _DEBUGOUTPUT
         event_start = clock();
         #endif
-        fwrite(dataBuffer, sizeof(int8), dataBufferSize, fOutputDATA);
+        pwrite(fOutputDATA, dataBuffer, dataBufferSize, data_out_offset);
         #ifdef _DEBUGOUTPUT
         event_end = clock();
         writing_file_data += event_end - event_start;
         #endif
+        data_out_offset +=  dataBufferSize;
 
         if (count == fileSize)
             break;

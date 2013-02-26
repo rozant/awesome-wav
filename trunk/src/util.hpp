@@ -20,8 +20,8 @@
 #include <string.h>
 
 // non inline functions
-FILE* open_file(const char *filename, const char *mode);
-bool close_file(FILE *aFile);
+int open_file(const char *filename, const char *mode);
+bool close_file(int aFile);
 int safeRemove(const char *filename);
 
 /****************************************************************/

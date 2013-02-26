@@ -32,29 +32,29 @@ class wav {
         _RIFF_UNKNOWN_CHUNKS unknown0;
         // file operations
         template <class T>
-        friend int RIFFread(FILE*,T *);
+        friend int RIFFread(int, T *);
         template <class T>
-        friend int RIFFreadRIFF(FILE *, T *);
+        friend int RIFFreadRIFF(int, T *);
         template <class T>
-        friend int RIFFreadFMT(FILE *, T *);
+        friend int RIFFreadFMT(int, T *);
         template <class T>
-        friend int RIFFreadFACT(FILE *, T *);
+        friend int RIFFreadFACT(int, T *);
         template <class T>
-        friend int RIFFreadPEAK(FILE *, T *);
+        friend int RIFFreadPEAK(int, T *);
         template <class T>
-        friend int RIFFreadDATA(FILE *, T *);
+        friend int RIFFreadDATA(int, T *);
         template <class T>
-        friend int RIFFwrite(FILE *, const T *);
+        friend int RIFFwrite(int, const T *);
         template <class T>
-        friend int RIFFwriteRIFF(FILE *, const T *);
+        friend int RIFFwriteRIFF(int, const T *);
         template <class T>
-        friend int RIFFwriteFMT(FILE *, const T *);
+        friend int RIFFwriteFMT(int, const T *);
         template <class T>
-        friend int RIFFwriteFACT(FILE *, const T *);
+        friend int RIFFwriteFACT(int, const T *);
         template <class T>
-        friend int RIFFwritePEAK(FILE *, const T *);
+        friend int RIFFwritePEAK(int, const T *);
         template <class T>
-        friend int RIFFwriteDATA(FILE *, const T *);
+        friend int RIFFwriteDATA(int, const T *);
         // data integrity checks
         bool validWAV(void) const;
         bool validRIFF(void) const;
@@ -64,13 +64,13 @@ class wav {
         // data operations
         int32 getMaxBytesEncoded(const int16, const int32);
         int8 getMinBitsEncodedPS(const int16, const int32, const int32);
-        unsigned long int encode(FILE*, FILE*, FILE*);
-        bool parallel_encode(FILE *, FILE *, FILE *, const unsigned long int&, const int32&, const int8&);
+        unsigned long int encode(int, int, int);
+        bool parallel_encode(int, int, int, const unsigned long int&, const int32&, const int8&);
         bool encode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
         bool encode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
 
-        bool decode(FILE*, FILE*, const int32&);
-        size_t parallel_decode(FILE *, FILE *, const int32&, const int32&, const int8&);
+        bool decode(int, int, const int32&);
+        size_t parallel_decode(int, int, const int32&, const int32&, const int8&);
         bool decode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
         bool decode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
         // other things
