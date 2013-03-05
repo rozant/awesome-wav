@@ -62,7 +62,7 @@ int RIFFwriteDATA(int, const T *);
 /****************************************************************/
 template <class T>
 int RIFFread(int inFile, T *input) {
-	long int f_pos, f_data_pos = 0, l_pos, l_data_pos = 0, l_end_pos;
+	long int f_pos, l_pos, l_data_pos = 0, l_end_pos;
 	bool read_fmt_chunk = false;
 	char chunk_type[5];
 	int32 chunk_size;
@@ -124,7 +124,6 @@ int RIFFread(int inFile, T *input) {
 			}
 
 			 // skip over the data chunk
-			f_data_pos = f_pos;	
 			l_data_pos = lseek(inFile, 0, SEEK_CUR);
 			lseek(inFile, (long int)input->data.SubchunkSize, SEEK_CUR);
 		} else {
@@ -158,7 +157,7 @@ int RIFFread(int inFile, T *input) {
 		return RIFF_READ_FAIL;
 	}
 
-    lseek(inFile, f_data_pos, SEEK_SET);
+    lseek(inFile, l_data_pos, SEEK_SET);
 
 	return RIFF_SUCCESS;
 }

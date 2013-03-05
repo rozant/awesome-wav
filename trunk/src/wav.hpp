@@ -70,7 +70,7 @@ class wav {
         bool encode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
 
         bool decode(int, int, const int32&);
-        size_t parallel_decode(int, int, const int32&, const int32&, const int8&);
+        size_t parallel_decode(int, int, const int32&, const int32&, const int8&, const int32&);
         bool decode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
         bool decode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
         // other things
