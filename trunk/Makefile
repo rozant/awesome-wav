@@ -75,7 +75,7 @@ uninstall:
 	rm -f $(INSTLOC)/$(PROGNAME)
 
 clean:
-	rm -f ./src/*.o ./src/*.gch
+	rm -f ./src/*.o ./src/*.gch ./src/*/*.o ./src/*/*.gch
 
 clean-all: clean
 	rm -f ./bin/$(PROGNAME)*
