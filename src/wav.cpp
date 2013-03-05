@@ -805,7 +805,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fi
 /****************************************************************/
 bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
     size_t count = 0;
-    int32 maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3);
+    int32 maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3), initial_offset = 0;
     int8 bitsUsed = 0x00;
 
     if (fileSize == 0) {
@@ -833,8 +833,11 @@ bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
     clock_t start = clock();
     #endif
 
+    // Set the initial offset
+    initial_offset = lseek(fInputWAV,0,SEEK_CUR);
+
     //--------------------- Parallel portion can start right here ---------------------
-    if( !(count = parallel_decode(fInputWAV, fOutputDATA, bytesPerSample, fileSize, bitsUsed)) ) {
+    if( !(count = parallel_decode(fInputWAV, fOutputDATA, bytesPerSample, fileSize, bitsUsed, initial_offset)) ) {
         return false;
     }
     //--------------------- Parallel portion can end right here -----------------------
@@ -849,13 +852,13 @@ bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
 /* function: parallel_decode                                    */
 /* purpose: ddecode data from the audio file using a buffer in  */
 /*  parallel                                                    */
-/* args: int , int , const unsigned long int, const int32,  */
-/*  const int8                                                  */
+/* args: int , int , const unsigned long int, const int32,      */
+/*  const int8, const int32                                     */
 /* returns: bool                                                */
 /****************************************************************/
-size_t wav::parallel_decode(int fInputWAV, int fOutputDATA, const int32 &bytesPerSample, const int32& fileSize, const int8 &bitsUsed) {
+size_t wav::parallel_decode(int fInputWAV, int fOutputDATA, const int32 &bytesPerSample, const int32& fileSize, const int8 &bitsUsed, const int32 &initial_offset) {
     size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
-    int32 wav_in_offset = 0, data_out_offset = 0;
+    int32 wav_in_offset = initial_offset, data_out_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
 
     // Calculate the size of our buffers
