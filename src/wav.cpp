@@ -268,12 +268,6 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     int8 bitsUsed = 0;
     bool enc_ret = true;
 
-    /* thread var */
-    int *thread_ret = (int *)calloc(sizeof(int),num_threads);
-    threads = (pthread_t *)calloc(sizeof(pthread_t),num_threads);
-    argt = (thread_args *)calloc(sizeof(thread_args),num_threads);
-    num_threads = 1;
-
     // Get size of data file we want to encode
     dataSize = lseek(fInputDATA, 0, SEEK_END);
     lseek(fInputDATA, 0, SEEK_SET);
@@ -310,6 +304,11 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         num_wav_buffers += 1;
     }
 
+    num_threads = 1;
+    /* thread var */
+    threads = (pthread_t *)calloc(sizeof(pthread_t),num_threads);
+    argt = (thread_args *)calloc(sizeof(thread_args),num_threads);
+
     // set the initial offset
     initial_offset = lseek(fOutputWAV,0,SEEK_CUR);
     offset_block_size = (data.SubchunkSize - lseek(fInputWAV,0,SEEK_CUR)) / num_threads;
@@ -333,7 +332,9 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 
     //--------------------- Parallel portion can start right here ---------------------
     for(foo = 0; foo < num_threads; ++foo) {
-        thread_ret[foo] = pthread_create( &threads[foo], NULL, wav::parallel_encode_helper, this);
+        if( pthread_create( &threads[foo], NULL, wav::parallel_encode_helper, this) < 0) {
+            return false;
+        }
     }
     for(foo = 0; foo < num_threads; ++foo) {
         pthread_join(threads[foo], NULL);
@@ -349,7 +350,6 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     LOG_DEBUG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
 
     /* cleanup */
-    free(thread_ret);
     free(argt);
     free(threads);
     threads = NULL;
