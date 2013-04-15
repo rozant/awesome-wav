@@ -263,7 +263,7 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     unsigned long int dataSize = 0, maxSize = 0;
     unsigned int foo = 0;
-    int32 bytesPerSample = (fmt.BitsPerSample >> 3), wav_out_init_offset = 0, wav_in_init_offset = 0, wav_in_block_size = 0, data_init_offset = 0;
+    int32 bytesPerSample = (fmt.BitsPerSample >> 3), wav_out_init_offset = 0, wav_in_init_offset = 0, wav_in_block_size = 0, data_init_offset = 0, data_block_size = 0;
     int16 num_wav_buffers = data.SubchunkSize / (BUFFER_MULT * (1024 * bytesPerSample));
     int8 bitsUsed = 0;
     bool enc_ret = true;
@@ -311,6 +311,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     // set the initial offset
     wav_out_init_offset = lseek(fOutputWAV,0,SEEK_CUR);
     wav_in_block_size = data.SubchunkSize / num_threads;
+    data_block_size = dataSize / num_threads;
 
     // set up thread arguments
     for(foo = 0; foo < num_threads; ++foo) {
@@ -328,7 +329,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         argt[foo].enc_ret = enc_ret;
         wav_out_init_offset += wav_in_block_size;
         wav_in_init_offset += wav_in_block_size;
-        data_init_offset += wav_in_block_size;
+        data_init_offset += data_block_size;
     }
 
     getLogger().flush();
