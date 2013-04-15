@@ -311,7 +311,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 
     // set the initial offset
     initial_offset = lseek(fOutputWAV,0,SEEK_CUR);
-    offset_block_size = (data.SubchunkSize - lseek(fInputWAV,0,SEEK_CUR)) / num_threads;
+    offset_block_size = data.SubchunkSize / num_threads;
 
     // set up thread arguments
     for(foo = 0; foo < num_threads; ++foo) {
@@ -325,6 +325,8 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         argt[foo].offset_block_size = offset_block_size;
         argt[foo].enc_ret = enc_ret;
     }
+
+    getLogger().flush();
 
     #ifdef _DEBUGOUTPUT
     clock_t start = clock();
@@ -375,12 +377,15 @@ void *wav::parallel_encode(void) {
     bool endOfDataFile = false;
 
     for(foo = 0; foo < num_threads; ++foo) {
-        if( threads[foo] == pthread_self() ) {
+        if( pthread_equal(threads[foo],pthread_self()) ) {
+            LOG_DEBUG("I: Thead argument data has been selected\n");
             arg_s = &argt[foo];
+            getLogger().flush();
             break;
         }
-    } 
-    wav_out_offset = arg_s->initial_offset;
+    }
+
+    wav_out_offset = (int32)arg_s->initial_offset;
 
     // Calculate the size of our buffers
     maxWavBufferSize = BUFFER_MULT * (1024 * argt->bytesPerSample);
