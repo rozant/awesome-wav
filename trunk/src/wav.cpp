@@ -304,7 +304,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         num_wav_buffers += 1;
     }
 
-    num_threads = 1;
+    num_threads = 2;
     /* thread var */
     threads = (pthread_t *)calloc(sizeof(pthread_t),num_threads);
     argt = (thread_args *)calloc(sizeof(thread_args),num_threads);
@@ -327,6 +327,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         argt[foo].data_init_offset = data_init_offset;
         argt[foo].enc_ret = enc_ret;
         wav_out_init_offset += wav_in_block_size;
+        wav_in_init_offset += wav_in_block_size;
     }
 
     getLogger().flush();
@@ -383,7 +384,6 @@ void *wav::parallel_encode(void) {
         if( pthread_equal(threads[foo],pthread_self()) ) {
             LOG_DEBUG("I: Thead argument data has been selected\n");
             arg_s = &argt[foo];
-            getLogger().flush();
             break;
         }
     }
