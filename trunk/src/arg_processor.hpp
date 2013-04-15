@@ -49,6 +49,7 @@ struct opts {
 	opt_formats format;						// song file format
 	opt_modes mode;							// encode or decode
 	unsigned char comp;						// should data be/is data compressed
+    char threads;                           // number of threads to use
 };
 
 // function prototypes
