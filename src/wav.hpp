@@ -18,6 +18,19 @@
 #include "global.hpp"
 #include "riff.hpp"
 
+/* structure to pass arguments to parallel encode */
+typedef struct {
+    int fInputWAV;
+    int fInputDATA;
+    int fOutputWAV;
+    unsigned long int maxSize;
+    int32 bytesPerSample;
+    int8 bitsUsed;
+    int32 initial_offset;
+    int32 offset_block_size;
+    bool enc_ret;
+} thread_args;
+
 /****************************************************************/
 /* class: wav                                                   */
 /* purpose: contain an entire wav formatted file in ram.        */
@@ -30,6 +43,9 @@ class wav {
         _PEAK *peak;
         _DATA data;
         _RIFF_UNKNOWN_CHUNKS unknown0;
+        thread_args *argt;
+        pthread_t *threads;
+        int8 num_threads;
         // file operations
         template <class T>
         friend int RIFFread(int, T *);
@@ -55,6 +71,8 @@ class wav {
         friend int RIFFwritePEAK(int, const T *);
         template <class T>
         friend int RIFFwriteDATA(int, const T *);
+        // parallel operations
+//        friend void *parallel_encode(void *);
         // data integrity checks
         bool validWAV(void) const;
         bool validRIFF(void) const;
@@ -65,9 +83,12 @@ class wav {
         int32 getMaxBytesEncoded(const int16, const int32);
         int8 getMinBitsEncodedPS(const int16, const int32, const int32);
         unsigned long int encode(int, int, int);
-        bool parallel_encode(int, int, int, const unsigned long int&, const int32&, const int8&, const int32&, const int32&);
         bool encode(const int8, const int32, int8 *, const size_t, int8 *, const size_t);
+//        void parallel_encode(int, int, int, const unsigned long int&, const int32&, const int8&, const int32&, const int32&, bool&);
+        void *parallel_encode(void);
+        static void *parallel_encode_helper(void *context) { return ((wav *)context)->parallel_encode(); }
         bool encode_offset(const int8, const int32, int8 *, const size_t, int8 *, const size_t, const unsigned char);
+
 
         bool decode(int, int, const int32&);
         size_t parallel_decode(int, int, const int32&, const int32&, const int8&, const int32&);

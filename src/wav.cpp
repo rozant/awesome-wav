@@ -22,6 +22,7 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
 
 /****************************************************************/
 /* function: wav::wav                                           */
@@ -34,6 +35,9 @@ wav::wav(void) {
     memset(&data, 0, sizeof(_DATA));
     fact = NULL;
     peak = NULL;
+    argt = NULL;
+    threads = NULL;
+    num_threads = 1;
 }
 
 /****************************************************************/
@@ -60,6 +64,14 @@ void wav::clean(void) {
         FREE(peak);
     }
     peak = NULL;
+    if (argt != NULL) {
+        free(argt);
+    }
+    argt = NULL;
+    if (threads != NULL) {
+        free(threads);
+    }
+    threads = NULL;
     return;
 }
 
@@ -245,14 +257,22 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 /* function: encode                                             */
 /* purpose: do all necessary calculations and handle buffering  */
 /* prerequisites: files are open; header data has been read     */
-/* args: int int int                                      */
+/* args: int int int                                            */
 /* returns: unsigned long int                                   */
 /****************************************************************/
 unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     unsigned long int dataSize = 0, maxSize = 0;
+    unsigned int foo = 0;
     int32 bytesPerSample = (fmt.BitsPerSample >> 3), initial_offset = 0, offset_block_size = 0;
     int16 num_wav_buffers = data.SubchunkSize / (BUFFER_MULT * (1024 * bytesPerSample));
-    int8 bitsUsed = 0, num_threads = 1;
+    int8 bitsUsed = 0;
+    bool enc_ret = true;
+
+    /* thread var */
+    int *thread_ret = (int *)calloc(sizeof(int),num_threads);
+    threads = (pthread_t *)calloc(sizeof(pthread_t),num_threads);
+    argt = (thread_args *)calloc(sizeof(thread_args),num_threads);
+    num_threads = 1;
 
     // Get size of data file we want to encode
     dataSize = lseek(fInputDATA, 0, SEEK_END);
@@ -290,23 +310,50 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         num_wav_buffers += 1;
     }
 
-    #ifdef _DEBUGOUTPUT
-    clock_t start = clock();
-    #endif
-
     // set the initial offset
     initial_offset = lseek(fOutputWAV,0,SEEK_CUR);
     offset_block_size = (data.SubchunkSize - lseek(fInputWAV,0,SEEK_CUR)) / num_threads;
 
+    // set up thread arguments
+    for(foo = 0; foo < num_threads; ++foo) {
+        argt[foo].fInputWAV = fInputWAV;
+        argt[foo].fInputDATA = fInputDATA;
+        argt[foo].fOutputWAV = fOutputWAV;
+        argt[foo].maxSize = maxSize;
+        argt[foo].bytesPerSample = bytesPerSample;
+        argt[foo].bitsUsed = bitsUsed;
+        argt[foo].initial_offset = initial_offset;
+        argt[foo].offset_block_size = offset_block_size;
+        argt[foo].enc_ret = enc_ret;
+    }
+
+    #ifdef _DEBUGOUTPUT
+    clock_t start = clock();
+    #endif
+
     //--------------------- Parallel portion can start right here ---------------------
-    if (!parallel_encode(fInputWAV,fInputDATA,fOutputWAV,maxSize,bytesPerSample,bitsUsed,initial_offset, offset_block_size)) {
-        return false;
+    for(foo = 0; foo < num_threads; ++foo) {
+        thread_ret[foo] = pthread_create( &threads[foo], NULL, wav::parallel_encode_helper, this);
+    }
+    for(foo = 0; foo < num_threads; ++foo) {
+        pthread_join(threads[foo], NULL);
+    }
+    for(foo = 0; foo < num_threads; ++foo) {
+        if (argt[foo].enc_ret == false) {
+            return false;
+        }
     }
     //--------------------- Parallel portion can end right here -----------------------
 
     LOG_DEBUG("S: Took %.3f seconds to encode.\n", ((double)clock() - start) / CLOCKS_PER_SEC );
     LOG_DEBUG("S: Number of bytes stored: %u\n", (unsigned int)dataSize);
 
+    /* cleanup */
+    free(thread_ret);
+    free(argt);
+    free(threads);
+    threads = NULL;
+    argt = NULL;
     return dataSize;
 }
 
@@ -315,35 +362,47 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 /* purpose: encode data into the audio file using a buffer in   */
 /*  parallel                                                    */
 /* args: int , int , int , const unsigned long int,             */
-/*  const int32, const int8, const int32, const int32           */
-/* returns: bool                                                */
+/*  const int32, const int8, const int32, const int32. bool     */
+/* returns: void                                                */
 /****************************************************************/
-bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const unsigned long int &maxSize, const int32 &bytesPerSample, const int8 &bitsUsed, const int32 &initial_offset, const int32 &offset_block_size) {
+void *wav::parallel_encode(void) {
     unsigned long int currentSize = 0;
+    unsigned int foo;
     size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
-    int32 wavDataLeft = 0, wav_in_offset = 0, wav_out_offset = initial_offset, data_offset = 0;
+    int32 wavDataLeft = 0, wav_in_offset = 0, wav_out_offset = 0, data_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
+    thread_args *arg_s = NULL;
     bool endOfDataFile = false;
 
+    for(foo = 0; foo < num_threads; ++foo) {
+        if( threads[foo] == pthread_self() ) {
+            arg_s = &argt[foo];
+            break;
+        }
+    } 
+    wav_out_offset = arg_s->initial_offset;
+
     // Calculate the size of our buffers
-    maxWavBufferSize = BUFFER_MULT * (1024 * bytesPerSample);
-    maxDataBufferSize = BUFFER_MULT * (128 * bitsUsed);
+    maxWavBufferSize = BUFFER_MULT * (1024 * argt->bytesPerSample);
+    maxDataBufferSize = BUFFER_MULT * (128 * argt->bitsUsed);
 
     // Get memory for our buffers
     if ((wavBuffer = (int8*)calloc(maxWavBufferSize, sizeof(int8))) == NULL) {
         LOG_DEBUG("E: Failed to get memory for WAV buffer\n");
-        return false;
+        arg_s->enc_ret = false;
+        return &arg_s->enc_ret;
     }
     LOG_DEBUG("S: Got %u bytes for WAV buffer\n", (unsigned int)maxWavBufferSize);
 
     if ((dataBuffer = (int8*)calloc(maxDataBufferSize, sizeof(int8))) == NULL) {
         LOG_DEBUG("E: Failed to get memory for DATA buffer\n");
         free(wavBuffer);
-        return false;
+        arg_s->enc_ret = false;
+        return &arg_s->enc_ret;
     }
     LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
 
-    wavDataLeft = data.SubchunkSize;
+    wavDataLeft = arg_s->offset_block_size;
 
     // while there is data in the buffer encode and write to the file
     #ifdef _DEBUGOUTPUT
@@ -364,7 +423,7 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
         #ifdef _DEBUGOUTPUT
         event_start = clock();
         #endif
-        wavBufferSize = pread(fInputWAV, wavBuffer, (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, wav_in_offset);
+        wavBufferSize = pread(arg_s->fInputWAV, wavBuffer, (wavDataLeft < maxWavBufferSize) ? wavDataLeft : maxWavBufferSize, wav_in_offset);
         #ifdef _DEBUGOUTPUT
         event_end = clock();
         reading_audio_data += event_end - event_start;
@@ -372,7 +431,8 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
 
         if (wavBufferSize == 0) {
             LOG_DEBUG("E: Data subchunk size is bigger than the file\n");
-            return false;
+            arg_s->enc_ret = false;
+            return &arg_s->enc_ret;
         }
         wavDataLeft -= wavBufferSize;
         wav_in_offset += wavBufferSize;
@@ -382,7 +442,7 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
             #ifdef _DEBUGOUTPUT
             event_start = clock();
             #endif
-            dataBufferSize = pread(fInputDATA, dataBuffer, maxDataBufferSize, data_offset);
+            dataBufferSize = pread(arg_s->fInputDATA, dataBuffer, maxDataBufferSize, data_offset);
             #ifdef _DEBUGOUTPUT
             event_end = clock();
             reading_file_data += event_end - event_start;
@@ -413,7 +473,7 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
             }
 
             // we continue encoding until the data buffer is empty so make sure its to correct size
-            dataBufferSize = (currentSize + maxDataBufferSize > maxSize) ? maxSize - currentSize : maxDataBufferSize;
+            dataBufferSize = (currentSize + maxDataBufferSize > arg_s->maxSize) ? arg_s->maxSize - currentSize : maxDataBufferSize;
 
             if (dataBufferSize - offset >= increment) {
                 currPos_DataBuffer += offset;
@@ -434,9 +494,10 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
         #ifdef _DEBUGOUTPUT
         event_start = clock();
         #endif
-        if (!encode(bitsUsed, bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
+        if (!encode(arg_s->bitsUsed, arg_s->bytesPerSample, wavBuffer, wavBufferSize, dataBuffer, dataBufferSize)) {
             free(wavBuffer); free(dataBuffer);
-            return false;
+            arg_s->enc_ret = false;
+            return &arg_s->enc_ret;
         }
         #ifdef _DEBUGOUTPUT
         event_end = clock();
@@ -447,7 +508,7 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
         event_start = clock();
         #endif
         // write the changes to the file
-        pwrite(fOutputWAV, wavBuffer, wavBufferSize, wav_out_offset);
+        pwrite(arg_s->fOutputWAV, wavBuffer, wavBufferSize, wav_out_offset);
         #ifdef _DEBUGOUTPUT
         event_end = clock();
         writing_data += event_end - event_start;
@@ -461,7 +522,7 @@ bool wav::parallel_encode(int fInputWAV, int fInputDATA, int fOutputWAV, const u
 
     /* cleanup and exit */
     free(wavBuffer); free(dataBuffer);
-    return true;
+    return &arg_s->enc_ret;
 }
 
 /****************************************************************/
