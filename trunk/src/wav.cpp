@@ -263,7 +263,7 @@ unsigned long int wav::encode(const char inputWAV[], const char inputDATA[], con
 unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     unsigned long int dataSize = 0, maxSize = 0;
     unsigned int foo = 0;
-    int32 bytesPerSample = (fmt.BitsPerSample >> 3), initial_offset = 0, offset_block_size = 0;
+    int32 bytesPerSample = (fmt.BitsPerSample >> 3), wav_out_init_offset = 0, wav_in_init_offset = 0, wav_in_block_size = 0, data_init_offset = 0;
     int16 num_wav_buffers = data.SubchunkSize / (BUFFER_MULT * (1024 * bytesPerSample));
     int8 bitsUsed = 0;
     bool enc_ret = true;
@@ -310,8 +310,8 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     argt = (thread_args *)calloc(sizeof(thread_args),num_threads);
 
     // set the initial offset
-    initial_offset = lseek(fOutputWAV,0,SEEK_CUR);
-    offset_block_size = data.SubchunkSize / num_threads;
+    wav_out_init_offset = lseek(fOutputWAV,0,SEEK_CUR);
+    wav_in_block_size = data.SubchunkSize / num_threads;
 
     // set up thread arguments
     for(foo = 0; foo < num_threads; ++foo) {
@@ -321,9 +321,12 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         argt[foo].maxSize = maxSize;
         argt[foo].bytesPerSample = bytesPerSample;
         argt[foo].bitsUsed = bitsUsed;
-        argt[foo].initial_offset = initial_offset;
-        argt[foo].offset_block_size = offset_block_size;
+        argt[foo].wav_out_init_offset = wav_out_init_offset;
+        argt[foo].wav_in_init_offset = wav_in_init_offset;
+        argt[foo].wav_in_block_size = wav_in_block_size;
+        argt[foo].data_init_offset = data_init_offset;
         argt[foo].enc_ret = enc_ret;
+        wav_out_init_offset += wav_in_block_size;
     }
 
     getLogger().flush();
@@ -385,7 +388,9 @@ void *wav::parallel_encode(void) {
         }
     }
 
-    wav_out_offset = (int32)arg_s->initial_offset;
+    wav_out_offset = arg_s->wav_out_init_offset;
+    wav_in_offset = arg_s->wav_in_init_offset;
+    data_offset = arg_s->data_init_offset;
 
     // Calculate the size of our buffers
     maxWavBufferSize = BUFFER_MULT * (1024 * argt->bytesPerSample);
@@ -407,7 +412,7 @@ void *wav::parallel_encode(void) {
     }
     LOG_DEBUG("S: Got %u bytes for DATA buffer\n", (unsigned int)maxDataBufferSize);
 
-    wavDataLeft = arg_s->offset_block_size;
+    wavDataLeft = arg_s->wav_in_block_size;
 
     // while there is data in the buffer encode and write to the file
     #ifdef _DEBUGOUTPUT
@@ -871,7 +876,7 @@ bool wav::decode(const char inputWAV[], const char outputDATA[], const int32& fi
 /****************************************************************/
 bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
     size_t count = 0;
-    int32 maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3), initial_offset = 0;
+    int32 maxSize = 0, bytesPerSample = (fmt.BitsPerSample >> 3), wav_out_init_offset = 0;
     int8 bitsUsed = 0x00;
 
     if (fileSize == 0) {
@@ -900,10 +905,10 @@ bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
     #endif
 
     // Set the initial offset
-    initial_offset = lseek(fInputWAV,0,SEEK_CUR);
+    wav_out_init_offset = lseek(fInputWAV,0,SEEK_CUR);
 
     //--------------------- Parallel portion can start right here ---------------------
-    if( !(count = parallel_decode(fInputWAV, fOutputDATA, bytesPerSample, fileSize, bitsUsed, initial_offset)) ) {
+    if( !(count = parallel_decode(fInputWAV, fOutputDATA, bytesPerSample, fileSize, bitsUsed, wav_out_init_offset)) ) {
         return false;
     }
     //--------------------- Parallel portion can end right here -----------------------
@@ -922,9 +927,9 @@ bool wav::decode(int fInputWAV, int fOutputDATA, const int32& fileSize) {
 /*  const int8, const int32                                     */
 /* returns: bool                                                */
 /****************************************************************/
-size_t wav::parallel_decode(int fInputWAV, int fOutputDATA, const int32 &bytesPerSample, const int32& fileSize, const int8 &bitsUsed, const int32 &initial_offset) {
+size_t wav::parallel_decode(int fInputWAV, int fOutputDATA, const int32 &bytesPerSample, const int32& fileSize, const int8 &bitsUsed, const int32 &wav_out_init_offset) {
     size_t count = 0, wavBufferSize, maxWavBufferSize, dataBufferSize, maxDataBufferSize;
-    int32 wav_in_offset = initial_offset, data_out_offset = 0;
+    int32 wav_in_offset = wav_out_init_offset, data_out_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
 
     // Calculate the size of our buffers

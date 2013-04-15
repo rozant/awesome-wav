@@ -26,8 +26,10 @@ typedef struct {
     unsigned long int maxSize;
     int32 bytesPerSample;
     int8 bitsUsed;
-    int32 initial_offset;
-    int32 offset_block_size;
+    int32 wav_out_init_offset;
+    int32 wav_in_init_offset;
+    int32 wav_in_block_size;
+    int32 data_init_offset;
     bool enc_ret;
 } thread_args;
 
