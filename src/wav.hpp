@@ -106,6 +106,8 @@ class wav {
         // manipulation
         unsigned long int encode(const char[], const char[], const char[]);
         bool decode(const char[], const char[], const int32&);
+        // thread set
+        inline void set_thread_count(const char count) { num_threads = (int8)count; };
 };
 
 #endif

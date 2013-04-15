@@ -99,6 +99,9 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+    // set number of threads
+    in_wav.set_thread_count(options.threads);
+
 	// if we are encoding or decoding, do the right thing
 	switch(options.mode) {
 		case VERSION:

@@ -89,7 +89,23 @@ int arg_processor(const int argc, const char **argv, opts *options) {
 				LOG_DEBUG("S: Setting AES encryption\n");
 				options->enc_method = CBC;
 				options->enc_key = sha2_key(argv[foo]);
-			} else {											// invalid option
+			} else if (strncmp(argv[foo],"-T",2) == 0 ) {
+                if ( strlen(argv[foo]) == 3) {
+                    if (isdigit(argv[foo][2])) {
+                        options->threads = (char)atoi(&argv[foo][2]);
+                        if( options->threads > 0 ) {
+                            LOG_DEBUG("S: Setting thread count to %d\n",atoi(&argv[foo][2]));
+                        } else {
+                            LOG_DEBUG("S: Thread count reamining at %d\n",(int)options->threads);
+                        }
+						
+                    } else {
+                        LOG_DEBUG("S: Thread count reamining at %d\n",(int)options->threads);
+                    }
+                } else {
+                    LOG_DEBUG("S: Thread count reamining at %d\n",(int)options->threads);
+                }
+            } else {											// invalid option
 				LOG_DEBUG("E: Invalid option '%s'.\n", argv[foo]);
 				return EXIT_FAILURE;
 			}
@@ -178,6 +194,7 @@ void opt_init(opts *foo) {
 	foo->mode = NONE; 
 	foo->comp = 0;
 	foo->enc_method = 0;
+    foo->threads = 1;
 	return;
 }
 

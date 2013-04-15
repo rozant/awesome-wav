@@ -304,7 +304,6 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         num_wav_buffers += 1;
     }
 
-    num_threads = 2;
     /* thread var */
     threads = (pthread_t *)calloc(sizeof(pthread_t),num_threads);
     argt = (thread_args *)calloc(sizeof(thread_args),num_threads);
@@ -315,6 +314,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 
     // set up thread arguments
     for(foo = 0; foo < num_threads; ++foo) {
+        LOG_DEBUG("I: Thread %d: wav_out_init_offset = %d\t wav_in_init_offset = %d\twav_in_block_size = %d\tdata_init_offset = %d\n",foo,wav_out_init_offset,wav_in_init_offset,wav_in_block_size,data_init_offset);
         argt[foo].fInputWAV = fInputWAV;
         argt[foo].fInputDATA = fInputDATA;
         argt[foo].fOutputWAV = fOutputWAV;
@@ -328,6 +328,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
         argt[foo].enc_ret = enc_ret;
         wav_out_init_offset += wav_in_block_size;
         wav_in_init_offset += wav_in_block_size;
+        data_init_offset += wav_in_block_size;
     }
 
     getLogger().flush();
@@ -339,6 +340,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     //--------------------- Parallel portion can start right here ---------------------
     for(foo = 0; foo < num_threads; ++foo) {
         if( pthread_create( &threads[foo], NULL, wav::parallel_encode_helper, this) < 0) {
+            LOG_DEBUG("E: Failed to allocate thread %d\n",foo);
             return false;
         }
     }
