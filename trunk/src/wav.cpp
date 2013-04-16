@@ -302,7 +302,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
     /* calculate start and end positions for wav data */
     if( num_wav_buffers * (BUFFER_MULT * (1024 * bytesPerSample)) < data.SubchunkSize) {
         num_wav_buffers += 1;
-    }
+    } 
 
     /* thread var */
     threads = (pthread_t *)calloc(sizeof(pthread_t),num_threads);
@@ -315,7 +315,9 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 
     // set up thread arguments
     for(foo = 0; foo < num_threads; ++foo) {
-        LOG_DEBUG("I: Thread %d: wav_out_init_offset = %d\t wav_in_init_offset = %d\twav_in_block_size = %d\tdata_init_offset = %d\n",foo,wav_out_init_offset,wav_in_init_offset,wav_in_block_size,data_init_offset);
+        LOG_DEBUG("I: Thread %d: wav_out_init_offset = %d\t wav_in_init_offset = %d\n",foo,wav_out_init_offset,wav_in_init_offset);
+        LOG_DEBUG("I: Thread %d: wav_in_block_size = %d\tdataSize = %ld\n",foo,wav_in_block_size,dataSize);
+        LOG_DEBUG("I: Thread %d: data_init_offset = %d\tdata_block_size = %d\n",foo,data_init_offset,data_block_size);
         argt[foo].fInputWAV = fInputWAV;
         argt[foo].fInputDATA = fInputDATA;
         argt[foo].fOutputWAV = fOutputWAV;
