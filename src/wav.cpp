@@ -378,7 +378,7 @@ unsigned long int wav::encode(int fInputWAV, int fInputDATA, int fOutputWAV) {
 /****************************************************************/
 void *wav::parallel_encode(void) {
     unsigned long int currentSize = 0;
-    unsigned int foo;
+    unsigned int foo, thread_id;
     size_t wavBufferSize = 0, maxWavBufferSize = 0, dataBufferSize = 0, maxDataBufferSize = 0;
     int32 wavDataLeft = 0, wav_in_offset = 0, wav_out_offset = 0, data_offset = 0;
     int8 *wavBuffer = NULL, *dataBuffer = NULL;
@@ -389,6 +389,7 @@ void *wav::parallel_encode(void) {
         if( pthread_equal(threads[foo],pthread_self()) ) {
             LOG_DEBUG("I: Thead argument data has been selected\n");
             arg_s = &argt[foo];
+            thread_id = foo;
             break;
         }
     }
@@ -480,10 +481,12 @@ void *wav::parallel_encode(void) {
             #endif
             // copy music data to the data buffer
             if ( dataBufferSize < maxDataBufferSize ) {
+                LOG_DEBUG("I: Thread %d: random data generation - partial\n",thread_id);
                 // the buffer is partiallly full from a read... only overwrite some of the buffer
                 offset = dataBufferSize;
                 memcpy(dataBuffer + dataBufferSize, wavBuffer, maxDataBufferSize - dataBufferSize);
             } else {
+                LOG_DEBUG("I: Thread %d: random data generation - full\n",thread_id);
                 memcpy(dataBuffer, wavBuffer, dataBufferSize);
             }
 
